@@ -1,0 +1,1182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Nansei Organic Store — Experience the Root of Nature</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,700&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      fontFamily: {
+        display: ['"Cormorant Garamond"', 'serif'],
+        body: ['"DM Sans"', 'sans-serif'],
+      }
+    }
+  }
+}
+</script>
+<style>
+:root {
+  --forest: #1a3a2a;
+  --forest-deep: #0f2218;
+  --forest-mid: #2d5a3d;
+  --forest-leaf: #4a8c5c;
+  --forest-sage: #8fbc9a;
+  --cream: #f7f3ec;
+  --gold: #c9a84c;
+  --gold-lt: #e8c97a;
+  --gold-dk: #b8922a;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { font-family: 'DM Sans', sans-serif; background: #f7f3ec; color: #1a2416; overflow-x: hidden; }
+
+/* ── PARALLAX HERO ── */
+.parallax-hero {
+  position: relative;
+  height: 100vh;
+  min-height: 640px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.parallax-bg {
+  position: absolute;
+  inset: -15%;
+  background-image: url('https://images.unsplash.com/photo-1625246333195-78d9c38ad449?w=1800&auto=format&fit=crop&q=90');
+  background-size: cover;
+  background-position: center;
+  will-change: transform;
+  transition: transform 0.05s linear;
+}
+.parallax-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(10, 25, 16, 0.82) 0%,
+    rgba(15, 34, 24, 0.60) 50%,
+    rgba(10, 25, 16, 0.30) 100%
+  );
+  z-index: 1;
+}
+
+/* Floating leaves */
+.leaf {
+  position: absolute;
+  z-index: 2;
+  opacity: 0.18;
+  pointer-events: none;
+  font-size: 2rem;
+  animation: floatLeaf 6s ease-in-out infinite;
+}
+.leaf:nth-child(1) { top: 12%; left: 8%; animation-duration: 7s; animation-delay: 0s; }
+.leaf:nth-child(2) { top: 25%; right: 10%; animation-duration: 5.5s; animation-delay: 1.2s; }
+.leaf:nth-child(3) { bottom: 22%; left: 14%; animation-duration: 8s; animation-delay: 0.5s; }
+.leaf:nth-child(4) { bottom: 15%; right: 18%; animation-duration: 6.5s; animation-delay: 2s; }
+.leaf:nth-child(5) { top: 50%; left: 4%; animation-duration: 7.5s; animation-delay: 3s; }
+
+@keyframes floatLeaf {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  33% { transform: translateY(-18px) rotate(8deg); }
+  66% { transform: translateY(-8px) rotate(-5deg); }
+}
+
+/* Floating organic shapes */
+.organic-shape {
+  position: absolute;
+  z-index: 2;
+  pointer-events: none;
+  animation: floatShape 8s ease-in-out infinite;
+  opacity: 0.07;
+}
+@keyframes floatShape {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-24px) scale(1.05); }
+}
+
+/* Hero content */
+.hero-content {
+  position: relative;
+  z-index: 10;
+  text-align: center;
+  padding: 0 1.5rem;
+  max-width: 900px;
+}
+.hero-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--gold-lt);
+  margin-bottom: 1.2rem;
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeUp 0.8s 0.3s ease forwards;
+}
+.hero-eyebrow span { display: block; width: 28px; height: 1.5px; background: var(--gold); }
+.hero-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(2.8rem, 6vw, 5.5rem);
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.06;
+  margin-bottom: 1.4rem;
+  opacity: 0;
+  transform: translateY(28px);
+  animation: fadeUp 0.85s 0.5s ease forwards;
+}
+.hero-title em { font-style: italic; color: #86c98a; }
+.hero-subtitle {
+  font-size: clamp(0.85rem, 1.4vw, 1.05rem);
+  color: rgba(255,255,255,0.6);
+  max-width: 560px;
+  margin: 0 auto 2.2rem;
+  line-height: 1.7;
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeUp 0.8s 0.7s ease forwards;
+}
+.hero-btns {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeUp 0.8s 0.9s ease forwards;
+}
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 32px;
+  background: var(--gold-dk);
+  color: var(--forest-deep);
+  font-weight: 600;
+  font-size: 0.82rem;
+  letter-spacing: 0.06em;
+  border-radius: 50px;
+  border: none;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  box-shadow: 0 8px 28px rgba(184,146,42,0.35);
+}
+.btn-primary:hover { background: var(--gold-lt); transform: translateY(-2px); box-shadow: 0 14px 36px rgba(184,146,42,0.45); }
+.btn-ghost-hero {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 32px;
+  border: 1.5px solid rgba(255,255,255,0.28);
+  color: rgba(255,255,255,0.88);
+  font-weight: 500;
+  font-size: 0.82rem;
+  border-radius: 50px;
+  background: rgba(255,255,255,0.06);
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(6px);
+}
+.btn-ghost-hero:hover { background: rgba(255,255,255,0.14); border-color: rgba(255,255,255,0.5); transform: translateY(-2px); }
+.hero-scroll-hint {
+  position: absolute;
+  bottom: 2.2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  opacity: 0;
+  animation: fadeUp 0.8s 1.4s ease forwards;
+}
+.hero-scroll-hint span { font-size: 0.58rem; letter-spacing: 0.16em; text-transform: uppercase; color: rgba(255,255,255,0.35); }
+.scroll-line {
+  width: 1.5px;
+  height: 40px;
+  background: linear-gradient(to bottom, rgba(201,168,76,0.6), transparent);
+  animation: scrollLine 2s ease-in-out infinite;
+}
+@keyframes scrollLine {
+  0%, 100% { transform: scaleY(1); opacity: 0.6; }
+  50% { transform: scaleY(0.6); opacity: 1; }
+}
+
+/* ── ANIMATIONS ── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes floatCard {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+.reveal {
+  opacity: 0;
+  transform: translateY(36px);
+  transition: opacity 0.72s ease, transform 0.72s ease;
+}
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+.reveal-delay-1 { transition-delay: 0.1s; }
+.reveal-delay-2 { transition-delay: 0.2s; }
+.reveal-delay-3 { transition-delay: 0.3s; }
+.reveal-delay-4 { transition-delay: 0.4s; }
+.reveal-delay-5 { transition-delay: 0.5s; }
+
+/* ── STATS BAR ── */
+.stats-bar {
+  background: var(--forest-deep);
+  padding: 1.2rem 2rem;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  text-align: center;
+}
+.stat-item { border-right: 1px solid rgba(255,255,255,0.08); }
+.stat-item:last-child { border-right: none; }
+.stat-num { font-family: 'Cormorant Garamond', serif; font-size: 1.9rem; font-weight: 700; color: var(--gold-lt); }
+.stat-lbl { font-size: 0.65rem; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255,255,255,0.45); margin-top: 2px; }
+
+/* ── SECTION TITLE ── */
+.section-eyebrow {
+  display: inline-block;
+  background: rgba(26,58,42,0.08);
+  color: var(--forest-leaf);
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  padding: 4px 14px;
+  border-radius: 30px;
+  margin-bottom: 0.75rem;
+}
+.section-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(2rem, 3.5vw, 3rem);
+  font-weight: 700;
+  color: var(--forest-deep);
+  line-height: 1.12;
+}
+
+/* ── PRODUCT CARDS ── */
+.prod-card {
+  background: #fff;
+  border-radius: 18px;
+  overflow: hidden;
+  border: 1px solid rgba(26,58,42,0.07);
+  cursor: pointer;
+  transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.35s ease;
+}
+.prod-card:hover { transform: translateY(-8px) scale(1.02); box-shadow: 0 24px 50px rgba(15,34,24,0.16); }
+.prod-float { animation: floatCard 4s ease-in-out infinite; }
+.prod-float:nth-child(2) { animation-delay: 0.5s; }
+.prod-float:nth-child(3) { animation-delay: 1s; }
+.prod-float:nth-child(4) { animation-delay: 1.5s; }
+.prod-float:nth-child(5) { animation-delay: 2s; }
+.prod-float:nth-child(6) { animation-delay: 0.8s; }
+.prod-float:nth-child(7) { animation-delay: 1.3s; }
+.prod-float:nth-child(8) { animation-delay: 0.3s; }
+
+.prod-img-wrap {
+  aspect-ratio: 1;
+  overflow: hidden;
+  background: #f0fdf4;
+  position: relative;
+}
+.prod-img-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.55s ease;
+}
+.prod-card:hover .prod-img-wrap img { transform: scale(1.1); }
+.prod-badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  padding: 3px 10px;
+  border-radius: 30px;
+  font-size: 0.58rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  z-index: 2;
+}
+.badge-hot { background: #f97316; color: #fff; }
+.badge-new { background: var(--forest-mid); color: #fff; }
+.badge-sale { background: #ef4444; color: #fff; }
+
+.prod-info { padding: 1rem 1rem 1.1rem; }
+.prod-cat { font-size: 0.58rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--forest-leaf); margin-bottom: 4px; }
+.prod-name { font-size: 0.85rem; font-weight: 600; color: var(--forest-deep); line-height: 1.3; margin-bottom: 8px; }
+.prod-price { font-family: 'Cormorant Garamond', serif; font-size: 1.25rem; font-weight: 700; color: var(--forest-deep); }
+.prod-old { font-size: 0.75rem; color: #9ca3af; text-decoration: line-through; margin-left: 6px; }
+.add-btn {
+  width: 100%;
+  margin-top: 10px;
+  padding: 9px 0;
+  background: var(--forest-deep);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  transition: background 0.2s, transform 0.2s;
+  letter-spacing: 0.04em;
+}
+.add-btn:hover { background: var(--forest-leaf); transform: translateY(-1px); }
+
+/* ── CATEGORY PILLS ── */
+.cat-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 18px;
+  border-radius: 30px;
+  border: 1.5px solid rgba(26,58,42,0.15);
+  background: #fff;
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--forest-deep);
+  cursor: pointer;
+  transition: all 0.25s ease;
+  user-select: none;
+}
+.cat-pill:hover, .cat-pill.active { background: var(--forest-deep); color: var(--gold-lt); border-color: var(--forest-deep); }
+
+/* ── WHY SECTION ── */
+.why-card {
+  background: #fff;
+  border-radius: 20px;
+  padding: 2rem 1.5rem;
+  text-align: center;
+  border: 1px solid rgba(26,58,42,0.07);
+  transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.3s ease;
+}
+.why-card:hover { transform: translateY(-8px); box-shadow: 0 20px 50px rgba(15,34,24,0.12); }
+.why-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.6rem;
+  margin: 0 auto 1.2rem;
+}
+
+/* ── BLOG CARDS ── */
+.blog-card {
+  background: #fff;
+  border-radius: 20px;
+  overflow: hidden;
+  border: 1px solid rgba(26,58,42,0.07);
+  transition: transform 0.35s ease, box-shadow 0.35s ease;
+  cursor: pointer;
+}
+.blog-card:hover { transform: translateY(-6px) rotate(-0.4deg); box-shadow: 0 24px 54px rgba(15,34,24,0.14); }
+.blog-img {
+  height: 210px;
+  overflow: hidden;
+  position: relative;
+}
+.blog-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.55s ease;
+}
+.blog-card:hover .blog-img img { transform: scale(1.07); }
+.blog-cat-tag {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  padding: 4px 12px;
+  border-radius: 30px;
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  z-index: 2;
+}
+
+/* ── CERTIFICATIONS STRIP ── */
+.cert-strip {
+  background: var(--forest-deep);
+  padding: 1.8rem 2rem;
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  overflow: hidden;
+  position: relative;
+}
+.cert-track {
+  display: flex;
+  gap: 2.5rem;
+  align-items: center;
+  animation: scrollCert 30s linear infinite;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+@keyframes scrollCert {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.cert-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  color: rgba(247,243,236,0.65);
+  font-size: 0.78rem;
+  font-weight: 500;
+}
+.cert-item .dot-sep { color: var(--gold); font-size: 0.5rem; }
+
+/* ── MARQUEE OFFER BAR ── */
+.offer-bar {
+  background: linear-gradient(90deg, #fef9e7, #fffbeb, #fef9e7);
+  border-bottom: 1px solid rgba(201,168,76,0.25);
+  padding: 0.5rem 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  overflow: hidden;
+}
+.offer-live {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-shrink: 0;
+}
+.offer-live-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: #22c55e;
+  box-shadow: 0 0 0 3px rgba(34,197,94,0.25);
+  animation: pulseDot 1.5s ease-in-out infinite;
+}
+@keyframes pulseDot {
+  0%,100% { box-shadow: 0 0 0 3px rgba(34,197,94,0.25); }
+  50% { box-shadow: 0 0 0 6px rgba(34,197,94,0.1); }
+}
+.offer-marquee-wrap { flex: 1; overflow: hidden; }
+.offer-marquee-track {
+  display: inline-flex;
+  align-items: center;
+  gap: 2rem;
+  animation: scrollCert 35s linear infinite;
+  white-space: nowrap;
+}
+
+/* ── NAVBAR ── */
+.site-nav {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: rgba(255,255,255,0.96);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(26,58,42,0.1);
+  padding: 0 2rem;
+  height: 68px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.nav-logo {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.7rem;
+  font-weight: 700;
+  color: var(--forest-deep);
+  text-decoration: none;
+  letter-spacing: 0.04em;
+}
+.nav-logo em { font-style: normal; color: var(--gold-dk); }
+.nav-links-desk {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  list-style: none;
+}
+.nav-link {
+  padding: 6px 14px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--forest-deep);
+  text-decoration: none;
+  border-radius: 8px;
+  transition: all 0.2s;
+}
+.nav-link:hover { background: rgba(26,58,42,0.06); color: var(--forest-leaf); }
+.nav-cart-btn {
+  position: relative;
+  width: 38px; height: 38px;
+  border-radius: 50%;
+  background: var(--forest-deep);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  text-decoration: none;
+}
+.nav-cart-btn:hover { background: var(--forest-leaf); transform: scale(1.08); }
+.cart-badge {
+  position: absolute;
+  top: -2px; right: -2px;
+  background: var(--gold-dk);
+  color: var(--forest-deep);
+  font-size: 0.5rem;
+  font-weight: 800;
+  min-width: 15px;
+  height: 15px;
+  padding: 0 3px;
+  border-radius: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1.5px solid #fff;
+}
+
+/* ── NEWSLETTER ── */
+.newsletter-section {
+  background: linear-gradient(135deg, var(--forest-deep) 0%, var(--forest-mid) 100%);
+  padding: 4.5rem 2rem;
+  position: relative;
+  overflow: hidden;
+}
+.newsletter-section::before {
+  content: '';
+  position: absolute;
+  right: -5%;
+  top: -20%;
+  width: 500px;
+  height: 500px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(201,168,76,0.1) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+/* ── FOOTER ── */
+.site-footer {
+  background: #0a1409;
+  padding: 3.5rem 2rem 1.5rem;
+}
+
+/* ── PARALLAX SECTION (mid-page) ── */
+.mid-parallax {
+  position: relative;
+  height: 420px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.mid-parallax-bg {
+  position: absolute;
+  inset: -15%;
+  background-image: url('https://images.unsplash.com/photo-1574943320219-553eb213f72d?w=1600&auto=format&fit=crop&q=85');
+  background-size: cover;
+  background-position: center;
+  will-change: transform;
+}
+.mid-parallax-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(10,25,16,0.88) 0%, rgba(15,34,24,0.65) 100%);
+  z-index: 1;
+}
+
+/* ── TOAST ── */
+#toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(8px);
+  background: var(--forest-deep);
+  color: var(--cream);
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 0.55rem 1.6rem;
+  border-radius: 30px;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 9999;
+  border: 1px solid rgba(201,168,76,0.3);
+  transition: opacity 0.3s, transform 0.3s;
+  white-space: nowrap;
+}
+#toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+@media (max-width: 768px) {
+  .stats-bar { grid-template-columns: repeat(2, 1fr); }
+  .nav-links-desk { display: none; }
+  .parallax-hero { height: 88vh; }
+}
+</style>
+</head>
+<body>
+
+<div id="toast"></div>
+
+<!-- ══════════════════════════════
+     OFFER BAR
+══════════════════════════════ -->
+<div class="offer-bar">
+  <div class="offer-live">
+    <div class="offer-live-dot"></div>
+    <span style="font-size:0.6rem;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:#92400e;">Live Offers</span>
+  </div>
+  <div class="offer-marquee-wrap">
+    <div class="offer-marquee-track" id="offerTrack">
+      <span style="font-size:0.78rem;color:#78350f;font-weight:500;">🎁 First Order <b style="color:#15803d;">10% OFF</b> — Use <mark style="background:#fde68a;padding:1px 6px;border-radius:4px;font-weight:700;">NANSAI10</mark></span>
+      <span style="color:#d97706;font-size:0.6rem;">◆</span>
+      <span style="font-size:0.78rem;color:#78350f;font-weight:500;">🚚 Free Delivery above ₹999</span>
+      <span style="color:#d97706;font-size:0.6rem;">◆</span>
+      <span style="font-size:0.78rem;color:#78350f;font-weight:500;">🌾 Karunguruvai Rice — 18% OFF this week</span>
+      <span style="color:#d97706;font-size:0.6rem;">◆</span>
+      <span style="font-size:0.78rem;color:#78350f;font-weight:500;">🌹 Paneer Rose Flowers — Only 32 Left!</span>
+      <span style="color:#d97706;font-size:0.6rem;">◆</span>
+      <span style="font-size:0.78rem;color:#78350f;font-weight:500;">👨‍🌾 Farm Direct · Lab Tested · Organic Certified</span>
+      <span style="color:#d97706;font-size:0.6rem;">◆</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════
+     NAVBAR
+══════════════════════════════ -->
+<header class="site-nav">
+  <a href="#" class="nav-logo">Nan<em>sei</em></a>
+  <ul class="nav-links-desk">
+    <li><a href="#" class="nav-link">Home</a></li>
+    <li><a href="#products" class="nav-link">Shop</a></li>
+    <li><a href="#about" class="nav-link">Our Story</a></li>
+    <li><a href="#blog" class="nav-link">Blog</a></li>
+    <li><a href="#" class="nav-link">Contact</a></li>
+  </ul>
+  <div style="display:flex;align-items:center;gap:0.75rem;">
+    <a href="#" class="nav-cart-btn" style="width:auto;padding:0 14px;border-radius:10px;gap:6px;font-size:0.75rem;font-weight:600;">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 002 1.58h9.78a2 2 0 001.95-1.57l1.65-7.43H5.12"/></svg>
+      Cart
+      <span class="cart-badge" id="cartBadge">3</span>
+    </a>
+    <a href="#" style="width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:1.5px solid rgba(26,58,42,0.2);color:var(--forest-deep);text-decoration:none;transition:all 0.2s;" onmouseover="this.style.background='rgba(26,58,42,0.06)'" onmouseout="this.style.background='transparent'">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    </a>
+  </div>
+</header>
+
+<!-- ══════════════════════════════
+     HERO (PARALLAX)
+══════════════════════════════ -->
+<section class="parallax-hero">
+  <div class="parallax-bg" id="heroBg"></div>
+  <div class="parallax-overlay"></div>
+
+  <!-- Floating organic leaf shapes -->
+  <svg class="organic-shape" style="top:8%;left:6%;width:120px;height:120px;animation-delay:0s;" viewBox="0 0 120 120"><ellipse cx="60" cy="60" rx="55" ry="35" fill="rgba(74,140,92,1)" transform="rotate(-30,60,60)"/></svg>
+  <svg class="organic-shape" style="bottom:15%;right:8%;width:90px;height:90px;animation-delay:2.5s;" viewBox="0 0 90 90"><ellipse cx="45" cy="45" rx="40" ry="25" fill="rgba(201,168,76,1)" transform="rotate(20,45,45)"/></svg>
+  <svg class="organic-shape" style="top:35%;right:4%;width:70px;height:70px;animation-delay:1s;" viewBox="0 0 70 70"><ellipse cx="35" cy="35" rx="30" ry="18" fill="rgba(143,188,154,1)" transform="rotate(-15,35,35)"/></svg>
+
+  <!-- Floating leaves (emoji) -->
+  <div class="leaf" style="top:14%;left:7%;">🍃</div>
+  <div class="leaf" style="top:22%;right:9%;">🌿</div>
+  <div class="leaf" style="bottom:20%;left:13%;">🍀</div>
+  <div class="leaf" style="bottom:14%;right:16%;">🌱</div>
+  <div class="leaf" style="top:52%;left:3%;">🌾</div>
+
+  <div class="hero-content">
+    <div class="hero-eyebrow">
+      <span></span> Rooted in Nature, Grown with Purpose <span></span>
+    </div>
+    <h1 class="hero-title">
+      Pure Organic Goodness,<br/>
+      <em>Direct from the Farm</em>
+    </h1>
+    <p class="hero-subtitle">
+      25 acres of certified organic farmland. 22 years of sustainable farming.
+      From soil to your table — untouched by chemicals.
+    </p>
+    <div class="hero-btns">
+      <a href="#products" class="btn-primary">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+        Shop Now
+      </a>
+      <a href="#about" class="btn-ghost-hero">
+        Our Story →
+      </a>
+    </div>
+  </div>
+  <div class="hero-scroll-hint">
+    <span>Scroll</span>
+    <div class="scroll-line"></div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════
+     STATS BAR
+══════════════════════════════ -->
+<div class="stats-bar">
+  <div class="stat-item">
+    <div class="stat-num">25+</div>
+    <div class="stat-lbl">Acres of Farm</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num">200+</div>
+    <div class="stat-lbl">Partner Farmers</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num">9</div>
+    <div class="stat-lbl">Certifications</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num">16K+</div>
+    <div class="stat-lbl">Happy Families</div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════
+     CERTIFICATIONS STRIP
+══════════════════════════════ -->
+<div class="cert-strip">
+  <span style="font-size:0.58rem;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:var(--gold-lt);flex-shrink:0;">Certified</span>
+  <div style="flex:1;overflow:hidden;">
+    <div class="cert-track" id="certTrack">
+      <div class="cert-item">🌿 USDA Organic <span class="dot-sep">◆</span></div>
+      <div class="cert-item">🇮🇳 FSSAI Licensed <span class="dot-sep">◆</span></div>
+      <div class="cert-item">✡ Kosher Certified <span class="dot-sep">◆</span></div>
+      <div class="cert-item">☽ Halal Certified <span class="dot-sep">◆</span></div>
+      <div class="cert-item">🌱 Non-GMO Project <span class="dot-sep">◆</span></div>
+      <div class="cert-item">❤️ Fair Trade <span class="dot-sep">◆</span></div>
+      <div class="cert-item">♻️ Eco Packaging <span class="dot-sep">◆</span></div>
+      <div class="cert-item">🥇 ISO 22000 <span class="dot-sep">◆</span></div>
+      <div class="cert-item">🧪 Lab Tested <span class="dot-sep">◆</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════
+     PRODUCTS
+══════════════════════════════ -->
+<section id="products" style="background:#f7f3ec;padding:5rem 2rem 4rem;">
+  <div style="max-width:1400px;margin:0 auto;">
+
+    <div class="text-center mb-10 reveal">
+      <div class="section-eyebrow">Farm to Table</div>
+      <h2 class="section-title">Our Organic Collection</h2>
+      <p style="color:#7a9980;font-size:0.88rem;margin-top:0.5rem;max-width:480px;margin-left:auto;margin-right:auto;">Certified, lab-tested, and sourced directly from our partnered organic farms across Tamil Nadu.</p>
+    </div>
+
+    <!-- Category Filter -->
+    <div style="display:flex;gap:0.6rem;flex-wrap:wrap;justify-content:center;margin-bottom:2.5rem;" class="reveal reveal-delay-1">
+      <button class="cat-pill active" onclick="filterProducts('all',this)">🌿 All Products</button>
+      <button class="cat-pill" onclick="filterProducts('rice',this)">🌾 Rice Varieties</button>
+      <button class="cat-pill" onclick="filterProducts('flowers',this)">🌸 Dried Flowers</button>
+      <button class="cat-pill" onclick="filterProducts('beverages',this)">🥤 Beverages</button>
+      <button class="cat-pill" onclick="filterProducts('flour',this)">🫙 Flour Varieties</button>
+      <button class="cat-pill" onclick="filterProducts('other',this)">🌱 Other</button>
+    </div>
+
+    <!-- Products Grid -->
+    <div id="prodGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:20px;">
+      <!-- rendered by JS -->
+    </div>
+    <div id="emptyState" style="display:none;text-align:center;padding:4rem 0;color:#7a9980;font-size:0.9rem;">
+      <div style="font-size:2.5rem;margin-bottom:0.5rem;">🌿</div>
+      No products found in this category.
+    </div>
+
+  </div>
+</section>
+
+<!-- ══════════════════════════════
+     MID-PAGE PARALLAX (CTA)
+══════════════════════════════ -->
+<section class="mid-parallax" id="about">
+  <div class="mid-parallax-bg" id="midParallaxBg"></div>
+  <div class="mid-parallax-overlay"></div>
+  <div style="position:relative;z-index:2;text-align:center;padding:0 1.5rem;max-width:700px;">
+    <div class="reveal" style="color:var(--gold-lt);font-size:0.62rem;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;margin-bottom:0.85rem;">Est. 2002 · Dindigul, Tamil Nadu</div>
+    <h2 class="reveal reveal-delay-1" style="font-family:'Cormorant Garamond',serif;font-size:clamp(2rem,4.5vw,3.5rem);font-weight:700;color:#fff;line-height:1.1;margin-bottom:1.1rem;">
+      Cultivated in Living Soil,<br/><em style="color:#86c98a;">Harvested for Healthy Lives</em>
+    </h2>
+    <p class="reveal reveal-delay-2" style="color:rgba(255,255,255,0.58);font-size:0.9rem;line-height:1.7;margin-bottom:1.8rem;">
+      For over 22 years, our family has farmed without a single drop of synthetic pesticide.
+      Every grain, flower, and powder you receive carries the integrity of that promise.
+    </p>
+    <div class="reveal reveal-delay-3" style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
+      <a href="#" class="btn-primary">Meet Our Farmers →</a>
+      <a href="#" class="btn-ghost-hero">Our Certifications</a>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════
+     WHY CHOOSE US
+══════════════════════════════ -->
+<section style="padding:5rem 2rem 4rem;background:#fff;">
+  <div style="max-width:1200px;margin:0 auto;">
+    <div class="text-center mb-12 reveal">
+      <div class="section-eyebrow">Our Promise</div>
+      <h2 class="section-title">Why Families Choose Nansei</h2>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:1.5rem;">
+      <div class="why-card reveal reveal-delay-1">
+        <div class="why-icon" style="background:#dcfce7;">🌱</div>
+        <h3 style="font-size:1rem;font-weight:600;color:var(--forest-deep);margin-bottom:0.5rem;">100% Certified Organic</h3>
+        <p style="font-size:0.8rem;color:#7a9980;line-height:1.6;">USDA certified. Zero synthetic pesticides. Every batch independently lab tested for purity.</p>
+      </div>
+      <div class="why-card reveal reveal-delay-2">
+        <div class="why-icon" style="background:#eff6ff;">🚚</div>
+        <h3 style="font-size:1rem;font-weight:600;color:var(--forest-deep);margin-bottom:0.5rem;">Fast Farm-Direct Delivery</h3>
+        <p style="font-size:0.8rem;color:#7a9980;line-height:1.6;">Shipped directly from farm to your doorstep across 15+ states. Free delivery above ₹999.</p>
+      </div>
+      <div class="why-card reveal reveal-delay-3">
+        <div class="why-icon" style="background:#fffbeb;">💰</div>
+        <h3 style="font-size:1rem;font-weight:600;color:var(--forest-deep);margin-bottom:0.5rem;">Fair & Transparent Pricing</h3>
+        <p style="font-size:0.8rem;color:#7a9980;line-height:1.6;">No middlemen. Farmer-direct pricing means you pay fair — and they earn fair too.</p>
+      </div>
+      <div class="why-card reveal reveal-delay-4">
+        <div class="why-icon" style="background:#faf5ff;">🤝</div>
+        <h3 style="font-size:1rem;font-weight:600;color:var(--forest-deep);margin-bottom:0.5rem;">Farmer Empowerment</h3>
+        <p style="font-size:0.8rem;color:#7a9980;line-height:1.6;">200+ partner farmers supported with fair wages, training, and sustainable practices.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════
+     BLOG SECTION
+══════════════════════════════ -->
+<section id="blog" style="padding:5rem 2rem 4.5rem;background:#f7f3ec;">
+  <div style="max-width:1200px;margin:0 auto;">
+    <div class="text-center mb-12 reveal">
+      <div class="section-eyebrow">From the Farm</div>
+      <h2 class="section-title">Stories & Growing Wisdom</h2>
+      <p style="color:#7a9980;font-size:0.85rem;margin-top:0.5rem;">Insights on organic living, ancient grains, and sustainable farming.</p>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:1.6rem;">
+
+      <div class="blog-card reveal reveal-delay-1">
+        <div class="blog-img">
+          <img src="https://images.unsplash.com/photo-1586201375761-83865001e31c?w=600&auto=format&fit=crop&q=80" alt="Blog 1" loading="lazy"/>
+          <span class="blog-cat-tag" style="background:var(--forest-deep);color:var(--gold-lt);">Heritage Grains</span>
+        </div>
+        <div style="padding:1.4rem 1.5rem;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:0.7rem;">
+            <span style="font-size:0.62rem;color:#9ca3af;">March 18, 2026</span>
+            <span style="width:3px;height:3px;background:#d1d5db;border-radius:50%;"></span>
+            <span style="font-size:0.62rem;color:#9ca3af;">5 min read</span>
+          </div>
+          <h3 style="font-family:'Cormorant Garamond',serif;font-size:1.25rem;font-weight:700;color:var(--forest-deep);line-height:1.3;margin-bottom:0.5rem;">
+            Why Karunguruvai Rice is the Superfood Ancient Tamil Farmers Treasured
+          </h3>
+          <p style="font-size:0.78rem;color:#7a9980;line-height:1.65;margin-bottom:1.1rem;">
+            Rich in antioxidants and low on the glycemic index, Karunguruvai has nourished generations long before modern nutrition science gave it a name.
+          </p>
+          <a href="#" style="font-size:0.75rem;font-weight:600;color:var(--forest-leaf);text-decoration:none;display:inline-flex;align-items:center;gap:4px;transition:gap 0.2s;" onmouseover="this.style.gap='8px'" onmouseout="this.style.gap='4px'">Read Story <span>→</span></a>
+        </div>
+      </div>
+
+      <div class="blog-card reveal reveal-delay-2">
+        <div class="blog-img">
+          <img src="https://images.unsplash.com/photo-1490750967868-88df5691cc5e?w=600&auto=format&fit=crop&q=80" alt="Blog 2" loading="lazy"/>
+          <span class="blog-cat-tag" style="background:#db2777;color:#fff;">Medicinal Flowers</span>
+        </div>
+        <div style="padding:1.4rem 1.5rem;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:0.7rem;">
+            <span style="font-size:0.62rem;color:#9ca3af;">March 8, 2026</span>
+            <span style="width:3px;height:3px;background:#d1d5db;border-radius:50%;"></span>
+            <span style="font-size:0.62rem;color:#9ca3af;">4 min read</span>
+          </div>
+          <h3 style="font-family:'Cormorant Garamond',serif;font-size:1.25rem;font-weight:700;color:var(--forest-deep);line-height:1.3;margin-bottom:0.5rem;">
+            Hibiscus & Butterfly Pea: Nature's Palette for Wellness Drinks
+          </h3>
+          <p style="font-size:0.78rem;color:#7a9980;line-height:1.65;margin-bottom:1.1rem;">
+            These sun-dried flowers aren't just beautiful — they're packed with anthocyanins, immune boosters, and natural cooling properties.
+          </p>
+          <a href="#" style="font-size:0.75rem;font-weight:600;color:var(--forest-leaf);text-decoration:none;display:inline-flex;align-items:center;gap:4px;transition:gap 0.2s;" onmouseover="this.style.gap='8px'" onmouseout="this.style.gap='4px'">Read Story <span>→</span></a>
+        </div>
+      </div>
+
+      <div class="blog-card reveal reveal-delay-3">
+        <div class="blog-img">
+          <img src="https://images.unsplash.com/photo-1625246333195-78d9c38ad449?w=600&auto=format&fit=crop&q=80" alt="Blog 3" loading="lazy"/>
+          <span class="blog-cat-tag" style="background:#0891b2;color:#fff;">Sustainable Farming</span>
+        </div>
+        <div style="padding:1.4rem 1.5rem;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:0.7rem;">
+            <span style="font-size:0.62rem;color:#9ca3af;">February 22, 2026</span>
+            <span style="width:3px;height:3px;background:#d1d5db;border-radius:50%;"></span>
+            <span style="font-size:0.62rem;color:#9ca3af;">6 min read</span>
+          </div>
+          <h3 style="font-family:'Cormorant Garamond',serif;font-size:1.25rem;font-weight:700;color:var(--forest-deep);line-height:1.3;margin-bottom:0.5rem;">
+            How Nansei Farms 25 Acres Without a Drop of Chemical Fertilizer
+          </h3>
+          <p style="font-size:0.78rem;color:#7a9980;line-height:1.65;margin-bottom:1.1rem;">
+            Our living-soil approach — compost, neem extracts, and rotational cropping — produces yields that rival chemical farms, naturally.
+          </p>
+          <a href="#" style="font-size:0.75rem;font-weight:600;color:var(--forest-leaf);text-decoration:none;display:inline-flex;align-items:center;gap:4px;transition:gap 0.2s;" onmouseover="this.style.gap='8px'" onmouseout="this.style.gap='4px'">Read Story <span>→</span></a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════
+     NEWSLETTER
+══════════════════════════════ -->
+<section class="newsletter-section">
+  <div style="max-width:600px;margin:0 auto;text-align:center;position:relative;z-index:1;">
+    <div class="reveal" style="font-size:2.5rem;margin-bottom:1rem;">🌿</div>
+    <h2 class="section-title reveal reveal-delay-1" style="color:#fff;margin-bottom:0.7rem;">Stay Close to the Farm</h2>
+    <p class="reveal reveal-delay-2" style="color:rgba(255,255,255,0.55);font-size:0.88rem;line-height:1.7;margin-bottom:2rem;">
+      Get seasonal harvest updates, exclusive member deals, and organic living tips delivered to your inbox.
+    </p>
+    <form onsubmit="handleNewsletterSubmit(event)" class="reveal reveal-delay-3" style="display:flex;gap:0.6rem;max-width:460px;margin:0 auto;flex-wrap:wrap;justify-content:center;">
+      <input type="email" placeholder="Your email address" required style="flex:1;min-width:220px;padding:12px 18px;border-radius:10px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.08);color:#fff;font-family:'DM Sans',sans-serif;font-size:0.85rem;outline:none;transition:border-color 0.2s;" onfocus="this.style.borderColor='rgba(201,168,76,0.5)'" onblur="this.style.borderColor='rgba(255,255,255,0.15)'"/>
+      <button type="submit" class="btn-primary" style="white-space:nowrap;">
+        Subscribe →
+      </button>
+    </form>
+    <p class="reveal reveal-delay-4" style="color:rgba(255,255,255,0.3);font-size:0.7rem;margin-top:0.9rem;">No spam, ever. Unsubscribe anytime.</p>
+  </div>
+</section>
+
+<!-- ══════════════════════════════
+     FOOTER
+══════════════════════════════ -->
+<footer class="site-footer">
+  <div style="max-width:1200px;margin:0 auto;display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:3rem;margin-bottom:2.5rem;flex-wrap:wrap;">
+    <div>
+      <div style="font-family:'Cormorant Garamond',serif;font-size:1.9rem;font-weight:700;color:#fff;margin-bottom:0.75rem;">Nan<span style="color:var(--gold-dk);">sei</span></div>
+      <p style="font-size:0.78rem;color:rgba(255,255,255,0.4);line-height:1.7;max-width:280px;">Farm-direct organic products from the heart of Tamil Nadu. Grown without chemicals since 2002.</p>
+      <div style="display:flex;gap:0.5rem;margin-top:1.2rem;">
+        <a href="#" style="width:32px;height:32px;border-radius:8px;background:rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.5);font-size:0.8rem;text-decoration:none;transition:all 0.2s;" onmouseover="this.style.background='rgba(74,140,92,0.3)';this.style.color='#fff'" onmouseout="this.style.background='rgba(255,255,255,0.06)';this.style.color='rgba(255,255,255,0.5)'">𝕏</a>
+        <a href="#" style="width:32px;height:32px;border-radius:8px;background:rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.5);font-size:0.8rem;text-decoration:none;transition:all 0.2s;" onmouseover="this.style.background='rgba(74,140,92,0.3)';this.style.color='#fff'" onmouseout="this.style.background='rgba(255,255,255,0.06)';this.style.color='rgba(255,255,255,0.5)'">f</a>
+        <a href="#" style="width:32px;height:32px;border-radius:8px;background:rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.5);font-size:0.8rem;text-decoration:none;transition:all 0.2s;" onmouseover="this.style.background='rgba(74,140,92,0.3)';this.style.color='#fff'" onmouseout="this.style.background='rgba(255,255,255,0.06)';this.style.color='rgba(255,255,255,0.5)'">in</a>
+      </div>
+    </div>
+    <div>
+      <h4 style="font-size:0.7rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--gold-lt);margin-bottom:1rem;">Shop</h4>
+      <ul style="list-style:none;display:flex;flex-direction:column;gap:0.55rem;">
+        <li><a href="#" style="font-size:0.8rem;color:rgba(255,255,255,0.45);text-decoration:none;transition:color 0.2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.45)'">Rice Varieties</a></li>
+        <li><a href="#" style="font-size:0.8rem;color:rgba(255,255,255,0.45);text-decoration:none;transition:color 0.2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.45)'">Dried Flowers</a></li>
+        <li><a href="#" style="font-size:0.8rem;color:rgba(255,255,255,0.45);text-decoration:none;transition:color 0.2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.45)'">Beverages</a></li>
+        <li><a href="#" style="font-size:0.8rem;color:rgba(255,255,255,0.45);text-decoration:none;transition:color 0.2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.45)'">Flour Varieties</a></li>
+        <li><a href="#" style="font-size:0.8rem;color:rgba(255,255,255,0.45);text-decoration:none;transition:color 0.2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.45)'">New Arrivals</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4 style="font-size:0.7rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--gold-lt);margin-bottom:1rem;">Company</h4>
+      <ul style="list-style:none;display:flex;flex-direction:column;gap:0.55rem;">
+        <li><a href="#" style="font-size:0.8rem;color:rgba(255,255,255,0.45);text-decoration:none;transition:color 0.2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.45)'">About Us</a></li>
+        <li><a href="#" style="font-size:0.8rem;color:rgba(255,255,255,0.45);text-decoration:none;transition:color 0.2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.45)'">Our Farmers</a></li>
+        <li><a href="#" style="font-size:0.8rem;color:rgba(255,255,255,0.45);text-decoration:none;transition:color 0.2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.45)'">Certifications</a></li>
+        <li><a href="#" style="font-size:0.8rem;color:rgba(255,255,255,0.45);text-decoration:none;transition:color 0.2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.45)'">Sustainability</a></li>
+        <li><a href="#" style="font-size:0.8rem;color:rgba(255,255,255,0.45);text-decoration:none;transition:color 0.2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.45)'">Blogs</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4 style="font-size:0.7rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--gold-lt);margin-bottom:1rem;">Support</h4>
+      <ul style="list-style:none;display:flex;flex-direction:column;gap:0.55rem;">
+        <li><a href="#" style="font-size:0.8rem;color:rgba(255,255,255,0.45);text-decoration:none;transition:color 0.2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.45)'">Track Order</a></li>
+        <li><a href="#" style="font-size:0.8rem;color:rgba(255,255,255,0.45);text-decoration:none;transition:color 0.2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.45)'">Returns Policy</a></li>
+        <li><a href="#" style="font-size:0.8rem;color:rgba(255,255,255,0.45);text-decoration:none;transition:color 0.2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.45)'">Shipping Info</a></li>
+        <li><a href="#" style="font-size:0.8rem;color:rgba(255,255,255,0.45);text-decoration:none;transition:color 0.2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.45)'">FAQ</a></li>
+        <li><a href="#" style="font-size:0.8rem;color:rgba(255,255,255,0.45);text-decoration:none;transition:color 0.2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.45)'">Contact Us</a></li>
+      </ul>
+    </div>
+  </div>
+  <div style="border-top:1px solid rgba(255,255,255,0.06);padding-top:1.5rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.75rem;">
+    <p style="font-size:0.72rem;color:rgba(255,255,255,0.28);">© 2026 Nansei Organic Store. All rights reserved. Made with 💚 for farmers.</p>
+    <div style="display:flex;gap:1.2rem;">
+      <a href="#" style="font-size:0.72rem;color:rgba(255,255,255,0.28);text-decoration:none;transition:color 0.2s;" onmouseover="this.style.color='rgba(255,255,255,0.6)'" onmouseout="this.style.color='rgba(255,255,255,0.28)'">Privacy Policy</a>
+      <a href="#" style="font-size:0.72rem;color:rgba(255,255,255,0.28);text-decoration:none;transition:color 0.2s;" onmouseover="this.style.color='rgba(255,255,255,0.6)'" onmouseout="this.style.color='rgba(255,255,255,0.28)'">Terms of Use</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* ── PRODUCT DATA ── */
+const products = [
+  {id:1, name:"Karunguruvai Rice",              category:"rice",      price:180, oldPrice:220, badge:"hot",  image:"https://images.unsplash.com/photo-1586201375761-83865001e31c?w=400&auto=format&fit=crop"},
+  {id:2, name:"Karuppu Kavuni Rice",             category:"rice",      price:220, oldPrice:270, badge:"hot",  image:"https://images.unsplash.com/photo-1568254183919-78a4f43a2877?w=400&auto=format&fit=crop"},
+  {id:3, name:"Arubatham Kuruvai Rice",          category:"rice",      price:160, oldPrice:200, badge:"new",  image:"https://images.unsplash.com/photo-1514481538271-cf9f99627ab4?w=400&auto=format&fit=crop"},
+  {id:4, name:"Poongar Rice",                   category:"rice",      price:200, oldPrice:250, badge:"sale", image:"https://images.unsplash.com/photo-1603046891744-5d7f1f4b79fa?w=400&auto=format&fit=crop"},
+  {id:5, name:"Mappillai Samba Rice",           category:"rice",      price:210, oldPrice:260, badge:"hot",  image:"https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=400&auto=format&fit=crop"},
+  {id:6, name:"Iluppai Poo Samba Rice",         category:"rice",      price:195, oldPrice:240, badge:"new",  image:"https://images.unsplash.com/photo-1585032226651-759b368d7246?w=400&auto=format&fit=crop"},
+  {id:7, name:"Vellai Kavuni Rice",             category:"rice",      price:190, oldPrice:235, badge:"new",  image:"https://images.unsplash.com/photo-1568254183919-78a4f43a2877?w=400&auto=format&fit=crop"},
+  {id:8, name:"Paneer Rose (Fragrant Rose)",    category:"flowers",   price:150, oldPrice:190, badge:"hot",  image:"https://images.unsplash.com/photo-1490750967868-88df5691cc5e?w=400&auto=format&fit=crop"},
+  {id:9, name:"Hibiscus Flower",               category:"flowers",   price:120, oldPrice:155, badge:"sale", image:"https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=400&auto=format&fit=crop"},
+  {id:10,name:"Aavaram Flower",                category:"flowers",   price:110, oldPrice:145, badge:"new",  image:"https://images.unsplash.com/photo-1490750967868-88df5691cc5e?w=400&auto=format&fit=crop"},
+  {id:11,name:"Butterfly Pea Flower",          category:"flowers",   price:180, oldPrice:220, badge:"hot",  image:"https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=400&auto=format&fit=crop"},
+  {id:12,name:"Organic Real Rose Milk",        category:"beverages", price:140, oldPrice:175, badge:"hot",  image:"https://images.unsplash.com/photo-1600891964092-4316c288032e?w=400&auto=format&fit=crop"},
+  {id:13,name:"Hibiscus Sherbet",              category:"beverages", price:130, oldPrice:165, badge:"sale", image:"https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=400&auto=format&fit=crop"},
+  {id:14,name:"Idiyappam Rice Flour",          category:"flour",     price:160, oldPrice:200, badge:"hot",  image:"https://images.unsplash.com/photo-1603046891744-5d7f1f4b79fa?w=400&auto=format&fit=crop"},
+  {id:15,name:"Black Urad Dal Health Mix",     category:"flour",     price:175, oldPrice:215, badge:"new",  image:"https://images.unsplash.com/photo-1585032226651-759b368d7246?w=400&auto=format&fit=crop"},
+  {id:16,name:"Country Fig Powder",            category:"other",     price:200, oldPrice:250, badge:"new",  image:"https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400&auto=format&fit=crop"},
+];
+
+let cart = 3;
+let currentFilter = 'all';
+
+/* ── RENDER PRODUCTS ── */
+function renderProducts(list) {
+  const grid = document.getElementById('prodGrid');
+  const empty = document.getElementById('emptyState');
+  if (!list.length) {
+    grid.style.display = 'none';
+    empty.style.display = 'block';
+    return;
+  }
+  grid.style.display = 'grid';
+  empty.style.display = 'none';
+  grid.innerHTML = list.map((p, i) => {
+    const disc = Math.round((1 - p.price / p.oldPrice) * 100);
+    const badgeCls = p.badge === 'hot' ? 'badge-hot' : p.badge === 'new' ? 'badge-new' : 'badge-sale';
+    const badgeTxt = p.badge === 'hot' ? '🔥 HOT' : p.badge === 'new' ? '✨ NEW' : `${disc}% OFF`;
+    return `<div class="prod-card prod-float reveal reveal-delay-${(i % 5) + 1}" style="animation-delay:${i * 0.06 + 0.5}s">
+      <div class="prod-img-wrap">
+        <span class="prod-badge ${badgeCls}">${badgeTxt}</span>
+        <img src="${p.image}" alt="${p.name}" loading="lazy"/>
+      </div>
+      <div class="prod-info">
+        <div class="prod-cat">${p.category}</div>
+        <div class="prod-name">${p.name}</div>
+        <div style="display:flex;align-items:baseline;gap:4px;">
+          <span class="prod-price">₹${p.price}</span>
+          <span class="prod-old">₹${p.oldPrice}</span>
+          <span style="font-size:0.6rem;font-weight:700;background:#fef3c7;color:#92400e;padding:2px 6px;border-radius:20px;">${disc}% off</span>
+        </div>
+        <button class="add-btn" onclick="addToCart(${p.id},'${p.name}')">
+          + Add to Cart
+        </button>
+      </div>
+    </div>`;
+  }).join('');
+
+  // Re-trigger scroll reveal for newly rendered cards
+  setTimeout(() => {
+    document.querySelectorAll('.reveal').forEach(el => {
+      if (isInViewport(el)) el.classList.add('visible');
+    });
+  }, 50);
+}
+
+/* ── FILTER ── */
+function filterProducts(cat, btn) {
+  currentFilter = cat;
+  document.querySelectorAll('.cat-pill').forEach(p => p.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  const filtered = cat === 'all' ? products : products.filter(p => p.category === cat);
+  renderProducts(filtered);
+}
+
+/* ── ADD TO CART ── */
+function addToCart(id, name) {
+  cart++;
+  document.getElementById('cartBadge').textContent = cart;
+  showToast(`🛒 ${name} added to cart!`);
+}
+
+/* ── TOAST ── */
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+/* ── NEWSLETTER ── */
+function handleNewsletterSubmit(e) {
+  e.preventDefault();
+  const input = e.target.querySelector('input[type="email"]');
+  showToast('🌿 Subscribed! Welcome to the Nansei family.');
+  input.value = '';
+}
+
+/* ── PARALLAX SCROLL ── */
+function isInViewport(el) {
+  const r = el.getBoundingClientRect();
+  return r.top <= (window.innerHeight || document.documentElement.clientHeight) * 0.88;
+}
+
+function handleScroll() {
+  const scrollY = window.scrollY;
+
+  /* Hero parallax */
+  const heroBg = document.getElementById('heroBg');
+  if (heroBg) {
+    heroBg.style.transform = `translateY(${scrollY * 0.45}px)`;
+  }
+
+  /* Mid parallax */
+  const midBg = document.getElementById('midParallaxBg');
+  if (midBg) {
+    const midSection = midBg.closest('.mid-parallax');
+    if (midSection) {
+      const rect = midSection.getBoundingClientRect();
+      const offset = (rect.top + rect.height / 2 - window.innerHeight / 2);
+      midBg.style.transform = `translateY(${offset * 0.35}px)`;
+    }
+  }
+
+  /* Scroll reveal */
+  document.querySelectorAll('.reveal').forEach(el => {
+    if (isInViewport(el)) el.classList.add('visible');
+  });
+}
+
+/* ── CERT TRACK DUPLICATE ── */
+(function() {
+  const track = document.getElementById('certTrack');
+  if (track) track.innerHTML += track.innerHTML;
+  const offerTrack = document.getElementById('offerTrack');
+  if (offerTrack) offerTrack.innerHTML += offerTrack.innerHTML;
+})();
+
+/* ── INIT ── */
+window.addEventListener('scroll', handleScroll, { passive: true });
+window.addEventListener('resize', handleScroll, { passive: true });
+
+renderProducts(products);
+handleScroll();
+
+/* Initial trigger for elements above fold */
+setTimeout(() => {
+  document.querySelectorAll('.reveal').forEach(el => {
+    if (isInViewport(el)) el.classList.add('visible');
+  });
+}, 100);
+</script>
+</body>
+</html>

@@ -1,0 +1,48 @@
+# Environment Variables — NEVER commit real secrets
+.env
+.env.local
+.env.*.local
+
+# Dependencies
+node_modules/
+backend/node_modules/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# OS Files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# Build outputs
+dist/
+build/
+
+# Temp / junk
+tmp/
+temp/
+*.tmp
+*.ps1
+*.txt
+!README.md
+
+# Sensitive
+*.pem
+*.key
+*.cert
+credentials.json
+secrets.json
+
+# Media
+*.jfif
+*.mpeg
+')
+$null

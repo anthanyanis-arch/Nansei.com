@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Nansai — Sign In</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,700&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  theme: { extend: { fontFamily: { display: ['"Cormorant Garamond"','serif'], body: ['"DM Sans"','sans-serif'] } } }
+}
+</script>
+<style>
+:root {
+  --bg-deepest:  #ffffff;
+  --bg-deep:     #f8f9fa;
+  --bg-card:     #ffffff;
+  --panel-bg:    #f5f7f5;
+  --panel-edge:  #1a3a2a;
+  --sage-1:      #1a3a2a;
+  --sage-2:      #2d5a3d;
+  --sage-3:      #4a8c5c;
+  --sage-4:      #72a87d;
+  --sage-5:      #a0c9a9;
+  --copper:      #1a3a2a;
+  --copper-lt:   #2d5a3d;
+  --copper-glow: #4a8c5c;
+  --copper-pale: #72a87d;
+  --ivory:       #1a3a2a;
+  --ivory-dim:   #2d5a3d;
+  --ivory-mute:  #6b7280;
+  --border-g:    rgba(26,58,42,.18);
+  --border-c:    rgba(26,58,42,.22);
+  --err:         #d95858;
+  --ok:          #52a066;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg-deepest);
+  min-height: 100vh;
+  overflow-x: hidden;
+  color: var(--ivory);
+}
+.bg-layer {
+  position: fixed; inset: 0; z-index: 0;
+  background:
+    radial-gradient(ellipse 85% 65% at 10% 90%, rgba(26,58,42,.08) 0%, transparent 58%),
+    radial-gradient(ellipse 55% 50% at 88% 12%, rgba(26,58,42,.05) 0%, transparent 52%),
+    var(--bg-deepest);
+}
+.bg-grid {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background-image:
+    linear-gradient(rgba(26,58,42,.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(26,58,42,.035) 1px, transparent 1px);
+  background-size: 52px 52px;
+}
+.orb { position: fixed; border-radius: 50%; pointer-events: none; z-index: 0; filter: blur(90px); animation: orbDrift ease-in-out infinite alternate; }
+.orb-a { width:420px; height:420px; top:-100px; left:-80px; background:rgba(26,58,42,.15); animation-duration:20s; }
+.orb-b { width:280px; height:280px; bottom:20px; right:-70px; background:rgba(26,58,42,.08); animation-duration:25s; animation-delay:-10s; }
+.orb-c { width:180px; height:180px; top:38%; left:28%; background:rgba(45,90,61,.1); animation-duration:28s; animation-delay:-16s; }
+@keyframes orbDrift { from{transform:translate(0,0) scale(1);} to{transform:translate(28px,18px) scale(1.07);} }
+.pt { position:fixed; pointer-events:none; z-index:1; border-radius:50%; opacity:0; animation:ptRise linear infinite; }
+@keyframes ptRise {
+  0%   { transform:translateY(108vh) scale(.35); opacity:0; }
+  10%  { opacity:.32; }
+  90%  { opacity:.18; }
+  100% { transform:translateY(-10vh) scale(1); opacity:0; }
+}
+.card {
+  position:relative; z-index:10;
+  background: rgba(255,255,255,.95);
+  backdrop-filter: blur(36px) saturate(1.5);
+  -webkit-backdrop-filter: blur(36px) saturate(1.5);
+  border: 1px solid var(--border-g);
+  border-radius: 22px;
+  box-shadow:
+    0 0 0 1px rgba(26,58,42,.025) inset,
+    0 1.5px 0 rgba(26,58,42,.12) inset,
+    0 36px 88px rgba(0,0,0,.15),
+    0 8px 28px rgba(0,0,0,.08);
+  overflow: hidden;
+}
+.lpanel {
+  background: linear-gradient(155deg, rgba(245,247,245,.97) 0%, rgba(248,249,250,.99) 100%);
+  border-right: 1px solid var(--panel-edge);
+  position: relative; overflow: hidden;
+  min-width: 268px; width: 268px; flex-shrink: 0;
+}
+.cr-tr { position:absolute; top:-1px; right:-1px; width:72px; height:72px; border-top: 1.5px solid rgba(26,58,42,.32); border-right: 1.5px solid rgba(26,58,42,.32); border-radius: 0 22px 0 0; pointer-events:none; }
+.cr-bl { position:absolute; bottom:-1px; left:-1px; width:52px; height:52px; border-bottom: 1.5px solid rgba(26,58,42,.22); border-left: 1.5px solid rgba(26,58,42,.22); border-radius: 0 0 0 22px; pointer-events:none; }
+.lpanel::after { content:''; position:absolute; top:0; right:0; bottom:0; width:1px; background: linear-gradient(to bottom, transparent 5%, rgba(26,58,42,.22) 35%, rgba(26,58,42,.22) 65%, transparent 95%); }
+.logo-mark { width:80px; height:80px; background: transparent; border-radius: 12px; display:flex; align-items:center; justify-content:center; font-size:1.25rem; border: none; box-shadow: none; flex-shrink:0; }
+.c-line { display:block; height:1.5px; background: linear-gradient(90deg, transparent, var(--copper), transparent); }
+.trust-row { display:flex; align-items:center; gap:9px; padding:.52rem .8rem; background: rgba(255,255,255,.026); border: 1px solid rgba(255,255,255,.048); border-radius: 9px; transition: border-color .2s; }
+.trust-row:hover { border-color: rgba(26,58,42,.28); }
+.t-ico { width:26px; height:26px; flex-shrink:0; border-radius:7px; display:flex; align-items:center; justify-content:center; font-size:.82rem; }
+.cpill { font-size:.56rem; padding:2px 8px; border-radius:20px; background: rgba(26,58,42,.08); border: 1px solid rgba(26,58,42,.16); color: var(--copper); font-weight:500; letter-spacing:.04em; }
+@keyframes pdot { 0%,100%{transform:scale(1);opacity:1;} 50%{transform:scale(1.75);opacity:.35;} }
+.pdot { width:7px; height:7px; border-radius:50%; background:var(--ok); flex-shrink:0; animation:pdot 2.2s ease-in-out infinite; }
+.tb { flex:1; padding:.62rem; border:none; background:transparent; font-family:'DM Sans',sans-serif; font-size:.82rem; font-weight:600; color:var(--ivory-mute); cursor:pointer; border-bottom:2px solid transparent; transition:all .24s; letter-spacing:.03em; }
+.tb.on { color:var(--copper-glow); border-bottom-color:var(--copper); }
+.tb:hover:not(.on) { color:var(--ivory-dim); }
+.fw { position:relative; }
+.fic { position:absolute; left:13px; top:50%; transform:translateY(-50%); color:var(--sage-3); pointer-events:none; transition:color .2s; display:flex; align-items:center; }
+.fw:focus-within .fic { color:var(--copper-lt); }
+.inp { width:100%; background:rgba(26,58,42,.038); border:1px solid rgba(26,58,42,.15); border-radius:11px; padding:.78rem 1rem .78rem 2.7rem; color:var(--ivory); font-family:'DM Sans',sans-serif; font-size:.875rem; outline:none; transition:background .25s, border-color .25s, box-shadow .25s; letter-spacing:.01em; }
+.inp::placeholder { color:rgba(107,114,128,.5); }
+.inp:focus { background:rgba(26,58,42,.058); border-color:rgba(26,58,42,.44); box-shadow:0 0 0 3px rgba(26,58,42,.1), 0 2px 8px rgba(0,0,0,.1); }
+.inp.err { border-color:rgba(217,88,88,.5); }
+.inp.ok  { border-color:rgba(82,160,102,.38); }
+.inp.pr  { padding-right:2.75rem; }
+.pwt { position:absolute; right:12px; top:50%; transform:translateY(-50%); background:none; border:none; cursor:pointer; color:var(--sage-3); transition:color .2s; display:flex; align-items:center; padding:2px; }
+.pwt:hover { color:var(--copper-lt); }
+.btn-p { width:100%; background: linear-gradient(130deg, var(--copper) 0%, var(--copper-lt) 48%, var(--copper) 100%); background-size:200% 100%; background-position:0% 0%; color:#fff; font-family:'DM Sans',sans-serif; font-weight:700; font-size:.86rem; letter-spacing:.08em; text-transform:uppercase; border:none; border-radius:11px; padding:.88rem; cursor:pointer; transition:background-position .42s ease, transform .18s, box-shadow .2s; box-shadow:0 4px 18px rgba(26,58,42,.3), 0 1px 0 rgba(255,255,255,.08) inset; position:relative; overflow:hidden; }
+.btn-p:hover { background-position:100% 0%; transform:translateY(-1.5px); box-shadow:0 8px 26px rgba(26,58,42,.45); }
+.btn-p:active { transform:translateY(0); }
+.btn-p .sh { position:absolute; top:-50%; left:-80%; width:42%; height:200%; background:linear-gradient(to right, transparent, rgba(255,255,255,.26), transparent); transform:skewX(-20deg); animation:btnSh 3.8s ease-in-out infinite; }
+@keyframes btnSh { 0%,55%{left:-80%;} 80%,100%{left:130%;} }
+.btn-s { flex:1; display:flex; align-items:center; justify-content:center; gap:8px; background:rgba(255,255,255,.036); border:1px solid rgba(78,125,88,.15); border-radius:10px; padding:.68rem .4rem; color:var(--ivory-dim); font-family:'DM Sans',sans-serif; font-size:.79rem; font-weight:500; cursor:pointer; transition:all .22s; white-space:nowrap; }
+.btn-s:hover { background:rgba(255,255,255,.068); border-color:rgba(181,113,42,.28); color:var(--ivory); transform:translateY(-1px); }
+.ccb { display:none; }
+.cbl { display:flex; align-items:center; gap:9px; cursor:pointer; font-size:.77rem; color:var(--ivory-mute); user-select:none; }
+.cbx { width:17px; height:17px; flex-shrink:0; border:1.5px solid rgba(78,125,88,.3); border-radius:5px; background:rgba(255,255,255,.03); display:flex; align-items:center; justify-content:center; transition:all .2s; }
+.ccb:checked + .cbl .cbx { background:var(--copper); border-color:var(--copper); }
+.ck { opacity:0; transition:opacity .15s; }
+.ccb:checked + .cbl .ck { opacity:1; }
+.div-or { display:flex; align-items:center; gap:11px; margin:.2rem 0; }
+.div-or::before, .div-or::after { content:''; flex:1; height:1px; background:rgba(26,58,42,.1); }
+.div-or span { font-size:.66rem; color:var(--ivory-mute); white-space:nowrap; letter-spacing:.04em; }
+.emsg { font-size:.68rem; color:var(--err); display:flex; align-items:center; gap:4px; opacity:0; max-height:0; overflow:hidden; transition:opacity .2s, max-height .3s; }
+.emsg.on { opacity:1; max-height:22px; margin-top:4px; }
+.step { display:none; }
+.step.on { display:block; animation:stepIn .42s cubic-bezier(.22,1,.36,1) both; }
+@keyframes stepIn { from{opacity:0;transform:translateY(16px);} to{opacity:1;transform:none;} }
+.pdg { width:28px; height:3px; border-radius:2px; background:rgba(26,58,42,.12); transition:background .3s; }
+.pdg.on { background:var(--copper); }
+.sb { flex:1; height:3px; border-radius:2px; background:rgba(26,58,42,.1); overflow:hidden; }
+.sf { height:100%; border-radius:2px; width:0%; transition:width .4s, background .4s; }
+#toast { position:fixed; top:1.1rem; left:50%; transform:translateX(-50%) translateY(-10px); background:var(--bg-card); border:1px solid var(--border-c); color:var(--ivory); font-size:.78rem; font-weight:600; padding:.52rem 1.45rem; border-radius:30px; opacity:0; pointer-events:none; white-space:nowrap; z-index:9999; box-shadow:0 8px 28px rgba(0,0,0,.55), 0 0 0 1px rgba(255,255,255,.04) inset; transition:opacity .3s, transform .3s; }
+#toast.on { opacity:1; transform:translateX(-50%) translateY(0); }
+@keyframes au { from{opacity:0;transform:translateY(26px);} to{opacity:1;transform:none;} }
+@keyframes ai { from{opacity:0;} to{opacity:1;} }
+@keyframes asc { from{opacity:0;transform:scale(.93);} to{opacity:1;transform:none;} }
+.au  { animation:au  .65s cubic-bezier(.22,1,.36,1) both; }
+.ai  { animation:ai  .5s ease both; }
+.asc { animation:asc .56s cubic-bezier(.34,1.2,.64,1) both; }
+::-webkit-scrollbar { width:4px; }
+::-webkit-scrollbar-thumb { background:rgba(181,113,42,.28); border-radius:3px; }
+
+/* ══ OTP DIGIT BOXES ══ */
+.otp-row { display:flex; gap:7px; align-items:center; }
+.otp-digit {
+  width:42px; height:50px;
+  text-align:center;
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.4rem; font-weight:700;
+  color:var(--ivory);
+  background:rgba(26,58,42,.04);
+  border:1.5px solid rgba(26,58,42,.18);
+  border-radius:10px;
+  outline:none;
+  caret-color:var(--copper-glow);
+  transition:border-color .2s, background .2s, box-shadow .2s, transform .15s;
+  -moz-appearance:textfield;
+}
+.otp-digit::-webkit-outer-spin-button,
+.otp-digit::-webkit-inner-spin-button { -webkit-appearance:none; }
+.otp-digit:focus {
+  border-color:var(--copper-glow);
+  background:rgba(26,58,42,.07);
+  box-shadow:0 0 0 3px rgba(74,140,92,.15), 0 2px 8px rgba(0,0,0,.08);
+  transform:translateY(-2px);
+}
+.otp-digit.filled { border-color:rgba(26,58,42,.35); background:rgba(26,58,42,.06); }
+.otp-digit.verified { border-color:var(--ok); background:rgba(82,160,102,.08); color:var(--ok); }
+.otp-digit.error-shake { border-color:var(--err); background:rgba(217,88,88,.06); animation:otpShake .38s ease; }
+@keyframes otpShake { 0%,100%{transform:translateX(0);} 20%{transform:translateX(-5px);} 40%{transform:translateX(5px);} 60%{transform:translateX(-4px);} 80%{transform:translateX(4px);} }
+.otp-digit:disabled { opacity:.6; cursor:not-allowed; }
+
+/* ══ COUNTDOWN RING ══ */
+.cd-wrap { display:flex; align-items:center; gap:9px; }
+.cd-ring-bg { fill:none; stroke:rgba(26,58,42,.1); stroke-width:3; }
+.cd-ring-arc { fill:none; stroke:var(--copper-glow); stroke-width:3; stroke-linecap:round; stroke-dasharray:75.4; stroke-dashoffset:0; transition:stroke-dashoffset .95s linear, stroke .4s; transform-origin:center; transform:rotate(-90deg); }
+.cd-ring-arc.expired { stroke:rgba(217,88,88,.6); }
+.cd-num { font-family:'DM Sans',sans-serif; font-size:.6rem; font-weight:700; fill:var(--ivory-dim); }
+.cd-label { font-size:.71rem; color:var(--ivory-mute); line-height:1.45; }
+.cd-label strong { color:var(--ivory-dim); font-weight:600; }
+
+/* ══ PROCEED BANNER ══ */
+.proceed-banner { display:flex; align-items:center; gap:9px; background:rgba(82,160,102,.1); border:1px solid rgba(82,160,102,.25); border-radius:10px; padding:.6rem .85rem; font-size:.73rem; color:var(--ok); font-weight:600; opacity:0; max-height:0; overflow:hidden; transition:opacity .35s, max-height .4s; }
+.proceed-banner.on { opacity:1; max-height:54px; margin-bottom:.7rem; }
+@keyframes spin { to { transform:rotate(360deg); } }
+.spin-ico { animation:spin .9s linear infinite; flex-shrink:0; }
+
+@media (max-width:767px) {
+  .lpanel    { display:none !important; }
+  .card      { border-radius:18px; }
+  .mob-brand { display:flex !important; }
+  .otp-digit { width:36px; height:44px; font-size:1.2rem; }
+}
+@media (min-width:768px) { .mob-brand { display:none !important; } }
+</style>
+</head>
+<body>
+<div class="bg-layer"></div>
+<div class="bg-grid"></div>
+<div class="orb orb-a"></div>
+<div class="orb orb-b"></div>
+<div class="orb orb-c"></div>
+<div class="pt" style="left:11%;width:3px;height:3px;background:#4e7d58;animation-duration:21s;animation-delay:0s;"></div>
+<div class="pt" style="left:27%;width:2px;height:2px;background:#b5712a;animation-duration:27s;animation-delay:5s;"></div>
+<div class="pt" style="left:54%;width:3px;height:3px;background:#4e7d58;animation-duration:23s;animation-delay:9s;"></div>
+<div class="pt" style="left:73%;width:2px;height:2px;background:#b5712a;animation-duration:19s;animation-delay:3s;"></div>
+<div class="pt" style="left:89%;width:2px;height:2px;background:#72a87d;animation-duration:25s;animation-delay:14s;"></div>
+<div id="toast"></div>
+
+<div class="relative z-10 min-h-screen flex flex-col items-center justify-center p-4 sm:p-6">
+  <div class="mob-brand hidden items-center gap-3 mb-5 ai" style="animation-delay:.06s;">
+    <div class="logo-mark"><img src="nansei organics.png" alt="Nansei Organics" style="width:100%;height:100%;object-fit:contain;"></div>
+  </div>
+
+  <div class="card w-full max-w-[720px] flex asc" style="animation-delay:.1s; min-height:530px;">
+
+    <!-- LEFT PANEL -->
+    <div class="lpanel hidden md:flex flex-col justify-between py-8 px-8">
+      <div class="cr-tr"></div><div class="cr-bl"></div>
+      <div class="au" style="animation-delay:.26s;">
+        <div style="display:flex;align-items:center;gap:11px;margin-bottom:1.7rem;">
+          <div class="logo-mark"><img src="nansei organics.png" alt="Nansei Organics" style="width:100%;height:100%;object-fit:contain;"></div>
+        </div>
+        <span class="c-line" style="width:44px;display:block;margin-bottom:1.55rem;"></span>
+        <h2 style="font-family:'Cormorant Garamond',serif;font-size:1.85rem;font-weight:700;color:var(--ivory);line-height:1.2;margin-bottom:.6rem;">Welcome<br/><em style="color:var(--copper-glow);">back</em></h2>
+        <p style="font-size:.77rem;color:var(--ivory-mute);line-height:1.75;max-width:190px;">Access your organic pantry, track orders & discover farm-fresh products.</p>
+      </div>
+      <div class="au" style="animation-delay:.42s;">
+        <div style="display:flex;flex-direction:column;gap:.45rem;margin-bottom:1rem;">
+          <div class="trust-row"><div class="pdot"></div><span style="font-size:.71rem;color:var(--ivory-dim);">200+ certified organic farmers</span></div>
+          <div class="trust-row"><div class="t-ico" style="background:rgba(181,113,42,.09);">🏅</div><span style="font-size:.71rem;color:var(--ivory-dim);">9 international certifications</span></div>
+          <div class="trust-row"><div class="t-ico" style="background:rgba(78,125,88,.09);">🔒</div><span style="font-size:.71rem;color:var(--ivory-dim);">256-bit encrypted & secure</span></div>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:.32rem;margin-bottom:1.3rem;">
+          <span class="cpill">🌿 USDA</span><span class="cpill">✡ Kosher</span><span class="cpill">🌱 Non-GMO</span><span class="cpill">🇮🇳 FSSAI</span><span class="cpill">♻️ Eco</span>
+        </div>
+        <div style="padding-top:.9rem;border-top:1px solid rgba(255,255,255,.05);display:flex;align-items:center;gap:8px;">
+          <span class="c-line" style="width:20px;display:block;flex-shrink:0;"></span>
+          <span style="font-size:.56rem;letter-spacing:.13em;text-transform:uppercase;color:var(--ivory-mute);">From Earth to Your Table</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT PANEL -->
+    <div class="flex-1 flex flex-col p-6 sm:p-8" style="overflow-y:auto;max-height:92vh;">
+      <div style="display:flex;border-bottom:1px solid rgba(255,255,255,.06);margin-bottom:1.7rem;" class="au" style="animation-delay:.2s;">
+        <button class="tb on" id="tl" onclick="switchTab('l')">Sign In</button>
+        <button class="tb"    id="tr" onclick="switchTab('r')">Create Account</button>
+      </div>
+
+      <!-- LOGIN -->
+      <div id="fl">
+        <div id="ls1" class="step on">
+          <div style="margin-bottom:1.45rem;">
+            <h3 style="font-family:'Cormorant Garamond',serif;font-size:1.6rem;font-weight:700;color:var(--ivory);margin-bottom:3px;">Sign in to your account</h3>
+            <p style="font-size:.77rem;color:var(--ivory-mute);">Enter your credentials to continue</p>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:.9rem;">
+            <div class="fw">
+              <div class="fic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+              <input id="i-id" class="inp" type="text" placeholder="you@example.com or 10-digit mobile" oninput="cf('i-id','e-id')"/>
+              <p id="e-id" class="emsg"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>Valid email or 10-digit phone required</p>
+            </div>
+            <div class="fw">
+              <div class="fic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div>
+              <input id="i-pw" class="inp pr" type="password" placeholder="Your account password" oninput="cf('i-pw','e-pw')"/>
+              <button class="pwt" onclick="tpw('i-pw',this)" type="button"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+              <p id="e-pw" class="emsg"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>Minimum 6 characters required</p>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-top:-.1rem;">
+              <div><input type="checkbox" id="rem" class="ccb"/><label for="rem" class="cbl"><span class="cbx"><svg class="ck" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Remember me</label></div>
+              <button onclick="gls(2)" type="button" style="font-size:.74rem;color:var(--copper-lt);background:none;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;transition:color .2s;letter-spacing:.02em;" onmouseover="this.style.color='var(--copper-glow)'" onmouseout="this.style.color='var(--copper-lt)'">Forgot password?</button>
+            </div>
+            <button class="btn-p" onclick="doLogin()" style="margin-top:.15rem;"><span class="sh"></span>Sign In</button>
+            <div class="div-or"><span>or continue with</span></div>
+            <div style="display:flex;gap:.55rem;">
+              <button class="btn-s" onclick="showToast('🔑 Google sign-in coming soon!')">
+                <svg width="16" height="16" viewBox="0 0 24 24"><path fill="#EA4335" d="M5.27 9.76A7.08 7.08 0 0112 4.9c1.7 0 3.24.62 4.44 1.63l3.32-3.32A12 12 0 000 12c0 2 .5 3.9 1.38 5.57l3.89-3.01A7.11 7.11 0 015.27 9.76z"/><path fill="#34A853" d="M12 24c3.24 0 5.96-1.08 7.95-2.92l-3.89-3.01A7.1 7.1 0 0112 19.1a7.08 7.08 0 01-6.7-4.76L1.4 17.34A12 12 0 0012 24z"/><path fill="#4A90D9" d="M23.49 12.27c0-.79-.07-1.56-.2-2.27H12v4.51h6.47a5.54 5.54 0 01-2.4 3.62l3.89 3.01C22.22 19.13 23.49 15.88 23.49 12.27z"/><path fill="#FBBC05" d="M5.3 14.34A7.1 7.1 0 014.9 12c0-.81.14-1.6.38-2.33L1.38 6.43A12.02 12.02 0 000 12c0 1.93.46 3.76 1.28 5.37l4.02-3.03z"/></svg>
+                Google
+              </button>
+              <button class="btn-s" onclick="showToast('📘 Facebook sign-in coming soon!')">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="#1877F2"><path d="M24 12.073c0-6.627-5.373-12-12-12S0 5.446 0 12.073c0 5.989 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+                Facebook
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div id="ls2" class="step">
+          <div style="margin-bottom:1.45rem;">
+            <div style="width:46px;height:46px;background:linear-gradient(135deg,var(--sage-1),var(--sage-2));border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:1.25rem;margin-bottom:.85rem;border:1px solid rgba(181,113,42,.18);">🔑</div>
+            <h3 style="font-family:'Cormorant Garamond',serif;font-size:1.55rem;font-weight:700;color:var(--ivory);margin-bottom:3px;">Reset your password</h3>
+            <p style="font-size:.77rem;color:var(--ivory-mute);">We'll send a secure reset link to your email</p>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:.9rem;">
+            <div class="fw">
+              <div class="fic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div>
+              <input id="r-em0" class="inp" type="email" placeholder="you@example.com"/>
+            </div>
+            <button class="btn-p" onclick="doReset()"><span class="sh"></span>Send Reset Link</button>
+            <button onclick="gls(1)" style="display:flex;align-items:center;gap:5px;font-size:.75rem;color:var(--ivory-mute);background:none;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;transition:color .2s;" onmouseover="this.style.color='var(--ivory-dim)'" onmouseout="this.style.color='var(--ivory-mute)'">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>Back to sign in
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- REGISTER -->
+      <div id="fr" style="display:none;">
+        <div id="rs1" class="step on">
+          <div style="margin-bottom:1.2rem;">
+            <h3 style="font-family:'Cormorant Garamond',serif;font-size:1.6rem;font-weight:700;color:var(--ivory);margin-bottom:3px;">Create your account</h3>
+            <p style="font-size:.77rem;color:var(--ivory-mute);">Step 1 of 3 — Your basic details</p>
+          </div>
+          <div style="display:flex;gap:5px;margin-bottom:1.35rem;"><div class="pdg on"></div><div class="pdg"></div><div class="pdg"></div></div>
+          <div style="display:flex;flex-direction:column;gap:.88rem;">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:.62rem;">
+              <div class="fw"><div class="fic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div><input id="r-fn" class="inp" type="text" placeholder="e.g. Arjun" oninput="this.value=this.value.replace(/[^a-zA-Z\s]/g,'')"/></div>
+              <div class="fw"><div class="fic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div><input id="r-ln" class="inp" type="text" placeholder="e.g. Mehta" oninput="this.value=this.value.replace(/[^a-zA-Z\s]/g,'')"/></div>
+            </div>
+            <div class="fw"><div class="fic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div><input id="r-em" class="inp" type="email" placeholder="you@example.com"/></div>
+            <div class="fw"><div class="fic" style="gap:4px;left:12px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.08 1.2 2 2 0 012.07 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92z"/></svg><span style="font-size:.67rem;color:rgba(110,107,98,.45);font-weight:600;">+91</span></div><input id="r-ph" class="inp" type="tel" placeholder="10-digit mobile number" style="padding-left:3.45rem;" maxlength="10" oninput="this.value=this.value.replace(/\D/g,'')"/></div>
+            <button class="btn-p" onclick="grs2()"><span class="sh"></span>Continue →</button>
+          </div>
+        </div>
+
+        <div id="rs2" class="step">
+          <div style="margin-bottom:1.2rem;">
+            <h3 style="font-family:'Cormorant Garamond',serif;font-size:1.6rem;font-weight:700;color:var(--ivory);margin-bottom:3px;">Secure your account</h3>
+            <p style="font-size:.77rem;color:var(--ivory-mute);">Step 2 of 3 — Set a strong password</p>
+          </div>
+          <div style="display:flex;gap:5px;margin-bottom:1.35rem;"><div class="pdg on"></div><div class="pdg on"></div><div class="pdg"></div></div>
+          <div style="display:flex;flex-direction:column;gap:.88rem;">
+            <div>
+              <div class="fw"><div class="fic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div><input id="r-pw" class="inp pr" type="password" placeholder="Min. 8 chars, include a number" oninput="cstr(this.value)"/><button class="pwt" onclick="tpw('r-pw',this)" type="button"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
+              <div style="display:flex;gap:4px;margin-top:6px;align-items:center;"><div class="sb"><div class="sf" id="s1"></div></div><div class="sb"><div class="sf" id="s2"></div></div><div class="sb"><div class="sf" id="s3"></div></div><div class="sb"><div class="sf" id="s4"></div></div><span id="sl" style="font-size:.61rem;color:var(--ivory-mute);margin-left:5px;min-width:36px;white-space:nowrap;"></span></div>
+            </div>
+            <div class="fw"><div class="fic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div><input id="r-pw2" class="inp pr" type="password" placeholder="Re-enter your password"/><button class="pwt" onclick="tpw('r-pw2',this)" type="button"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
+            <div class="fw"><div class="fic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg></div><input class="inp" type="text" placeholder="Referral code (optional)" style="text-transform:uppercase;"/></div>
+            <div>
+              <input type="checkbox" id="trm" class="ccb"/>
+              <label for="trm" class="cbl" style="align-items:flex-start;"><span class="cbx" style="margin-top:1px;flex-shrink:0;"><svg class="ck" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span><span style="line-height:1.55;">I agree to the <span style="color:var(--copper-lt);cursor:pointer;" onclick="showToast('📋 Terms coming soon')">Terms of Service</span> and <span style="color:var(--copper-lt);cursor:pointer;" onclick="showToast('🔒 Privacy policy coming soon')">Privacy Policy</span></span></label>
+            </div>
+            <button class="btn-p" onclick="doReg()"><span class="sh"></span>Create Account</button>
+            <button onclick="grs1()" style="display:flex;align-items:center;gap:5px;font-size:.75rem;color:var(--ivory-mute);background:none;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;transition:color .2s;" onmouseover="this.style.color='var(--ivory-dim)'" onmouseout="this.style.color='var(--ivory-mute)'">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>Back
+            </button>
+          </div>
+        </div>
+
+        <!-- ══ STEP 3: VERIFY (REDESIGNED) ══ -->
+        <div id="rs3" class="step">
+          <div style="margin-bottom:.9rem;">
+            <h3 style="font-family:'Cormorant Garamond',serif;font-size:1.6rem;font-weight:700;color:var(--ivory);margin-bottom:3px;">Verify your account</h3>
+            <p style="font-size:.77rem;color:var(--ivory-mute);">Step 3 of 3 — Confirm your email &amp; phone</p>
+          </div>
+          <div style="display:flex;gap:5px;margin-bottom:.9rem;"><div class="pdg on"></div><div class="pdg on"></div><div class="pdg on"></div></div>
+
+          <!-- Info banner -->
+          <div id="otp-info-banner" style="background:rgba(26,58,42,.06);border:1px solid rgba(26,58,42,.14);border-radius:10px;padding:.6rem .9rem;margin-bottom:.85rem;font-size:.74rem;color:var(--ivory-dim);line-height:1.55;">📧 Check your email inbox for the 6-digit OTP.</div>
+
+          <!-- Auto-redirect banner -->
+          <div class="proceed-banner" id="proceed-banner">
+            <svg class="spin-ico" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M21 12a9 9 0 11-3.75-7.2"/></svg>
+            Redirecting you to the store…
+          </div>
+
+          <!-- EMAIL OTP -->
+          <div style="margin-bottom:.95rem;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.5rem;">
+              <p style="font-size:.74rem;font-weight:600;color:var(--ivory-dim);">
+                Email OTP
+                <span id="v-email-badge" style="display:none;color:var(--ok);font-size:.68rem;margin-left:4px;">✔ Verified</span>
+              </p>
+              <!-- Ring countdown -->
+              <div class="cd-wrap">
+                <svg width="28" height="28" viewBox="0 0 28 28">
+                  <circle class="cd-ring-bg" cx="14" cy="14" r="12"/>
+                  <circle class="cd-ring-arc" id="email-ring-arc" cx="14" cy="14" r="12"/>
+                  <text class="cd-num" id="email-ring-num" x="14" y="18" text-anchor="middle">10</text>
+                </svg>
+                <span class="cd-label">OTP expires in <strong id="email-secs">10:00</strong></span>
+              </div>
+            </div>
+            <div class="otp-row" id="email-otp-row">
+              <input class="otp-digit" type="text" inputmode="numeric" maxlength="1" data-idx="0" data-group="email"/>
+              <input class="otp-digit" type="text" inputmode="numeric" maxlength="1" data-idx="1" data-group="email"/>
+              <input class="otp-digit" type="text" inputmode="numeric" maxlength="1" data-idx="2" data-group="email"/>
+              <input class="otp-digit" type="text" inputmode="numeric" maxlength="1" data-idx="3" data-group="email"/>
+              <input class="otp-digit" type="text" inputmode="numeric" maxlength="1" data-idx="4" data-group="email"/>
+              <input class="otp-digit" type="text" inputmode="numeric" maxlength="1" data-idx="5" data-group="email"/>
+              <button id="verify-email-btn" onclick="doVerifyEmail()" style="padding:.58rem .88rem;background:var(--sage-2);color:#fff;border:none;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:.75rem;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:background .2s,transform .15s;" onmouseover="this.style.transform='translateY(-1px)'" onmouseout="this.style.transform=''">Verify</button>
+            </div>
+            <button id="resend-email-btn" onclick="doResendEmailOtp()" style="margin-top:.38rem;font-size:.7rem;color:var(--copper-lt);background:none;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;display:inline-flex;align-items:center;gap:4px;" onmouseover="this.style.color='var(--copper-glow)'" onmouseout="this.style.color='var(--copper-lt)'">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M23 4v6h-6"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>
+              Resend email OTP
+            </button>
+          </div>
+
+          <!-- PHONE OTP -->
+          <div id="phone-otp-section" style="margin-bottom:.9rem;display:none;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.5rem;">
+              <p style="font-size:.74rem;font-weight:600;color:var(--ivory-dim);">
+                Mobile OTP
+                <span id="v-phone-badge" style="display:none;color:var(--ok);font-size:.68rem;margin-left:4px;">✔ Verified</span>
+              </p>
+              <div class="cd-wrap">
+                <svg width="28" height="28" viewBox="0 0 28 28">
+                  <circle class="cd-ring-bg" cx="14" cy="14" r="12"/>
+                  <circle class="cd-ring-arc" id="phone-ring-arc" cx="14" cy="14" r="12"/>
+                  <text class="cd-num" id="phone-ring-num" x="14" y="18" text-anchor="middle">10</text>
+                </svg>
+                <span class="cd-label">OTP expires in <strong id="phone-secs">10:00</strong></span>
+              </div>
+            </div>
+            <div class="otp-row" id="phone-otp-row">
+              <input class="otp-digit" type="text" inputmode="numeric" maxlength="1" data-idx="0" data-group="phone"/>
+              <input class="otp-digit" type="text" inputmode="numeric" maxlength="1" data-idx="1" data-group="phone"/>
+              <input class="otp-digit" type="text" inputmode="numeric" maxlength="1" data-idx="2" data-group="phone"/>
+              <input class="otp-digit" type="text" inputmode="numeric" maxlength="1" data-idx="3" data-group="phone"/>
+              <input class="otp-digit" type="text" inputmode="numeric" maxlength="1" data-idx="4" data-group="phone"/>
+              <input class="otp-digit" type="text" inputmode="numeric" maxlength="1" data-idx="5" data-group="phone"/>
+              <button id="verify-phone-btn" onclick="doVerifyPhone()" style="padding:.58rem .88rem;background:var(--sage-2);color:#fff;border:none;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:.75rem;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:background .2s,transform .15s;" onmouseover="this.style.transform='translateY(-1px)'" onmouseout="this.style.transform=''">Verify</button>
+            </div>
+            <button id="send-phone-btn" onclick="doSendPhoneOtp()" style="margin-top:.38rem;font-size:.7rem;color:var(--copper-lt);background:none;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;display:inline-flex;align-items:center;gap:4px;" onmouseover="this.style.color='var(--copper-glow)'" onmouseout="this.style.color='var(--copper-lt)'">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M23 4v6h-6"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>
+              Resend mobile OTP
+            </button>
+          </div>
+
+          <button class="btn-p" onclick="skipVerification()" style="margin-top:.3rem;"><span class="sh"></span>Continue to Store →</button>
+          <p style="font-size:.67rem;color:var(--ivory-mute);text-align:center;margin-top:.42rem;">You can verify later from your account settings</p>
+        </div>
+      </div>
+
+      <div style="margin-top:1.5rem;padding-top:1rem;border-top:1px solid rgba(255,255,255,.05);text-align:center;">
+        <a href="index.html" style="font-size:.71rem;color:var(--ivory-mute);text-decoration:none;display:inline-flex;align-items:center;gap:5px;transition:color .2s;letter-spacing:.02em;" onmouseover="this.style.color='var(--ivory-dim)'" onmouseout="this.style.color='var(--ivory-mute)'">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>Continue browsing as guest
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="hidden md:flex items-center gap-3 mt-5 ai" style="animation-delay:.5s;">
+    <span class="c-line" style="width:26px;display:block;"></span>
+    <span style="font-size:.57rem;letter-spacing:.15em;text-transform:uppercase;color:var(--ivory-mute);opacity:.45;">Nansai Organics · Trusted Since 2018</span>
+    <span class="c-line" style="width:26px;display:block;"></span>
+  </div>
+</div>
+
+<footer style="background:#111827;color:#d1d5db;position:relative;z-index:10;">
+  <div style="max-width:1400px;margin:0 auto;padding:3rem 1.75rem 2rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:2.5rem;">
+    <div>
+      <img src="nansei organics.png" class="h-16 w-auto mb-4 brightness-0 invert" alt="Nansei Organics"/>
+      <p style="font-size:.78rem;color:#9ca3af;line-height:1.7;margin-bottom:1rem;">100% organic & high-quality agricultural products. Trusted by farmers and families.</p>
+      <div style="display:flex;gap:.5rem;">
+        <a href="#" style="width:32px;height:32px;background:rgba(255,255,255,.07);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#9ca3af;text-decoration:none;font-size:.7rem;transition:background .2s;" onmouseover="this.style.background='#166534'" onmouseout="this.style.background='rgba(255,255,255,.07)'">tw</a>
+        <a href="#" style="width:32px;height:32px;background:rgba(255,255,255,.07);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#9ca3af;text-decoration:none;font-size:.7rem;transition:background .2s;" onmouseover="this.style.background='#1d4ed8'" onmouseout="this.style.background='rgba(255,255,255,.07)'">fb</a>
+        <a href="#" style="width:32px;height:32px;background:rgba(255,255,255,.07);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#9ca3af;text-decoration:none;font-size:.7rem;transition:background .2s;" onmouseover="this.style.background='#db2777'" onmouseout="this.style.background='rgba(255,255,255,.07)'">ig</a>
+      </div>
+    </div>
+    <div>
+      <h3 style="font-size:.82rem;font-weight:700;color:#fff;margin-bottom:.85rem;letter-spacing:.06em;text-transform:uppercase;">Quick Links</h3>
+      <ul style="list-style:none;display:flex;flex-direction:column;gap:.55rem;">
+        <li><a href="index.html" style="font-size:.78rem;color:#9ca3af;text-decoration:none;" onmouseover="this.style.color='#4ade80'" onmouseout="this.style.color='#9ca3af'">Home</a></li>
+        <li><a href="index.html#products" style="font-size:.78rem;color:#9ca3af;text-decoration:none;" onmouseover="this.style.color='#4ade80'" onmouseout="this.style.color='#9ca3af'">Shop</a></li>
+        <li><a href="#" style="font-size:.78rem;color:#9ca3af;text-decoration:none;" onmouseover="this.style.color='#4ade80'" onmouseout="this.style.color='#9ca3af'">About Us</a></li>
+        <li><a href="#" style="font-size:.78rem;color:#9ca3af;text-decoration:none;" onmouseover="this.style.color='#4ade80'" onmouseout="this.style.color='#9ca3af'">Contact</a></li>
+      </ul>
+    </div>
+    <div>
+      <h3 style="font-size:.82rem;font-weight:700;color:#fff;margin-bottom:.85rem;letter-spacing:.06em;text-transform:uppercase;">Support</h3>
+      <ul style="list-style:none;display:flex;flex-direction:column;gap:.55rem;">
+        <li><a href="#" style="font-size:.78rem;color:#9ca3af;text-decoration:none;" onmouseover="this.style.color='#4ade80'" onmouseout="this.style.color='#9ca3af'">FAQ</a></li>
+        <li><a href="#" style="font-size:.78rem;color:#9ca3af;text-decoration:none;" onmouseover="this.style.color='#4ade80'" onmouseout="this.style.color='#9ca3af'">Returns</a></li>
+        <li><a href="#" style="font-size:.78rem;color:#9ca3af;text-decoration:none;" onmouseover="this.style.color='#4ade80'" onmouseout="this.style.color='#9ca3af'">Shipping Info</a></li>
+        <li><a href="#" style="font-size:.78rem;color:#9ca3af;text-decoration:none;" onmouseover="this.style.color='#4ade80'" onmouseout="this.style.color='#9ca3af'">Track Order</a></li>
+      </ul>
+    </div>
+    <div>
+      <h3 style="font-size:.82rem;font-weight:700;color:#fff;margin-bottom:.85rem;letter-spacing:.06em;text-transform:uppercase;">Newsletter</h3>
+      <p style="font-size:.78rem;color:#9ca3af;margin-bottom:.75rem;line-height:1.6;">Get the latest organic offers and farm updates.</p>
+      <div style="display:flex;gap:.5rem;">
+        <input type="email" placeholder="Your email" style="flex:1;padding:.55rem .85rem;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:10px;font-size:.76rem;color:#fff;outline:none;font-family:'DM Sans',sans-serif;" onfocus="this.style.borderColor='#4ade80'" onblur="this.style.borderColor='rgba(255,255,255,.1)'"/>
+        <button style="background:#166534;color:#fff;padding:.55rem .9rem;border-radius:10px;border:none;font-size:.76rem;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;">Join</button>
+      </div>
+    </div>
+  </div>
+  <div style="border-top:1px solid rgba(255,255,255,.06);padding:1rem 1.75rem;text-align:center;font-size:.72rem;color:#6b7280;">&copy; 2026 NANSEI. All Rights Reserved. Made with 💚 for organic farmers.</div>
+</footer>
+
+<script>
+const API = 'http://localhost:5000/api';
+
+/* ── TOAST ── */
+function showToast(m) {
+  const t = document.getElementById('toast');
+  t.textContent = m; t.classList.add('on');
+  clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove('on'), 2400);
+}
+
+/* ════════════════════════════════════
+   OTP DIGIT BOXES
+════════════════════════════════════ */
+function initOtpBoxes(group) {
+  const row = document.getElementById(group + '-otp-row');
+  const digits = [...row.querySelectorAll('.otp-digit[data-group="' + group + '"]')];
+
+  digits.forEach((box, i) => {
+    box.addEventListener('keydown', e => {
+      if (e.key === 'Backspace') {
+        e.preventDefault();
+        if (box.value) { box.value = ''; box.classList.remove('filled'); }
+        else if (i > 0) { digits[i-1].focus(); digits[i-1].value = ''; digits[i-1].classList.remove('filled'); }
+      } else if (e.key === 'ArrowLeft'  && i > 0) digits[i-1].focus();
+        else if (e.key === 'ArrowRight' && i < digits.length-1) digits[i+1].focus();
+    });
+
+    box.addEventListener('input', e => {
+      const val = e.target.value.replace(/\D/g,'').slice(-1);
+      box.value = val;
+      if (val) {
+        box.classList.add('filled');
+        if (i < digits.length - 1) digits[i+1].focus();
+        else { box.blur(); if (group==='email') doVerifyEmail(); else doVerifyPhone(); }
+      } else { box.classList.remove('filled'); }
+    });
+
+    box.addEventListener('paste', e => {
+      e.preventDefault();
+      const paste = (e.clipboardData||window.clipboardData).getData('text').replace(/\D/g,'').slice(0,6);
+      paste.split('').forEach((ch, j) => { if (digits[j]) { digits[j].value = ch; digits[j].classList.add('filled'); } });
+      const nextEmpty = digits.findIndex(d => !d.value);
+      if (nextEmpty !== -1) digits[nextEmpty].focus();
+      else { digits[digits.length-1].focus(); group==='email' ? doVerifyEmail() : doVerifyPhone(); }
+    });
+  });
+}
+
+function getOtp(group) {
+  return [...document.getElementById(group+'-otp-row').querySelectorAll('.otp-digit')].map(d=>d.value).join('');
+}
+function setOtpDisabled(group, dis) {
+  document.getElementById(group+'-otp-row').querySelectorAll('.otp-digit').forEach(d => {
+    d.disabled = dis; if (dis) d.classList.add('verified');
+  });
+}
+function shakeOtp(group) {
+  document.getElementById(group+'-otp-row').querySelectorAll('.otp-digit').forEach(d => {
+    d.classList.remove('error-shake'); void d.offsetWidth; d.classList.add('error-shake');
+    setTimeout(() => d.classList.remove('error-shake'), 400);
+  });
+}
+function clearOtp(group) {
+  document.getElementById(group+'-otp-row').querySelectorAll('.otp-digit').forEach(d => {
+    d.value = ''; d.disabled = false; d.classList.remove('filled','verified','error-shake');
+  });
+}
+
+/* ════════════════════════════════════
+   COUNTDOWN TIMER
+════════════════════════════════════ */
+const TOTAL = 600; // 10 min
+const CIRCUM = 2 * Math.PI * 12; // ≈75.4
+const _timers = {};
+
+function startCountdown(group) {
+  if (_timers[group]) clearInterval(_timers[group]);
+  let rem = TOTAL;
+  const arc = document.getElementById(group+'-ring-arc');
+  const num = document.getElementById(group+'-ring-num');
+  const sec = document.getElementById(group+'-secs');
+  arc.classList.remove('expired');
+
+  function tick() {
+    rem = Math.max(0, rem - 1);
+    arc.style.strokeDashoffset = CIRCUM * (1 - rem/TOTAL);
+    num.textContent = Math.ceil(rem/60);
+    const m = Math.floor(rem/60), s = rem%60;
+    sec.textContent = m + ':' + String(s).padStart(2,'0');
+    if (rem === 0) {
+      clearInterval(_timers[group]);
+      arc.classList.add('expired');
+      sec.parentElement.innerHTML = '<strong style="color:var(--err);">OTP expired</strong> — resend';
+    }
+  }
+  tick();
+  _timers[group] = setInterval(tick, 1000);
+}
+
+function resetCountdown(group) {
+  if (_timers[group]) clearInterval(_timers[group]);
+  const arc = document.getElementById(group+'-ring-arc');
+  const num = document.getElementById(group+'-ring-num');
+  arc.style.strokeDashoffset = 0; arc.classList.remove('expired');
+  num.textContent = '10';
+  document.getElementById(group+'-secs').textContent = '10:00';
+  startCountdown(group);
+}
+
+/* ════════════════════════════════════
+   AUTO-REDIRECT
+════════════════════════════════════ */
+let _emailOk = false, _phoneOk = false;
+
+function checkRedirect() {
+  const phoneSection = document.getElementById('phone-otp-section');
+  const phoneNeeded = phoneSection.style.display !== 'none';
+  if (_emailOk && (!phoneNeeded || _phoneOk)) {
+    document.getElementById('proceed-banner').classList.add('on');
+    const u = JSON.parse(localStorage.getItem('nansai_user') || '{}');
+    showToast('🌿 Verified! Welcome, ' + (u.name||'there').split(' ')[0] + '!');
+    setTimeout(() => { window.location.href = 'index.html'; }, 1800);
+  }
+}
+
+/* ════════════════════════════════════
+   INIT
+════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded', async function() {
+  initOtpBoxes('email');
+  initOtpBoxes('phone');
+
+  if (window.location.hash === '#verify') {
+    switchTab('r');
+    ['rs1','rs2'].forEach(id => document.getElementById(id).classList.remove('on'));
+    document.getElementById('rs3').classList.add('on');
+    document.getElementById('phone-otp-section').style.display = 'block';
+    startCountdown('email'); startCountdown('phone');
+    return;
+  }
+
+  const token = localStorage.getItem('nansai_token');
+  if (!token) return;
+  try {
+    const res = await fetch(API+'/auth/me', { headers:{'Authorization':'Bearer '+token} });
+    if (!res.ok) throw new Error();
+    const data = await res.json();
+    const u = data.user;
+    localStorage.setItem('nansai_user', JSON.stringify(u));
+    if (!u.emailVerified) {
+      switchTab('r');
+      ['rs1','rs2'].forEach(id => document.getElementById(id).classList.remove('on'));
+      document.getElementById('rs3').classList.add('on');
+      document.getElementById('otp-info-banner').innerHTML = `📧 A verification OTP was sent to <strong>${u.email}</strong>. It expires in <strong>10 minutes</strong>.`;
+      startCountdown('email');
+      if (u.phone && !u.phoneVerified) { document.getElementById('phone-otp-section').style.display='block'; startCountdown('phone'); }
+      setTimeout(() => { const f = document.getElementById('email-otp-row').querySelector('.otp-digit'); if(f) f.focus(); }, 400);
+      return;
+    }
+    showToast('✅ Welcome back, ' + (u.name||u.email).split(' ')[0] + '!');
+    setTimeout(() => { window.location.href='index.html'; }, 1000);
+  } catch(e) {
+    localStorage.removeItem('nansai_token'); localStorage.removeItem('nansai_user');
+  }
+});
+
+/* ── TABS ── */
+function switchTab(tab) {
+  document.getElementById('tl').classList.toggle('on', tab==='l');
+  document.getElementById('tr').classList.toggle('on', tab==='r');
+  document.getElementById('fl').style.display = tab==='l' ? 'block' : 'none';
+  document.getElementById('fr').style.display = tab==='r' ? 'block' : 'none';
+  if (tab==='l') gls(1); if (tab==='r') resetRegForm();
+}
+
+/* ── LOGIN ── */
+function gls(n) { [1,2].forEach(i => { const el=document.getElementById('ls'+i); if(el) el.classList.toggle('on',i===n); }); }
+function cf(iid,eid) { document.getElementById(iid).classList.remove('err'); document.getElementById(eid).classList.remove('on'); }
+
+async function doLogin() {
+  const id=document.getElementById('i-id').value.trim(), pw=document.getElementById('i-pw').value;
+  ['i-id','i-pw'].forEach(x=>document.getElementById(x).classList.remove('err'));
+  ['e-id','e-pw'].forEach(x=>document.getElementById(x).classList.remove('on'));
+  let ok=true;
+  if(!id||(!/^[\w.+\-]+@[\w\-]+\.[a-z]{2,}$/i.test(id)&&!/^\d{10}$/.test(id))){ document.getElementById('i-id').classList.add('err'); document.getElementById('e-id').classList.add('on'); ok=false; }
+  if(pw.length<6){ document.getElementById('i-pw').classList.add('err'); document.getElementById('e-pw').classList.add('on'); ok=false; }
+  if(!ok) return;
+  const btn=document.querySelector('#ls1 .btn-p'); btn.innerHTML='<span class="sh"></span>Signing in…'; btn.disabled=true;
+  try {
+    const isPhone=/^\d{10}$/.test(id);
+    const res=await fetch(API+'/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(isPhone?{phone:id,password:pw}:{email:id,password:pw})});
+    const data=await res.json(); if(!res.ok) throw new Error(data.message||'Login failed');
+    localStorage.setItem('nansai_token',data.token); localStorage.setItem('nansai_user',JSON.stringify(data.user));
+    if(document.getElementById('rem').checked) localStorage.setItem('nansai_remember','1');
+    showToast('✅ Welcome back, '+(data.user.name||data.user.email||'there').split(' ')[0]+'!');
+    setTimeout(()=>{window.location.href='index.html';},1000);
+  } catch(err){ showToast('❌ '+err.message); btn.innerHTML='<span class="sh"></span>Sign In'; btn.disabled=false; }
+}
+
+async function doReset() {
+  const em=document.getElementById('r-em0').value.trim();
+  if(!/^[\w.+\-]+@[\w\-]+\.[a-z]{2,}$/i.test(em)){showToast('⚠️ Please enter a valid email address');return;}
+  const btn=document.querySelector('#ls2 .btn-p'); btn.innerHTML='<span class="sh"></span>Sending…'; btn.disabled=true;
+  try {
+    const res=await fetch(API+'/auth/forgot-password',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:em})});
+    const data=await res.json(); if(!res.ok) throw new Error(data.message||'Request failed');
+    showToast('📧 Reset link sent to '+em); btn.innerHTML='<span class="sh"></span>Send Reset Link'; btn.disabled=false;
+    document.getElementById('r-em0').value=''; setTimeout(()=>gls(1),1600);
+  } catch(err){ showToast('❌ '+err.message); btn.innerHTML='<span class="sh"></span>Send Reset Link'; btn.disabled=false; }
+}
+
+/* ── REGISTER ── */
+function resetRegForm() {
+  ['r-fn','r-ln','r-em','r-ph','r-pw','r-pw2'].forEach(id=>{const el=document.getElementById(id);if(el){el.value='';el.classList.remove('ok','err');}});
+  document.getElementById('trm').checked=false;
+  document.getElementById('otp-info-banner').innerHTML='📧 Check your email inbox for the 6-digit OTP.';
+  clearOtp('email'); clearOtp('phone');
+  document.getElementById('v-email-badge').style.display='none';
+  document.getElementById('v-phone-badge').style.display='none';
+  document.getElementById('phone-otp-section').style.display='none';
+  document.getElementById('proceed-banner').classList.remove('on');
+  const veb=document.getElementById('verify-email-btn'); veb.textContent='Verify'; veb.disabled=false; veb.style.background='var(--sage-2)';
+  const vpb=document.getElementById('verify-phone-btn'); vpb.textContent='Verify'; vpb.disabled=false; vpb.style.background='var(--sage-2)';
+  document.getElementById('resend-email-btn').innerHTML='<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M23 4v6h-6"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg> Resend email OTP'; document.getElementById('resend-email-btn').disabled=false;
+  document.getElementById('send-phone-btn').innerHTML='<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M23 4v6h-6"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg> Resend mobile OTP'; document.getElementById('send-phone-btn').disabled=false;
+  ['email','phone'].forEach(g=>{if(_timers[g]) clearInterval(_timers[g]);});
+  _emailOk=false; _phoneOk=false;
+  ['s1','s2','s3','s4'].forEach(id=>{const b=document.getElementById(id);if(b){b.style.width='0%';b.style.background='';}});
+  document.getElementById('sl').textContent='';
+  grs1();
+}
+function grs1() { document.getElementById('rs1').classList.add('on'); document.getElementById('rs2').classList.remove('on'); document.getElementById('rs3').classList.remove('on'); }
+function grs2() {
+  const fn=document.getElementById('r-fn').value.trim(), ln=document.getElementById('r-ln').value.trim(), em=document.getElementById('r-em').value.trim(), ph=document.getElementById('r-ph').value.trim();
+  if(!fn){showToast('⚠️ Please enter your first name');return;}
+  if(/[^a-zA-Z\s]/.test(fn)){showToast('⚠️ First name should contain only letters');return;}
+  if(ln&&/[^a-zA-Z\s]/.test(ln)){showToast('⚠️ Last name should contain only letters');return;}
+  if(!/^[\w.+\-]+@[\w\-]+\.[a-z]{2,}$/i.test(em)){showToast('⚠️ Please enter a valid email');return;}
+  if(ph&&ph.length!==10){showToast('⚠️ Phone must be 10 digits');return;}
+  document.getElementById('rs1').classList.remove('on'); document.getElementById('rs2').classList.add('on'); document.getElementById('rs3').classList.remove('on');
+}
+
+async function doReg() {
+  const pw=document.getElementById('r-pw').value, pw2=document.getElementById('r-pw2').value;
+  const fn=document.getElementById('r-fn').value.trim(), ln=document.getElementById('r-ln').value.trim();
+  const em=document.getElementById('r-em').value.trim(), ph=document.getElementById('r-ph').value.trim();
+  if(pw.length<8){showToast('⚠️ Password must be at least 8 characters');return;}
+  if(pw!==pw2){showToast('⚠️ Passwords do not match');return;}
+  if(!document.getElementById('trm').checked){showToast('⚠️ Please accept the terms to continue');return;}
+  const btn=document.querySelector('#rs2 .btn-p'); btn.innerHTML='<span class="sh"></span>Creating account…'; btn.disabled=true;
+  try {
+    const res=await fetch(API+'/auth/register',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:fn+(ln?' '+ln:''),email:em,password:pw,phone:ph||undefined})});
+    const data=await res.json(); if(!res.ok) throw new Error(data.message||'Registration failed');
+    localStorage.setItem('nansai_token',data.token); localStorage.setItem('nansai_user',JSON.stringify(data.user));
+    document.getElementById('otp-info-banner').innerHTML=`📧 A 6-digit OTP has been sent to <strong>${em}</strong>${ph?` and <strong>+91 ${ph}</strong>`:''}.  It expires in <strong>10 minutes</strong>.`;
+    showToast('🌿 Account created! Check your email for the OTP.');
+    btn.innerHTML='<span class="sh"></span>Create Account'; btn.disabled=false;
+    document.getElementById('rs2').classList.remove('on'); document.getElementById('rs3').classList.add('on');
+    startCountdown('email');
+    setTimeout(()=>{ const f=document.getElementById('email-otp-row').querySelector('.otp-digit'); if(f) f.focus(); },420);
+    if(ph){ document.getElementById('phone-otp-section').style.display='block'; startCountdown('phone'); doSendPhoneOtp(); }
+  } catch(err){ showToast('❌ '+err.message); btn.innerHTML='<span class="sh"></span>Create Account'; btn.disabled=false; }
+}
+
+/* ── STRENGTH / PW ── */
+function cstr(pw) {
+  const bars=['s1','s2','s3','s4'].map(id=>document.getElementById(id)), lbl=document.getElementById('sl');
+  let sc=0; if(pw.length>=8)sc++; if(/[A-Z]/.test(pw))sc++; if(/\d/.test(pw))sc++; if(/[^A-Za-z0-9]/.test(pw))sc++;
+  const cols=['#d95858','#d08c42','#e5a85e','#52a066'], lbls=['Weak','Fair','Good','Strong'];
+  bars.forEach((b,i)=>{b.style.width=i<sc?'100%':'0%';b.style.background=sc?cols[sc-1]:'';});
+  lbl.textContent=sc?lbls[sc-1]:''; lbl.style.color=sc?cols[sc-1]:'';
+}
+function tpw(id,btn) {
+  const inp=document.getElementById(id), show=inp.type==='text';
+  inp.type=show?'password':'text';
+  btn.innerHTML=show?`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`;
+}
+document.querySelectorAll('.inp').forEach(inp=>{ inp.addEventListener('blur',()=>{if(inp.value.trim())inp.classList.add('ok');}); inp.addEventListener('focus',()=>inp.classList.remove('ok')); });
+
+/* ── OTP VERIFY ── */
+const RESEND_SVG = `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M23 4v6h-6"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>`;
+
+async function doVerifyEmail() {
+  const otp=getOtp('email'); if(otp.length!==6){shakeOtp('email');showToast('⚠️ Enter all 6 digits');return;}
+  const token=localStorage.getItem('nansai_token');
+  const btn=document.getElementById('verify-email-btn'); btn.textContent='…'; btn.disabled=true;
+  try {
+    const res=await fetch(API+'/auth/verify-email-otp',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},body:JSON.stringify({otp})});
+    const data=await res.json(); if(!res.ok) throw new Error(data.message);
+    showToast('✅ Email verified!');
+    document.getElementById('v-email-badge').style.display='inline';
+    setOtpDisabled('email',true); btn.textContent='✔'; btn.style.background='var(--ok)';
+    if(_timers['email']) clearInterval(_timers['email']);
+    const u=JSON.parse(localStorage.getItem('nansai_user')||'{}'); u.emailVerified=true; localStorage.setItem('nansai_user',JSON.stringify(u));
+    _emailOk=true; checkRedirect();
+  } catch(err){ shakeOtp('email'); showToast('❌ '+err.message); btn.textContent='Verify'; btn.disabled=false; }
+}
+
+function startResendCooldown(btnId, label) {
+  const btn = document.getElementById(btnId);
+  let sec = 60;
+  btn.innerHTML = RESEND_SVG + ' Resend in ' + sec + 's'; btn.disabled = true;
+  const iv = setInterval(() => {
+    sec--;
+    if (sec <= 0) { clearInterval(iv); btn.innerHTML = RESEND_SVG + ' ' + label; btn.disabled = false; }
+    else btn.innerHTML = RESEND_SVG + ' Resend in ' + sec + 's';
+  }, 1000);
+}
+
+async function doResendEmailOtp() {
+  const token=localStorage.getItem('nansai_token');
+  document.getElementById('resend-email-btn').disabled=true;
+  try {
+    const res=await fetch(API+'/auth/send-email-otp',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token}});
+    const data=await res.json(); if(!res.ok) throw new Error(data.message);
+    showToast('📧 OTP resent to your email'); clearOtp('email'); resetCountdown('email');
+    setTimeout(()=>{ const f=document.getElementById('email-otp-row').querySelector('.otp-digit'); if(f) f.focus(); },100);
+    startResendCooldown('resend-email-btn','Resend email OTP');
+  } catch(err){ showToast('❌ '+err.message); document.getElementById('resend-email-btn').innerHTML=RESEND_SVG+' Resend email OTP'; document.getElementById('resend-email-btn').disabled=false; }
+}
+
+async function doSendPhoneOtp() {
+  const token=localStorage.getItem('nansai_token');
+  document.getElementById('send-phone-btn').disabled=true; document.getElementById('send-phone-btn').innerHTML=RESEND_SVG+' Sending…';
+  try {
+    const res=await fetch(API+'/auth/send-phone-otp',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token}});
+    const data=await res.json(); if(!res.ok) throw new Error(data.message);
+    showToast('📱 OTP sent to your mobile'); clearOtp('phone'); resetCountdown('phone');
+    startResendCooldown('send-phone-btn','Resend mobile OTP');
+  } catch(err){ showToast('❌ '+err.message); document.getElementById('send-phone-btn').innerHTML=RESEND_SVG+' Resend mobile OTP'; document.getElementById('send-phone-btn').disabled=false; }
+}
+
+async function doVerifyPhone() {
+  const otp=getOtp('phone'); if(otp.length!==6){shakeOtp('phone');showToast('⚠️ Enter all 6 digits');return;}
+  const token=localStorage.getItem('nansai_token');
+  const btn=document.getElementById('verify-phone-btn'); btn.textContent='…'; btn.disabled=true;
+  try {
+    const res=await fetch(API+'/auth/verify-phone-otp',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},body:JSON.stringify({otp})});
+    const data=await res.json(); if(!res.ok) throw new Error(data.message);
+    showToast('✅ Phone verified!');
+    document.getElementById('v-phone-badge').style.display='inline';
+    setOtpDisabled('phone',true); btn.textContent='✔'; btn.style.background='var(--ok)';
+    if(_timers['phone']) clearInterval(_timers['phone']);
+    const u=JSON.parse(localStorage.getItem('nansai_user')||'{}'); u.phoneVerified=true; localStorage.setItem('nansai_user',JSON.stringify(u));
+    _phoneOk=true; checkRedirect();
+  } catch(err){ shakeOtp('phone'); showToast('❌ '+err.message); btn.textContent='Verify'; btn.disabled=false; }
+}
+
+function skipVerification() {
+  const u=JSON.parse(localStorage.getItem('nansai_user')||'{}');
+  showToast('🌿 Welcome, '+(u.name||'there').split(' ')[0]+'!');
+  setTimeout(()=>{window.location.href='index.html';},1000);
+}
+</script>
+</body>
+</html>
