@@ -12,7 +12,11 @@ async function createAdmin() {
     console.log('✅ Connected to MongoDB Atlas');
 
     const email = process.env.ADMIN_EMAIL || 'admin@nansaiorganics.com';
-    const password = process.argv[2] || 'Admin@123456';
+    const password = process.argv[2];
+    if (!password) {
+      console.error('❌ Please provide a password as argument: node create-admin.js <password>');
+      process.exit(1);
+    }
 
     const existing = await User.findOne({ email });
     if (existing) {
@@ -34,7 +38,7 @@ async function createAdmin() {
         emailVerified: true,
         phoneVerified: true,
       });
-      console.log(`✅ Admin user created: ${email} / ${password}`);
+      console.log(`✅ Admin user created: ${email}`);
     }
 
     await mongoose.disconnect();

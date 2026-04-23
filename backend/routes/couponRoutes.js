@@ -8,27 +8,39 @@ router.get('/', protect, authorize('admin'), async (req, res) => {
     const coupons = await Coupon.find();
     res.json({ success: true, data: coupons });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    console.error('[Coupons] GET / error:', error.message);
+    res.status(500).json({ success: false, message: 'Server error' });
   }
 });
 
 router.post('/validate', protect, async (req, res) => {
   try {
     const { code } = req.body;
-    const coupon = await Coupon.findOne({ code, isActive: true });
-    if (!coupon) return res.status(404).json({ success: false, message: 'Invalid coupon' });
+    if (!code || typeof code !== 'string') {
+      return res.status(400).json({ success: false, message: 'Coupon code is required' });
+    }
+    const coupon = await Coupon.findOne({ code: code.trim().toUpperCase() });
+    if (!coupon || !coupon.isValid()) {
+      return res.status(404).json({ success: false, message: 'Invalid or expired coupon' });
+    }
     res.json({ success: true, data: coupon });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    console.error('[Coupons] POST /validate error:', error.message);
+    res.status(500).json({ success: false, message: 'Server error' });
   }
 });
 
 router.post('/', protect, authorize('admin'), async (req, res) => {
   try {
-    const coupon = await Coupon.create(req.body);
+    const { code, discountType, discountValue, minOrderAmount, maxUses, expiresAt, isActive } = req.body;
+    if (!code || !discountType || discountValue === undefined) {
+      return res.status(400).json({ success: false, message: 'code, discountType and discountValue are required' });
+    }
+    const coupon = await Coupon.create({ code: code.trim().toUpperCase(), discountType, discountValue, minOrderAmount, maxUses, expiresAt, isActive });
     res.status(201).json({ success: true, data: coupon });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    console.error('[Coupons] POST / error:', error.message);
+    res.status(500).json({ success: false, message: 'Server error' });
   }
 });
 

@@ -77,7 +77,7 @@ const orderSchema = new mongoose.Schema({
   orderStatus: {
     type: String,
     required: true,
-    enum: ['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled', 'Refunded'],
+    enum: ['Pending', 'Processing', 'Packed', 'Shipped', 'Delivered', 'Cancelled', 'Refunded'],
     default: 'Pending'
   },
   isPaid: {
@@ -100,6 +100,11 @@ const orderSchema = new mongoose.Schema({
 }, {
   timestamps: true
 });
+
+// Indexes
+orderSchema.index({ user: 1, createdAt: -1 });          // my-orders
+orderSchema.index({ orderStatus: 1, createdAt: -1 });   // admin filter by status
+orderSchema.index({ createdAt: -1 });                   // admin list
 
 // Generate order number before saving
 orderSchema.pre('save', async function(next) {

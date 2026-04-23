@@ -14,21 +14,18 @@ function getRzp() {
 }
 
 // POST /api/payment/create-order
-// Public — no auth required so guest users can also pay
 router.post('/create-order', async (req, res) => {
   try {
     const { amount, currency = 'INR' } = req.body;
-    if (!amount || isNaN(amount) || amount <= 0) {
+    if (!amount || isNaN(amount) || Number(amount) <= 0) {
       return res.status(400).json({ success: false, message: 'Valid amount is required' });
     }
-
     const rzp = getRzp();
     const order = await rzp.orders.create({
-      amount: Math.round(Number(amount) * 100), // convert ₹ → paise
+      amount: Math.round(Number(amount) * 100),
       currency,
       receipt: 'rcpt_' + Date.now(),
     });
-
     res.json({
       success: true,
       orderId: order.id,
@@ -37,21 +34,18 @@ router.post('/create-order', async (req, res) => {
       keyId: process.env.RAZORPAY_KEY_ID,
     });
   } catch (err) {
-    console.error('Razorpay create-order error:', err.message);
-    res.status(500).json({ success: false, message: err.message });
+    console.error('[Payment] create-order error:', err.message);
+    res.status(500).json({ success: false, message: 'Payment order creation failed' });
   }
 });
 
 // POST /api/payment/verify-payment
-// Public — verifies Razorpay signature using HMAC-SHA256
 router.post('/verify-payment', (req, res) => {
   try {
     const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
-
     if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
       return res.status(400).json({ success: false, message: 'Missing payment fields' });
     }
-
     const expected = crypto
       .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)
       .update(razorpay_order_id + '|' + razorpay_payment_id)
@@ -60,11 +54,10 @@ router.post('/verify-payment', (req, res) => {
     if (expected !== razorpay_signature) {
       return res.status(400).json({ success: false, verified: false, message: 'Invalid payment signature' });
     }
-
     res.json({ success: true, verified: true, paymentId: razorpay_payment_id });
   } catch (err) {
-    console.error('Razorpay verify-payment error:', err.message);
-    res.status(500).json({ success: false, message: err.message });
+    console.error('[Payment] verify-payment error:', err.message);
+    res.status(500).json({ success: false, message: 'Payment verification failed' });
   }
 });
 

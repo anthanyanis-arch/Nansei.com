@@ -77,6 +77,10 @@ const userSchema = new mongoose.Schema({
   timestamps: true
 });
 
+// Indexes
+userSchema.index({ phone: 1 }, { sparse: true });
+userSchema.index({ role: 1 });
+
 // Hash password before saving
 userSchema.pre('save', async function(next) {
   if (!this.isModified('password')) {
@@ -91,11 +95,13 @@ userSchema.methods.comparePassword = async function(enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };
 
-// Generate JWT token
+// Generate JWT token — include role so authorize() middleware works
 userSchema.methods.generateToken = function() {
-  return jwt.sign({ id: this._id }, process.env.JWT_SECRET, {
-    expiresIn: process.env.JWT_EXPIRE
-  });
+  return jwt.sign(
+    { id: this._id, role: this.role },
+    process.env.JWT_SECRET,
+    { expiresIn: process.env.JWT_EXPIRE }
+  );
 };
 
 module.exports = mongoose.model('User', userSchema);

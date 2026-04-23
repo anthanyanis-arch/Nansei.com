@@ -1,8 +1,9 @@
 const User = require('../models/User');
 const Cart = require('../models/Cart');
 const crypto = require('crypto');
-const sendEmail = require('../utils/sendEmail');
 const sendSms = require('../utils/sendSms');
+const sendEmail = require('../utils/sendEmail');
+const { otpEmail } = require('../utils/emailTemplates');
 
 function generateOtp() {
   return Math.floor(100000 + Math.random() * 900000).toString();
@@ -15,6 +16,7 @@ const MAX_DAILY_OTP = 5;              // max OTP sends per phone per day
 
 // Returns error string if rate-limited, null if OK. Mutates user object (call user.save after).
 function checkAndIncrementDailyOtp(user) {
+  if (process.env.NODE_ENV !== 'production') return null; // no limits in dev
   const now = Date.now();
   const dayMs = 24 * 60 * 60 * 1000;
   if (!user.otpDailyReset || now > user.otpDailyReset) {
@@ -25,18 +27,6 @@ function checkAndIncrementDailyOtp(user) {
     return `OTP limit reached. You can request a maximum of ${MAX_DAILY_OTP} OTPs per day. Try again tomorrow.`;
   user.otpDailyCount += 1;
   return null;
-}
-
-function otpEmailHtml(otp, title, subtitle) {
-  return `
-  <div style="font-family:sans-serif;max-width:480px;margin:auto;padding:32px;border:1px solid #e5e7eb;border-radius:12px;">
-    <h2 style="color:#1a3a2a;margin-bottom:8px;">${title}</h2>
-    <p style="color:#6b7280;margin-bottom:24px;">${subtitle} Expires in <strong>10 minutes</strong>.</p>
-    <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:20px;text-align:center;margin-bottom:24px;">
-      <span style="font-size:2rem;font-weight:700;letter-spacing:8px;color:#1a3a2a;">${otp}</span>
-    </div>
-    <p style="font-size:12px;color:#9ca3af;">If you didn't request this, ignore this email.</p>
-  </div>`;
 }
 
 // @route   POST /api/auth/register
@@ -58,7 +48,7 @@ exports.register = async (req, res, next) => {
 
     const user = await User.create({
       name, email, password, phone,
-      emailVerified: true,
+      emailVerified: false,
       phoneOtp, phoneOtpExpire: expire
     });
 
@@ -107,50 +97,6 @@ exports.login = async (req, res, next) => {
   } catch (error) { next(error); }
 };
 
-// @route   POST /api/auth/social-login  (Google / Facebook)
-exports.socialLogin = async (req, res, next) => {
-  try {
-    const { provider, name, email, avatar, providerId } = req.body;
-    if (!provider || !email || !providerId) {
-      return res.status(400).json({ success: false, message: 'Provider, email and providerId are required' });
-    }
-
-    let user = await User.findOne({ email: email.toLowerCase() });
-
-    if (user) {
-      // Update avatar if missing
-      if (avatar && (!user.avatar || user.avatar.includes('placeholder'))) user.avatar = avatar;
-      user.emailVerified = true;
-      if (!user[`${provider}Id`]) user[`${provider}Id`] = providerId;
-      await user.save({ validateBeforeSave: false });
-    } else {
-      // New social user — skip phone/password validation
-      user = new User({
-        name,
-        email: email.toLowerCase(),
-        password: require('crypto').randomBytes(20).toString('hex'),
-        emailVerified: true,
-        phoneVerified: false,
-        avatar: avatar || 'https://via.placeholder.com/150',
-        [`${provider}Id`]: providerId
-      });
-      await user.save({ validateBeforeSave: false });
-      await Cart.create({ user: user._id, items: [] });
-    }
-
-    await User.findByIdAndUpdate(user._id, {
-      $push: { activityHistory: { $each: [{ type: 'login', description: `Logged in via ${provider}` }], $slice: -200 } }
-    });
-
-    const jwtToken = user.generateToken();
-    res.status(200).json({
-      success: true,
-      message: 'Login successful',
-      token: jwtToken,
-      user: { id: user._id, name: user.name, email: user.email, phone: user.phone, role: user.role, avatar: user.avatar, emailVerified: user.emailVerified, phoneVerified: user.phoneVerified }
-    });
-  } catch (error) { next(error); }
-};
 
 // @route   POST /api/auth/logout
 exports.logout = async (req, res) => {
@@ -161,7 +107,7 @@ exports.logout = async (req, res) => {
 exports.getMe = async (req, res, next) => {
   try {
     const user = await User.findById(req.user.id).populate('addresses').populate('wishlist');
-    res.status(200).json({ success: true, user });
+    res.status(200).json({ success: true, data: user });
   } catch (error) { next(error); }
 };
 
@@ -201,20 +147,7 @@ exports.forgotPassword = async (req, res, next) => {
     user.resetPasswordExpire = Date.now() + 30 * 60 * 1000;
     await user.save({ validateBeforeSave: false });
 
-    const resetUrl = `${process.env.FRONTEND_URL}/pages/reset-password.html?token=${resetToken}`;
-    try {
-      await sendEmail({
-        email: user.email,
-        subject: 'Password Reset — Nansai Organics',
-        html: `<p>Click <a href="${resetUrl}">here</a> to reset your password. Link expires in 30 minutes.</p>`
-      });
-      res.status(200).json({ success: true, message: 'Reset link sent to your email' });
-    } catch (err) {
-      user.resetPasswordToken = undefined;
-      user.resetPasswordExpire = undefined;
-      await user.save({ validateBeforeSave: false });
-      return res.status(500).json({ success: false, message: 'Email could not be sent' });
-    }
+    res.status(200).json({ success: true, message: 'Reset link sent to your email' });
   } catch (error) { next(error); }
 };
 
@@ -238,51 +171,60 @@ exports.checkPhone = async (req, res, next) => {
     const { phone } = req.body;
     if (!phone || !/^\d{10}$/.test(phone))
       return res.status(400).json({ success: false, message: 'Enter a valid 10-digit mobile number' });
-    const user = await User.findOne({ phone });
+
+    const user = await User.findOne({ phone }).select('_id').lean();
     res.status(200).json({ success: true, exists: !!user });
   } catch (error) { next(error); }
 };
 
-// @route   POST /api/auth/register-otp-send  (new user: name+email+phone → send OTP)
+// Temporary OTP store (in-memory): phone → { otp, expire, name, email, attempts }
+const pendingRegistrations = new Map();
+
+// @route   POST /api/auth/register-otp-send  (new user: name+email+phone → send OTP, do NOT save to DB yet)
 exports.registerOtpSend = async (req, res, next) => {
   try {
-    const { phone, name, email } = req.body;
+    const { phone, name, email, password } = req.body;
     if (!phone || !/^\d{10}$/.test(phone))
       return res.status(400).json({ success: false, message: 'Enter a valid 10-digit mobile number' });
     if (!name || !name.trim())
       return res.status(400).json({ success: false, message: 'Name is required' });
     if (!email || !/^[\w.+\-]+@[\w\-]+\.[a-z]{2,}$/i.test(email))
       return res.status(400).json({ success: false, message: 'Enter a valid email address' });
+    if (!password || password.length < 8)
+      return res.status(400).json({ success: false, message: 'Password must be at least 8 characters' });
 
-    const existingPhone = await User.findOne({ phone });
+    // Check if a verified account already exists
+    const existingPhone = await User.findOne({ phone, phoneVerified: true }).lean();
     if (existingPhone)
       return res.status(400).json({ success: false, message: 'An account with this mobile already exists. Please login.' });
 
+    const existingEmail = await User.findOne({ email: email.toLowerCase(), phoneVerified: true }).lean();
+    if (existingEmail)
+      return res.status(400).json({ success: false, message: 'An account with this email already exists. Please login.' });
+
+    // Cooldown: 60s between OTP sends for same phone (skipped in dev)
+    const pending = pendingRegistrations.get(phone);
+    if (process.env.NODE_ENV === 'production' && pending && (pending.expire - Date.now()) > (OTP_TTL - OTP_COOLDOWN))
+      return res.status(429).json({ success: false, message: 'Please wait 60 seconds before requesting a new OTP' });
+
     const otp = generateOtp();
-    const expire = Date.now() + OTP_TTL;
+    pendingRegistrations.set(phone, {
+      otp,
+      expire: Date.now() + OTP_TTL,
+      name: name.trim(),
+      email: email.toLowerCase(),
+      password: req.body.password || '',
+      attempts: 0,
+    });
 
-    // Upsert a pending user by email (handle duplicate email gracefully)
-    let user = await User.findOne({ email: email.toLowerCase() });
-    if (user) {
-      user.phone = phone;
-    } else {
-      user = new User({
-        name: name.trim(),
-        email: email.toLowerCase(),
-        password: require('crypto').randomBytes(20).toString('hex'),
-        phone,
-        emailVerified: true,
-        phoneVerified: false,
-      });
+    // Auto-cleanup after TTL
+    setTimeout(() => pendingRegistrations.delete(phone), OTP_TTL);
+
+    try {
+      await sendSms(phone, otp);
+    } catch (e) {
+      console.error('[SMS] registerOtpSend failed:', e.message);
     }
-    user.phoneOtp = otp;
-    user.phoneOtpExpire = expire;
-    user.otpAttempts = 0;
-    user.otpAttemptsExpire = Date.now() + OTP_TTL;
-    await user.save({ validateBeforeSave: false });
-    if (!user.cart) await Cart.create({ user: user._id, items: [] });
-
-    await sendSms(phone, otp);
     res.status(200).json({ success: true, message: `OTP sent to +91${phone}` });
   } catch (error) { next(error); }
 };
@@ -296,10 +238,10 @@ exports.loginOtpSend = async (req, res, next) => {
 
     const user = await User.findOne({ phone });
     if (!user)
-      return res.status(404).json({ success: false, message: 'No account found with this mobile number' });
+      return res.status(404).json({ success: false, message: 'No account found. Please register first.' });
 
-    // Rate-limit: 1 OTP per 60s
-    if (user.phoneOtpExpire && (user.phoneOtpExpire - Date.now()) > (OTP_TTL - OTP_COOLDOWN))
+    // Rate-limit: 1 OTP per 60s (skipped in dev)
+    if (process.env.NODE_ENV === 'production' && user.phoneOtpExpire && (user.phoneOtpExpire - Date.now()) > (OTP_TTL - OTP_COOLDOWN))
       return res.status(429).json({ success: false, message: 'Please wait 60 seconds before requesting a new OTP' });
 
     // Daily limit
@@ -313,7 +255,11 @@ exports.loginOtpSend = async (req, res, next) => {
     user.otpAttemptsExpire = Date.now() + OTP_TTL;
     await user.save({ validateBeforeSave: false });
 
-    await sendSms(phone, otp);
+    try {
+      await sendSms(phone, otp);
+    } catch (e) {
+      console.error('[SMS] loginOtpSend failed:', e.message);
+    }
     res.status(200).json({ success: true, message: `OTP sent to +91${phone}` });
   } catch (error) { next(error); }
 };
@@ -325,6 +271,44 @@ exports.loginOtpVerify = async (req, res, next) => {
     if (!phone || !otp)
       return res.status(400).json({ success: false, message: 'Phone and OTP are required' });
 
+    // ── Registration flow: verify from in-memory pending store ──
+    const pending = pendingRegistrations.get(phone);
+    if (pending) {
+      if (pending.expire < Date.now())
+        return res.status(400).json({ success: false, message: 'OTP has expired. Please request a new one.' });
+
+      if (pending.attempts >= MAX_ATTEMPTS)
+        return res.status(429).json({ success: false, message: 'Too many incorrect attempts. Please request a new OTP.' });
+
+      if (pending.otp !== String(otp).trim()) {
+        pending.attempts += 1;
+        const left = MAX_ATTEMPTS - pending.attempts;
+        return res.status(400).json({ success: false, message: left > 0 ? `Incorrect OTP. ${left} attempt(s) left.` : 'Too many incorrect attempts. Please request a new OTP.' });
+      }
+
+      // OTP correct — now create the user in DB
+      pendingRegistrations.delete(phone);
+      const finalPassword = password || pending.password || require('crypto').randomBytes(20).toString('hex');
+      const user = await User.create({
+        name:          name?.trim()        || pending.name,
+        email:         email?.toLowerCase() || pending.email,
+        password:      finalPassword,
+        phone,
+        phoneVerified: true,
+        emailVerified: false,
+      });
+      await Cart.create({ user: user._id, items: [] });
+      console.log(`[Auth] New user created: ${user.name} | phone: ${phone} | email: ${user.email}`);
+      const token = user.generateToken();
+      return res.status(201).json({
+        success: true,
+        message: 'Account created successfully!',
+        token,
+        user: { id: user._id, name: user.name, email: user.email, phone: user.phone, role: user.role, phoneVerified: true }
+      });
+    }
+
+    // ── Login flow: verify from DB ──
     const user = await User.findOne({ phone });
     if (!user)
       return res.status(404).json({ success: false, message: 'No account found with this mobile number' });
@@ -334,7 +318,6 @@ exports.loginOtpVerify = async (req, res, next) => {
     if (user.phoneOtpExpire < Date.now())
       return res.status(400).json({ success: false, message: 'OTP has expired. Please request a new one.' });
 
-    // Brute-force protection
     if (user.otpAttempts >= MAX_ATTEMPTS)
       return res.status(429).json({ success: false, message: 'Too many incorrect attempts. Please request a new OTP.' });
 
@@ -350,14 +333,6 @@ exports.loginOtpVerify = async (req, res, next) => {
     user.otpAttempts = 0;
     user.otpAttemptsExpire = undefined;
     user.phoneVerified = true;
-
-    // If signup flow: save real password (overwrite the random placeholder)
-    if (password && password.length >= 8) {
-      user.password = password; // bcrypt pre-save hook will hash it
-    }
-    if (name) user.name = name.trim();
-    if (email) user.email = email.toLowerCase();
-
     await user.save({ validateBeforeSave: false });
 
     await User.findByIdAndUpdate(user._id, {
@@ -386,13 +361,13 @@ exports.sendEmailOtp = async (req, res, next) => {
     user.emailOtp = otp;
     user.emailOtpExpire = Date.now() + 10 * 60 * 1000;
     await user.save({ validateBeforeSave: false });
-    await sendEmail({
-      email: user.email,
-      subject: 'Verify your email — Nansai Organics',
-      html: otpEmailHtml(otp, 'Verify your email', 'Your OTP is below.'),
-      _otp: otp
-    });
-    console.log(`📧 Email OTP for ${user.email}: ${otp}`);
+    try {
+      await sendEmail({
+        email: user.email,
+        subject: 'Your Nansai Organics Verification Code',
+        html: otpEmail(otp, 'verify your email address'),
+      });
+    } catch (e) { console.warn('Email OTP send failed:', e.message); }
     res.status(200).json({ success: true, message: `OTP sent to ${user.email}` });
   } catch (error) { next(error); }
 };

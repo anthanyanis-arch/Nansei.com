@@ -8,16 +8,22 @@ router.get('/', async (req, res) => {
     const categories = await Category.find();
     res.json({ success: true, data: categories });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    console.error('[Categories] GET / error:', error.message);
+    res.status(500).json({ success: false, message: 'Server error' });
   }
 });
 
 router.post('/', protect, authorize('admin'), async (req, res) => {
   try {
-    const category = await Category.create(req.body);
+    const { name, slug, image, description, isActive } = req.body;
+    if (!name) {
+      return res.status(400).json({ success: false, message: 'Category name is required' });
+    }
+    const category = await Category.create({ name, slug, image, description, isActive });
     res.status(201).json({ success: true, data: category });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    console.error('[Categories] POST / error:', error.message);
+    res.status(500).json({ success: false, message: 'Server error' });
   }
 });
 

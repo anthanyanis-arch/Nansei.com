@@ -1,10 +1,13 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Nansai — Experience the Root of Nature</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,700&family=Inter:wght@400;600;700;900&family=Roboto:wght@500;700&display=swap" rel="stylesheet"/>
+<script src="../js/config.js"></script>
+<script src="../frontend/js/api.js"></script>
+<script src="../frontend/js/cart.js"></script>
 <script src="https://cdn.tailwindcss.com"></script>
 
 <script>
@@ -180,9 +183,10 @@ body { font-family:'Inter',sans-serif; background:#f7f3ec; color:var(--text-dk);
    MOBILE SEARCH ROW
 ═══════════════════════════════════════ */
 .mob-search-row {
-  display:none; background:#FEFCE9;
+  display:none; background:#fff;
   border-bottom:1px solid rgba(26,58,42,.08);
   padding:.48rem .85rem .6rem;
+  margin-top:-1px;
 }
 .mob-search-row .wrap { position:relative; }
 .mob-search-row input {
@@ -206,13 +210,24 @@ body { font-family:'Inter',sans-serif; background:#f7f3ec; color:var(--text-dk);
 .animate-marquee { animation:marquee 35s linear infinite; }
 
 /* ═══════════════════════════════════════
-   PARALLAX HERO SLIDER
+   PARALLAX HERO SLIDER — 3D CAROUSEL
 ═══════════════════════════════════════ */
-.slider-shell { position:relative; width:100%; overflow:hidden; }
-#track { display:flex; height:100%; transition:transform .72s cubic-bezier(.77,0,.18,1); }
-.slide { position:relative; flex:0 0 100%; height:100%; overflow:hidden; }
+.slider-shell { position:relative; width:100%; overflow:hidden; perspective:1200px; perspective-origin:50% 50%; }
+#track { display:flex; height:100%; transform-style:preserve-3d; transition:none; }
+.slide {
+  position:absolute; top:0; left:0; width:100%; height:100%;
+  overflow:hidden; transform-origin:center center;
+  transition:transform .85s cubic-bezier(.77,0,.18,1), opacity .85s cubic-bezier(.77,0,.18,1);
+  opacity:0; pointer-events:none;
+  backface-visibility:hidden;
+}
+.slide.active  { opacity:1; pointer-events:all; transform:translateX(0) rotateY(0deg) scale(1); z-index:3; }
+.slide.prev    { opacity:.45; transform:translateX(-72%) rotateY(38deg) scale(.82); z-index:2; }
+.slide.next    { opacity:.45; transform:translateX(72%) rotateY(-38deg) scale(.82); z-index:2; }
+.slide.far-prev{ opacity:.15; transform:translateX(-110%) rotateY(55deg) scale(.68); z-index:1; }
+.slide.far-next{ opacity:.15; transform:translateX(110%) rotateY(-55deg) scale(.68); z-index:1; }
 .slide-bg { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:center; transition:transform 7s ease; }
-.slide.active img.slide-bg { transform:scale(1.06); }
+.slide.active img.slide-bg { transform:scale(1.02); }
 video.slide-bg { transform:none!important; transition:none!important; }
 .slide-overlay {
   position:absolute; inset:0; z-index:1; pointer-events:none;
@@ -221,11 +236,11 @@ video.slide-bg { transform:none!important; transition:none!important; }
 }
 .slide-accent { position:absolute; left:clamp(1rem,3.5vw,2.2rem); top:0; bottom:0; width:2px; z-index:2; background:linear-gradient(to bottom,transparent 0%,#c9a84c 30%,#c9a84c 70%,transparent 100%); opacity:0; transition:opacity .5s .4s; }
 .slide.active .slide-accent { opacity:1; }
-.slide-content { position:absolute; inset:0; z-index:3; display:flex; flex-direction:column; justify-content:center; padding:clamp(1.2rem,4vw,2.8rem); padding-left:calc(clamp(1.2rem,4vw,2.8rem) + 16px); }
+.slide-content { position:absolute; inset:0; z-index:3; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; padding:clamp(1.2rem,4vw,2.8rem); }
 .eyebrow { display:flex; align-items:center; gap:.45rem; font-size:.58rem; font-weight:600; letter-spacing:.22em; text-transform:uppercase; color:#e8c97a; margin-bottom:.5rem; opacity:0; transform:translateY(12px); transition:opacity .5s .55s,transform .5s .55s; }
 .eyebrow span { display:block; width:1.4rem; height:1.5px; background:#c9a84c; flex-shrink:0; }
 .slide.active .eyebrow { opacity:1; transform:none; }
-.slide-title { font-family:'Cormorant Garamond',serif; font-weight:700; line-height:1.06; color:#fff; font-size:clamp(1.35rem,3vw,2.4rem); margin-bottom:.6rem; opacity:0; transform:translateY(16px); transition:opacity .55s .68s,transform .55s .68s; word-wrap:break-word; }
+.slide-title { font-family:'Cormorant Garamond',serif; font-weight:700; line-height:1.1; color:#fff; font-size:clamp(2rem,4.5vw,3.8rem); margin-bottom:0; opacity:0; transform:translateY(16px); transition:opacity .55s .55s,transform .55s .55s; word-wrap:break-word; letter-spacing:-.01em; }
 .slide.active .slide-title { opacity:1; transform:none; }
 .slide-title em { font-style:italic; color:#86c98a; }
 .slide-desc { font-size:clamp(.65rem,.85vw,.8rem); font-weight:300; line-height:1.65; color:rgba(255,255,255,.58); max-width:280px; margin-bottom:1.1rem; opacity:0; transform:translateY(12px); transition:opacity .5s .8s,transform .5s .8s; }
@@ -293,9 +308,9 @@ video.slide-bg { transform:none!important; transition:none!important; }
   0%,100% { transform:translateY(0); }
   50%     { transform:translateY(-7px); }
 }
-.prod-card { transition:transform .3s cubic-bezier(.34,1.56,.64,1),box-shadow .3s; display:flex; flex-direction:column; overflow:hidden; }
+.prod-card { transition:transform .3s cubic-bezier(.34,1.56,.64,1),box-shadow .3s; display:flex; flex-direction:column; }
 .prod-card:hover { transform:translateY(-6px) scale(1.018); box-shadow:0 20px 52px rgba(10,30,15,.16)!important; }
-.prod-card.card-lifted { transform:translateY(-10px) scale(1.02)!important; box-shadow:0 28px 60px rgba(10,30,15,.22)!important; transition:transform 320ms ease-in-out, box-shadow 320ms ease-in-out!important; }
+.prod-card.card-lifted { transform:translateY(-10px) scale(1.02)!important; box-shadow:0 28px 60px rgba(10,30,15,.22)!important; transition:transform 320ms ease-in-out, box-shadow 320ms ease-in-out!important; animation:none!important; }
 .prod-card:hover .prod-img { transform:scale(1.08); }
 .prod-img { display:block; width:100%; height:100%; object-fit:cover; object-position:center; transition:transform .55s cubic-bezier(.22,1,.36,1); }
 .prod-img-wrap {
@@ -304,7 +319,7 @@ video.slide-bg { transform:none!important; transition:none!important; }
   transition:height 380ms ease-in-out;
 }
 .prod-card.card-lifted .prod-img-wrap { height:190px; }
-.prod-info { padding:.75rem; display:flex; flex-direction:column; gap:3px; flex:1; overflow:hidden; }
+.prod-info { padding:.75rem; display:flex; flex-direction:column; gap:3px; flex:1; overflow:visible; }
 .prod-btn-area { margin-top:4px; }
 /* qty: full-width pill grid + square cart btn */
 .qty-selector-area { display:flex; align-items:stretch; gap:6px; width:100%; }
@@ -336,12 +351,25 @@ video.slide-bg { transform:none!important; transition:none!important; }
 .qty-cart-btn.done { background:#16a34a; }
 @keyframes btnBounce { 0%{transform:scale(1)} 35%{transform:scale(1.22)} 65%{transform:scale(.9)} 100%{transform:scale(1)} }
 .btn-bounce { animation:btnBounce 360ms cubic-bezier(.34,1.56,.64,1) both; }
+@keyframes cartFly {
+  0%   { transform:scale(1); opacity:1; }
+  40%  { transform:scale(1.3) translateY(-6px); opacity:1; }
+  100% { transform:scale(0.6) translateY(-20px); opacity:0; }
+}
+.cart-fly { animation:cartFly 500ms cubic-bezier(.34,1.56,.64,1) forwards; }
 .prod-float-1 { animation:floatCard 3.6s ease-in-out infinite; }
 .prod-float-2 { animation:floatCard 4.0s ease-in-out infinite .45s; }
 .prod-float-3 { animation:floatCard 3.8s ease-in-out infinite .9s; }
 .prod-float-4 { animation:floatCard 4.2s ease-in-out infinite 1.35s; }
 .prod-float-5 { animation:floatCard 3.5s ease-in-out infinite 1.8s; }
 .prod-float-6 { animation:floatCard 4.1s ease-in-out infinite .25s; }
+.prod-card.card-lifted,
+.prod-card.card-lifted.prod-float-1,
+.prod-card.card-lifted.prod-float-2,
+.prod-card.card-lifted.prod-float-3,
+.prod-card.card-lifted.prod-float-4,
+.prod-card.card-lifted.prod-float-5,
+.prod-card.card-lifted.prod-float-6 { animation:none!important; }
 @keyframes qtyFadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
 .qty-selector-area { animation:qtyFadeIn 260ms ease-out both; }
 
@@ -365,7 +393,7 @@ video.slide-bg { transform:none!important; transition:none!important; }
    PARALLAX SECTIONS
 ═══════════════════════════════════════ */
 .parallax-section { position:relative; overflow:hidden; }
-.parallax-bg-layer { position:absolute; inset:-25%; background-size:cover; background-position:center; will-change:transform; }
+.parallax-bg-layer { position:absolute; inset:0; background-size:cover; background-position:center; will-change:transform; }
 .parallax-overlay-dark {
   position:absolute; inset:0; z-index:1;
   background:linear-gradient(135deg,rgba(5,12,6,.82) 0%,rgba(15,34,24,.65) 45%,rgba(26,58,42,.4) 100%);
@@ -396,8 +424,399 @@ video.slide-bg { transform:none!important; transition:none!important; }
 @media(min-width:769px){
   .mob-search-row { display:none!important; }
   #mob-offer-bar  { display:none!important; }
+  #mob-sticky-bar { display:none!important; }
+}
+
+/* ═══════════════════════════════════════
+   MOBILE UX — COMPLETE OVERHAUL
+═══════════════════════════════════════ */
+@media(max-width:768px){
+
+  /* ── NAV ── */
+  :root { --nav-h: 58px; }
+  .nav-inner { padding: 0 1rem; gap: .6rem; }
+  .nav-logo img { height: 48px !important; }
+  .nav-icon-btn { width: 32px; height: 32px; }
+  .nav-icon-btn svg { width: 17px; height: 17px; }
+  .nav-badge { min-width: 14px; height: 14px; font-size: .5rem; }
+
+  /* ── MOBILE SEARCH ROW ── */
+  .mob-search-row { padding: .5rem .85rem .6rem; }
+  .mob-search-row input { font-size: .85rem; padding: .6rem 2.8rem .6rem 1rem; border-radius: 10px; }
+
+  /* ── HERO SLIDER ── */
+  #sliderShell { height: clamp(260px, 58vw, 380px) !important; }
+
+  /* ── PRODUCTS SECTION ── */
+  #products { padding: 2rem 0 2.5rem !important; }
+  #products > div { padding: 0 .85rem !important; }
+  #sr-prod-hdr { margin-bottom: 1.5rem !important; }
+  #sr-prod-hdr h1 { font-size: clamp(1.4rem, 6vw, 1.9rem) !important; }
+  #sr-prod-hdr p { font-size: .78rem !important; }
+
+  /* ── FILTER PILLS ── */
+  .filter-bar { gap: .35rem; padding: .2rem .05rem .45rem; }
+  .fpill { padding: .38rem .85rem; font-size: .72rem; }
+
+  /* ── PRODUCT SECTIONS — hide scroll btns, show 2-col grid ── */
+  .hscroll-wrap { gap: 0 !important; }
+  .scroll-btn { display: none !important; }
+  .prod-hscroll {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 12px !important;
+    overflow-x: hidden !important;
+    overflow-y: visible !important;
+    padding-bottom: 4px !important;
+    width: 100% !important;
+  }
+  .prod-card {
+    width: 100% !important;
+    flex-shrink: unset !important;
+    border-radius: 14px !important;
+  }
+  .prod-img-wrap { height: 160px !important; }
+  .prod-card.card-lifted .prod-img-wrap { height: 130px !important; }
+  .prod-info { padding: .6rem .65rem !important; gap: 2px !important; }
+  .prod-info h3 { font-size: .82rem !important; }
+  .prod-info span[style*="font-size:.68rem"] { font-size: .6rem !important; }
+  .prod-btn-area button { font-size: .65rem !important; padding: 8px 4px !important; border-radius: 8px !important; }
+  .qty-pill { font-size: .55rem !important; padding: 5px 2px !important; }
+  .qty-cart-btn { width: 40px !important; }
+
+  /* section header on mobile */
+  .prod-section > div:first-child { flex-direction: column !important; align-items: flex-start !important; gap: .5rem !important; margin-bottom: .85rem !important; }
+  .prod-section > div:first-child h2 { font-size: 1.2rem !important; }
+  .prod-section > div:first-child p { font-size: .72rem !important; }
+  .prod-section > div:first-child button { font-size: .65rem !important; padding: 5px 14px !important; }
+  .prod-section { margin-bottom: 2.2rem !important; }
+
+  /* flat grid (filtered view) */
+  #productGrid {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 12px !important;
+    padding: 8px 2px !important;
+  }
+
+  /* ── MID PARALLAX BANNER ── */
+  #midParallax { min-height: 320px !important; }
+  #midParallax .parallax-fg { padding: 2.5rem 1.25rem !important; }
+  #midParallax h2 { font-size: clamp(1.5rem, 6vw, 2rem) !important; margin-bottom: .75rem !important; }
+  #midParallax p { font-size: .78rem !important; margin-bottom: 1.5rem !important; }
+  #sr-mid-stats {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 1.2rem !important;
+    max-width: 100% !important;
+  }
+  #sr-mid-stats > div > div:first-child { font-size: 2rem !important; }
+  #sr-mid-stats > div > div:last-child { font-size: .52rem !important; }
+
+  /* ── WHY SECTION ── */
+  #why-section { padding: 2.5rem 1rem !important; }
+  #why-section .grid { gap: .75rem !important; }
+  .why-card { padding: 1rem !important; border-radius: 16px !important; }
+  .why-card .w-14 { width: 48px !important; height: 48px !important; font-size: 1.4rem !important; margin-bottom: .75rem !important; }
+  .why-card h3 { font-size: .88rem !important; margin-bottom: .35rem !important; }
+  .why-card p { font-size: .7rem !important; }
+
+  /* ── BLOG SECTION ── */
+  #blog-section {
+    display: block !important;
+    padding: 2rem .85rem 2.5rem !important;
+    background: var(--cream) !important;
+  }
+  #blog-section > div > div:first-child {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: .6rem !important;
+    margin-bottom: 1.25rem !important;
+  }
+  /* section title sizing */
+  #sr-blog-hdr h2 { font-size: 1.6rem !important; }
+  #sr-blog-hdr p  { font-size: .75rem !important; }
+  /* horizontal scroll row on mobile */
+  #blog-section > div > div:last-child {
+    display: flex !important;
+    flex-direction: row !important;
+    gap: .85rem !important;
+    overflow-x: auto !important;
+    overflow-y: visible !important;
+    scrollbar-width: none !important;
+    padding-bottom: 6px !important;
+    scroll-snap-type: x mandatory !important;
+  }
+  #blog-section > div > div:last-child::-webkit-scrollbar { display: none !important; }
+  .blog-card {
+    margin-top: 0 !important;
+    flex-shrink: 0 !important;
+    width: 78vw !important;
+    max-width: 300px !important;
+    scroll-snap-align: start !important;
+    border-radius: 16px !important;
+  }
+  .blog-card-img { height: 155px !important; }
+  .blog-card > div:last-child { padding: .85rem !important; }
+  .blog-card h3 { font-size: .95rem !important; margin-bottom: .35rem !important; }
+  .blog-card p  { font-size: .72rem !important; margin-bottom: .65rem !important; }
+  /* scroll hint dots */
+  #blog-scroll-dots {
+    display: flex !important;
+    justify-content: center;
+    gap: 5px;
+    margin-top: .85rem;
+  }
+  #blog-scroll-dots span {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: rgba(26,58,42,.2);
+    transition: background .25s, transform .25s;
+  }
+  #blog-scroll-dots span.active {
+    background: var(--forest-deep);
+    transform: scale(1.35);
+  }
+
+  /* ── FOOTER ── */
+  #site-footer .grid { grid-template-columns: 1fr 1fr !important; gap: 1.5rem !important; padding: 2rem 1.25rem !important; }
+  #site-footer .grid > div:first-child { grid-column: 1 / -1; }
+  #site-footer .grid > div:last-child { grid-column: 1 / -1; }
+
+  /* ── REEL WIDGET — move up above sticky bar ── */
+  #reel-widget { bottom: 72px !important; right: 10px !important; width: 130px !important; }
+  #reel-tab { bottom: 72px !important; }
+  .mini-caption { font-size: 8.5px !important; padding: 5px 6px !important; }
+
+  /* ── TOAST — above sticky bar ── */
+  #toast { bottom: calc(64px + 14px) !important; font-size: .74rem !important; }
+
+  /* ── CART DRAWER ── */
+  #cartDrawer { width: 100vw !important; }
+}
+
+/* ── MOBILE STICKY BOTTOM BAR ── */
+#mob-sticky-bar {
+  display: none;
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  z-index: 1080;
+  background: #fff;
+  border-top: 1px solid rgba(26,58,42,.1);
+  box-shadow: 0 -4px 20px rgba(10,30,15,.1);
+  padding: .45rem .5rem;
+  padding-bottom: calc(.45rem + env(safe-area-inset-bottom, 0px));
+}
+@media(max-width:768px){
+  #mob-sticky-bar { display: flex; align-items: center; justify-content: space-around; gap: .25rem; }
+  body { padding-bottom: 64px; }
+}
+.mob-bar-btn {
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  flex: 1; padding: .3rem .2rem;
+  background: none; border: none; cursor: pointer;
+  color: var(--text-md); text-decoration: none;
+  font-size: .58rem; font-weight: 600; letter-spacing: .04em;
+  border-radius: 10px; transition: color .2s, background .2s;
+  -webkit-tap-highlight-color: transparent;
+}
+.mob-bar-btn svg { width: 20px; height: 20px; }
+.mob-bar-btn:active { background: rgba(74,140,92,.08); color: var(--forest-leaf); }
+.mob-bar-btn.active { color: var(--forest-deep); }
+.mob-bar-btn.primary {
+  background: var(--forest-deep);
+  color: #fff; border-radius: 14px;
+  padding: .45rem .6rem;
+  flex: 1.4;
+  box-shadow: 0 4px 14px rgba(15,34,24,.28);
+}
+.mob-bar-btn.primary:active { background: var(--forest-mid); }
+.mob-bar-icon-wrap { position: relative; }
+.mob-bar-badge {
+  position: absolute; top: -4px; right: -6px;
+  background: #ef4444; color: #fff;
+  font-size: .48rem; font-weight: 800;
+  min-width: 14px; height: 14px; padding: 0 3px;
+  border-radius: 20px; display: flex; align-items: center; justify-content: center;
+  border: 1.5px solid #fff; line-height: 1;
 }
 .prod-hscroll::-webkit-scrollbar { display:none; }
+.hscroll-wrap { display:flex; align-items:center; gap:10px; }
+.prod-hscroll { perspective:1200px; overflow-x:auto !important; overflow-y:visible !important; }
+.prod-hscroll .prod-card {
+  transform-origin: center center;
+}
+.scroll-btn {
+  flex-shrink:0;
+  width:42px; height:42px; border-radius:50%;
+  background:rgba(20,20,20,.75);
+  border:2px solid rgba(255,255,255,.18);
+  box-shadow:0 4px 16px rgba(0,0,0,.4);
+  backdrop-filter:blur(6px);
+  display:flex; align-items:center; justify-content:center;
+  cursor:pointer; color:#fff; opacity:1;
+  transform:scale(1);
+  transition:background .2s ease, border-color .2s ease, transform .22s cubic-bezier(.34,1.56,.64,1), box-shadow .22s ease, opacity .25s ease, visibility .25s ease;
+  position:relative; overflow:hidden;
+}
+.scroll-btn::before {
+  content:'';
+  position:absolute; inset:0; border-radius:50%;
+  background:radial-gradient(circle at center, rgba(255,255,255,.18) 0%, transparent 70%);
+  opacity:0;
+  transition:opacity .2s ease;
+}
+.scroll-btn:hover {
+  background:rgba(255,255,255,.95);
+  border-color:rgba(255,255,255,.9);
+  color:#111;
+  transform:scale(1.13);
+  box-shadow:0 0 0 4px rgba(255,255,255,.15), 0 8px 28px rgba(0,0,0,.5);
+}
+.scroll-btn:hover::before { opacity:1; }
+.scroll-btn:active { transform:scale(.92); box-shadow:0 2px 8px rgba(0,0,0,.4); }
+.scroll-btn svg { transition:transform .2s cubic-bezier(.34,1.56,.64,1); position:relative; z-index:1; }
+.scroll-btn.left:hover svg { transform:translateX(-2px) scale(1.1); }
+.scroll-btn.right:hover svg { transform:translateX(2px) scale(1.1); }
+@keyframes btnPulse {
+  0%,100% { box-shadow:0 4px 16px rgba(0,0,0,.4), 0 0 0 0 rgba(255,255,255,.12); }
+  50%      { box-shadow:0 4px 16px rgba(0,0,0,.4), 0 0 0 6px rgba(255,255,255,0); }
+}
+.hscroll-wrap .scroll-btn { animation:btnPulse 2.5s ease-in-out infinite; }
+
+/* ═══════════════════════════════════════
+   FLOATING REELS WIDGET
+═══════════════════════════════════════ */
+#reel-widget {
+  position:fixed; bottom:24px; right:16px;
+  width:195px; border-radius:14px;
+  overflow:visible;
+  box-shadow:0 6px 24px rgba(10,30,15,.45);
+  background:#000; z-index:1050;
+  transition:transform .4s cubic-bezier(.4,0,.2,1);
+  cursor:grab;
+  user-select:none;
+  -webkit-tap-highlight-color: transparent;
+  will-change: transform;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+#reel-widget:active { cursor:grabbing; }
+.reel-track { border-radius:14px; overflow:hidden; }
+@media(max-width:768px){ #reel-widget{ width:175px; bottom:20px; right:14px; } }
+@media(max-width:480px){ #reel-widget{ width:155px; bottom:16px; right:12px; } }
+#reel-widget.minimized{ transform:translateX(calc(100% + 20px)); }
+.reel-track{ position:relative; width:100%; aspect-ratio:9/16; overflow:hidden; }
+.reel-slide{
+  position:absolute; inset:0;
+  transform:translateY(100%);
+  transition:transform .45s cubic-bezier(.4,0,.2,1);
+  will-change:transform;
+}
+.reel-slide.active{ transform:translateY(0); }
+.reel-slide.prev  { transform:translateY(-100%); }
+.reel-slide video { width:100%; height:100%; object-fit:cover; display:block; }
+.reel-dots{
+  position:absolute; right:6px; top:50%; transform:translateY(-50%);
+  display:flex; flex-direction:column; gap:5px; z-index:5;
+}
+.reel-dots span{
+  width:5px; height:5px; border-radius:50%;
+  background:rgba(255,255,255,.4); cursor:pointer;
+  transition:background .25s, transform .25s;
+}
+.reel-dots span.active{ background:#e8c97a; transform:scale(1.4); }
+.mini-caption{
+  padding:6px 8px;
+  background:linear-gradient(0deg,rgba(10,30,15,.85),transparent);
+  position:absolute; bottom:0; left:0; right:0;
+  color:#f7f3ec; font-size:9.5px; line-height:1.4;
+  pointer-events:none;
+}
+#reel-tab{
+  position:fixed; bottom:24px; right:-4px;
+  background:#fff; color:var(--forest-deep);
+  border-radius:50%;
+  width:26px; height:26px;
+  cursor:pointer;
+  z-index:1049;
+  display:none;
+  align-items:center; justify-content:center;
+  box-shadow:0 2px 8px rgba(0,0,0,.5);
+  border:2px solid #fff;
+  transition:background .2s;
+}
+#reel-tab:hover{ background:#f0f0f0; }
+@media(max-width:480px){ #reel-tab{ bottom:16px; } }
+#btn-reel-minimize{
+  position:absolute; top:-10px; right:-10px;
+  background:#fff; border:2px solid #fff; color:var(--forest-deep);
+  border-radius:50%; width:26px; height:26px;
+  font-size:13px; cursor:pointer; z-index:20;
+  display:flex; align-items:center; justify-content:center;
+  box-shadow:0 2px 8px rgba(0,0,0,.5);
+  transition:background .2s;
+  line-height:1;
+}
+#btn-reel-minimize:hover{ background:#f0f0f0; }
+/* Modal */
+#reel-modal{
+  position:fixed; inset:0;
+  background:rgba(0,0,0,0);
+  display:flex; align-items:center; justify-content:center;
+  z-index:2100; pointer-events:none;
+  transition:background .3s;
+}
+#reel-modal.open{ background:rgba(0,0,0,.78); pointer-events:all; }
+.reel-modal-box{
+  position:relative;
+  width:min(400px,95vw);
+  background:#000;
+  border-radius:20px; overflow:visible;
+  transform:scale(.9); opacity:0;
+  transition:transform .3s cubic-bezier(.4,0,.2,1), opacity .3s;
+  display:flex; flex-direction:column;
+  max-height:92vh;
+}
+#reel-modal.open .reel-modal-box{ transform:scale(1); opacity:1; }
+.reel-modal-header{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:10px 14px;
+  background:linear-gradient(to bottom,rgba(0,0,0,.6),transparent);
+  position:absolute; top:0; left:0; right:0;
+  z-index:20; pointer-events:all;
+}
+.reel-modal-caption{ color:rgba(255,255,255,.9); font-size:12px; flex:1; line-height:1.4; }
+/* Close btn — floats top-right outside the frame */
+#btn-reel-close{
+  position:absolute; top:-13px; right:-13px;
+  background:#fff; border:none; color:#111;
+  font-size:13px; cursor:pointer;
+  width:28px; height:28px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  box-shadow:0 2px 8px rgba(0,0,0,.35);
+  transition:background .2s, transform .2s;
+  z-index:30;
+}
+#btn-reel-close:hover{ background:#f0f0f0; transform:scale(1.1); }
+/* Prev/Next arrows — outside frame, right side */
+.reel-modal-ext-btn{
+  position:absolute; right:-42px;
+  background:#fff; border:none; color:#111;
+  width:30px; height:30px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  font-size:13px; cursor:pointer;
+  box-shadow:0 2px 8px rgba(0,0,0,.3);
+  transition:background .2s, transform .2s;
+  z-index:30;
+}
+.reel-modal-ext-btn:hover{ background:#f0f0f0; transform:scale(1.1); }
+#modal-prev{ top:calc(50% - 36px); }
+#modal-next{ top:calc(50% + 6px); }
+@media(max-width:480px){ .reel-modal-ext-btn{ display:none; } }
+.reel-modal-track{
+  position:relative; width:100%; aspect-ratio:9/16;
+  overflow:hidden; border-radius:20px;
+}
+.reel-modal-arrows{ display:none; }
 
 /* ═══════════════════════════════════════
    SECTION PATTERNS
@@ -413,6 +832,37 @@ video.slide-bg { transform:none!important; transition:none!important; }
 
 <!-- TOAST -->
 <div id="toast"></div>
+
+<!-- ═══════════════════════════════════════
+     FLOATING REELS WIDGET
+═══════════════════════════════════════ -->
+<!-- Restore tab -->
+<div id="reel-tab" title="Open Reels"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#1a3a2a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></div>
+
+<!-- Mini player -->
+<div id="reel-widget">
+  <button id="btn-reel-minimize" title="Minimize"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#1a3a2a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
+  <div class="reel-track" id="mini-track">
+    <div class="reel-dots" id="mini-dots"></div>
+  </div>
+</div>
+
+<!-- Expanded modal -->
+<div id="reel-modal">
+  <div class="reel-modal-box">
+    <!-- Close btn: top-right outside frame -->
+    <button id="btn-reel-close">&#10005;</button>
+    <!-- Up/down arrows: outside frame on sides -->
+    <button class="reel-modal-ext-btn" id="modal-prev">&#8593;</button>
+    <button class="reel-modal-ext-btn" id="modal-next">&#8595;</button>
+    <div class="reel-modal-track" id="modal-track">
+      <div class="reel-modal-header">
+        <span class="reel-modal-caption" id="modal-caption"></span>
+      </div>
+      <div class="reel-dots" id="modal-dots"></div>
+    </div>
+  </div>
+</div>
 <!-- OVERLAY -->
 <div id="dd-overlay"></div>
 
@@ -432,15 +882,27 @@ video.slide-bg { transform:none!important; transition:none!important; }
       <div id="offerTrack" class="flex items-center gap-8 whitespace-nowrap text-[13px] text-[#4a3510] font-medium animate-marquee hover:[animation-play-state:paused]" style="width:max-content;">
         <span class="flex items-center gap-2 cursor-pointer" data-code="NANSAI10">🎁 First Order <b class="text-green-800">10% OFF</b> <mark class="bg-yellow-200 px-1.5 py-[1px] rounded text-[12px] font-bold">NANSAI10</mark> <span class="text-[10px] px-2 py-[1px] rounded-full bg-amber-500 text-white">Copy</span></span>
         <span class="text-amber-400">◆</span>
+        <span>🌾 <b>Karunguruvai Rice</b> — ₹180/kg · Heritage variety, low GI</span>
+        <span class="text-amber-400">◆</span>
+        <span>🖤 <b>Karuppu Kavuni Rice</b> — ₹220/kg · Rich in antioxidants</span>
+        <span class="text-amber-400">◆</span>
+        <span>🌸 <b>Paneer Rose</b> — ₹150 · <b class="text-rose-600">Only 32 Left!</b></span>
+        <span class="text-amber-400">◆</span>
+        <span>🌺 <b>Hibiscus Flower</b> — ₹120 · Sun-dried, farm fresh</span>
+        <span class="text-amber-400">◆</span>
+        <span>🦋 <b>Butterfly Pea Flower</b> — ₹180 · Natural blue tea</span>
+        <span class="text-amber-400">◆</span>
+        <span>🥛 <b>Organic Rose Milk</b> — ₹140 · Pure &amp; natural</span>
+        <span class="text-amber-400">◆</span>
+        <span>🫙 <b>Idiyappam Flour</b> — ₹160/kg · Stone ground</span>
+        <span class="text-amber-400">◆</span>
+        <span>💪 <b>Health Mix Powder</b> — ₹175/kg · 12 grains blend</span>
+        <span class="text-amber-400">◆</span>
         <span>🚚 Free Delivery on Orders Above <mark class="bg-yellow-200 px-1.5 py-[1px] rounded font-semibold">₹999</mark></span>
         <span class="text-amber-400">◆</span>
-        <span>🌾 Grain Essentials Pack Save <mark class="bg-yellow-200 px-1.5 py-[1px] rounded font-semibold">₹221</mark></span>
+        <span class="flex items-center gap-2 cursor-pointer" data-code="HEALTH3">💊 Buy 2 Get <b class="text-green-700">1 FREE</b> <mark class="bg-yellow-200 px-1.5 py-[1px] rounded text-[12px] font-bold">HEALTH3</mark> <span class="text-[10px] px-2 py-[1px] rounded-full bg-amber-500 text-white">Copy</span></span>
         <span class="text-amber-400">◆</span>
-        <span>🌹 Paneer Rose <b class="text-rose-600">Only 32 Left</b></span>
-        <span class="text-amber-400">◆</span>
-        <span class="flex items-center gap-2 cursor-pointer" data-code="HEALTH3">💊 Buy 2 Supplements Get <b class="text-green-700">1 FREE</b> <mark class="bg-yellow-200 px-1.5 py-[1px] rounded text-[12px] font-bold">HEALTH3</mark> <span class="text-[10px] px-2 py-[1px] rounded-full bg-amber-500 text-white">Copy</span></span>
-        <span class="text-amber-400">◆</span>
-        <span>👨‍🌾 Farm Direct · Lab Tested · Organic Certified</span>
+        <span>👨‍🌾 Farm Direct · Lab Tested · 9 Certifications</span>
       </div>
     </div>
     <div class="flex items-center gap-2 shrink-0">
@@ -482,9 +944,8 @@ video.slide-bg { transform:none!important; transition:none!important; }
 ═══════════════════════════════════════ -->
 <header class="site-nav">
   <div class="nav-inner bg-white">
-    <a class="nav-logo" href="index.html">
-      <div class="nav-logo-brand">Nan<em>sai</em></div>
-      <span class="nav-logo-tagline">Experience the Root of Nature</span>
+    <a class="nav-logo" href="index.html" style="display:flex;align-items:center;">
+      <img src="nansei_org_logo.svg" alt="Nansai Organics" style="height:64px;width:auto;object-fit:contain;"/>
     </a>
     <div class="nav-search">
       <input id="searchInput" type="text" onkeydown="if(event.key==='Enter')doSearch()"/>
@@ -496,7 +957,8 @@ video.slide-bg { transform:none!important; transition:none!important; }
     <ul class="nav-links">
       <li><a class="nav-link" href="#products">Shop</a></li>
       <li><a class="nav-link" href="#why-section">Our Promise</a></li>
-      <li><a class="nav-link" href="#blog-section">Blogs</a></li>
+      <li><a class="nav-link" href="blog.html">Blogs</a></li>
+      <li><a class="nav-link" href="news.html">News</a></li>
       <li><a class="nav-link" href="#site-footer">About</a></li>
     </ul>
     <div class="nav-actions">
@@ -504,18 +966,23 @@ video.slide-bg { transform:none!important; transition:none!important; }
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
         My Orders
       </a>
+      <a id="adminCircleBtn" href="admin-panel.html" title="Admin Panel"
+         style="display:none;width:34px;height:34px;border-radius:50%;background:#2563EB;color:#fff;
+                font-size:.65rem;font-weight:800;align-items:center;justify-content:center;
+                text-decoration:none;flex-shrink:0;transition:background .2s;"
+         onmouseover="this.style.background='#1D4ED8'" onmouseout="this.style.background='#2563EB'">AD</a>
       <div class="nav-divider"></div>
-      <a href="login.html" class="nav-icon-btn" style="gap:5px;width:auto;padding:0 8px;border-radius:20px;">
+      <a id="navSignInBtn" href="login.html" class="nav-icon-btn" style="gap:5px;width:auto;padding:0 8px;border-radius:20px;">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:19px;height:19px;flex-shrink:0;"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-        <span style="font-size:.72rem;font-weight:700;color:var(--forest-deep);">Sign In</span>
+        <span id="navSignInText" style="font-size:.72rem;font-weight:700;color:var(--forest-deep);">Sign In</span>
       </a>
-      <a href="wishlist.html" class="nav-icon-btn">
+      <a href="wishlist.html" class="nav-icon-btn" style="position:relative;z-index:1;">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6c-1.5-1.6-4-1.6-5.6 0L12 7.8 8.8 4.6c-1.5-1.6-4-1.6-5.6 0-1.6 1.7-1.6 4.3 0 6l8.8 9 8.8-9c1.6-1.7 1.6-4.3 0-6z"/></svg>
-        <span class="nav-badge" id="wishlistCount">0</span>
+        <span class="nav-badge" id="wishlistCount" style="pointer-events:none;">0</span>
       </a>
-      <button onclick="openCart()" class="nav-icon-btn">
+      <button onclick="openCart()" class="nav-icon-btn" style="position:relative;z-index:1;">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 002 1.58h9.78a2 2 0 001.95-1.57l1.65-7.43H5.12"/></svg>
-        <span class="nav-badge" id="cartCount">0</span>
+        <span class="nav-badge" id="cartCount" style="pointer-events:none;">0</span>
       </button>
       <button class="mob-ham" id="mobHam" onclick="toggleMobDrawer()">
         <span></span><span></span><span></span>
@@ -529,10 +996,11 @@ video.slide-bg { transform:none!important; transition:none!important; }
   <nav style="display:flex;flex-direction:column;gap:.25rem;">
     <a href="#products" onclick="toggleMobDrawer();setTimeout(()=>document.getElementById('products').scrollIntoView({behavior:'smooth'}),100);return false;" style="padding:.85rem 1rem;font-size:.9rem;font-weight:600;color:var(--forest-deep);text-decoration:none;border-radius:10px;display:block;">🛒 Shop</a>
     <a href="#why-section" onclick="toggleMobDrawer();setTimeout(()=>document.getElementById('why-section').scrollIntoView({behavior:'smooth'}),100);return false;" style="padding:.85rem 1rem;font-size:.9rem;font-weight:600;color:var(--forest-deep);text-decoration:none;border-radius:10px;display:block;">🌿 Our Promise</a>
-    <a href="#blog-section" onclick="toggleMobDrawer();setTimeout(()=>document.getElementById('blog-section').scrollIntoView({behavior:'smooth'}),100);return false;" style="padding:.85rem 1rem;font-size:.9rem;font-weight:600;color:var(--forest-deep);text-decoration:none;border-radius:10px;display:block;">📖 Blogs</a>
+    <a href="blog.html" style="padding:.85rem 1rem;font-size:.9rem;font-weight:600;color:var(--forest-deep);text-decoration:none;border-radius:10px;display:block;">📖 Blogs</a>
+    <a href="news.html" style="padding:.85rem 1rem;font-size:.9rem;font-weight:600;color:var(--forest-deep);text-decoration:none;border-radius:10px;display:block;">📰 News</a>
     <a href="#site-footer" onclick="toggleMobDrawer();setTimeout(()=>document.getElementById('site-footer').scrollIntoView({behavior:'smooth'}),100);return false;" style="padding:.85rem 1rem;font-size:.9rem;font-weight:600;color:var(--forest-deep);text-decoration:none;border-radius:10px;display:block;">🏡 About</a>
     <hr style="border:none;border-top:1px solid rgba(26,58,42,.08);margin:.5rem 0;"/>
-    <a href="login.html" style="padding:.85rem 1rem;font-size:.9rem;font-weight:600;color:var(--forest-deep);text-decoration:none;border-radius:10px;display:block;">👤 Sign In</a>
+    <a id="mobSignInLink" href="login.html" style="padding:.85rem 1rem;font-size:.9rem;font-weight:600;color:var(--forest-deep);text-decoration:none;border-radius:10px;display:block;">👤 Sign In</a>
     <a href="checkoutmyorderpage.html" style="padding:.85rem 1rem;font-size:.9rem;font-weight:600;color:var(--forest-deep);text-decoration:none;border-radius:10px;display:block;">📦 My Orders</a>
     <a href="wishlist.html" style="padding:.85rem 1rem;font-size:.9rem;font-weight:600;color:var(--forest-deep);text-decoration:none;border-radius:10px;display:block;">💖 Wishlist</a>
     <a href="#" onclick="toggleMobDrawer();openCart();return false;" style="padding:.85rem 1rem;font-size:.9rem;font-weight:600;color:var(--forest-deep);text-decoration:none;border-radius:10px;display:block;">🛍️ Cart</a>
@@ -542,8 +1010,8 @@ video.slide-bg { transform:none!important; transition:none!important; }
 <!-- Mobile search row -->
 <div class="mob-search-row">
   <div class="wrap">
-    <input id="mobSearchInput" type="text" onkeydown="if(event.key==='Enter')doSearch()"/>
-    <span id="mobSearchPlaceholder" class="absolute left-4 top-1/2 -translate-y-1/2 text-[0.82rem] text-black pointer-events-none font-['Inter'] transition-opacity duration-200"></span>
+    <input id="mobSearchInput" type="text" inputmode="search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" onkeydown="if(event.key==='Enter')doSearch()" style="position:relative;z-index:2;background:transparent;"/>
+    <span id="mobSearchPlaceholder" class="absolute left-4 top-1/2 -translate-y-1/2 text-[0.82rem] pointer-events-none font-['Inter'] transition-opacity duration-200" style="z-index:1;color:#9ca3af;"></span>
     <button class="sb" onclick="doSearch()">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
     </button>
@@ -578,45 +1046,41 @@ video.slide-bg { transform:none!important; transition:none!important; }
 
     <div id="track">
       <div class="slide active" id="slide-0">
-        <div class="parallax-bg-layer" id="pbg-0" style="background-image:url('https://ik.imagekit.io/bq9dscs4g/agro%20store/Organic-Products-Manufacturers.docx.jpg');"></div>
+        <video class="slide-bg" autoplay muted loop playsinline src="https://ik.imagekit.io/bq9dscs4g/agro%20store/reel%205.mp4"></video>
         <div class="slide-overlay"></div><div class="slide-accent"></div>
         <div class="slide-content">
           <p class="eyebrow"><span></span>With Nansai</p>
           <h2 class="slide-title">25 Acres of naturally grown<br/><em>goodness</em></h2>
           <p class="slide-desc">Pure, farm-direct organic products from Tamil Nadu — grown in living soil, harvested for healthy lives.</p>
-          <button class="slide-cta" onclick="document.getElementById('products').scrollIntoView({behavior:'smooth'})">Explore Products ↓</button>
         </div>
       </div>
       <div class="slide" id="slide-1">
-        <div class="parallax-bg-layer" id="pbg-1" style="background-image:url('https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=1400&auto=format&fit=crop&q=90');"></div>
+        <div class="parallax-bg-layer" id="pbg-1" style="background-image:url('https://ik.imagekit.io/bq9dscs4g/agro%20store/WhatsApp%20Image%202026-03-30%20at%204.02.58%20PM.jpeg');"></div>
         <div class="slide-overlay"></div><div class="slide-accent"></div>
         <div class="slide-content">
           <p class="eyebrow"><span></span>Organic Products</p>
           <h2 class="slide-title">22 years of<br/><em>organic farming</em></h2>
           <p class="slide-desc">Heritage rice varieties, dried flowers, and natural beverages. Certified. Lab-tested. Direct from the farm.</p>
-          <button class="slide-cta" onclick="document.getElementById('products').scrollIntoView({behavior:'smooth'})">Shop Now →</button>
         </div>
         <span class="ghost-num">02</span>
       </div>
       <div class="slide" id="slide-2">
-        <div class="parallax-bg-layer" id="pbg-2" style="background-image:url('https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=1400&auto=format&fit=crop&q=90');"></div>
+        <div class="parallax-bg-layer" id="pbg-2" style="background-image:url('https://ik.imagekit.io/bq9dscs4g/agro%20store/IMG_0191.JPG');"></div>
         <div class="slide-overlay"></div><div class="slide-accent"></div>
         <div class="slide-content">
           <p class="eyebrow"><span></span>With Nansai</p>
           <h2 class="slide-title">Cultivated in Living Soil,<br/>Harvested for <em>Healthy Lives.</em></h2>
           <p class="slide-desc">Zero chemicals. Zero compromise. 9 internationally recognised certifications.</p>
-          <button class="slide-cta" onclick="document.getElementById('why-section').scrollIntoView({behavior:'smooth'})">Our Promise →</button>
         </div>
         <span class="ghost-num">03</span>
       </div>
       <div class="slide" id="slide-3">
-        <div class="parallax-bg-layer" id="pbg-3" style="background-image:url('https://images.unsplash.com/photo-1625246333195-78d9c38ad449?w=1400&auto=format&fit=crop&q=90');"></div>
+        <div class="parallax-bg-layer" id="pbg-3" style="background-image:url('https://ik.imagekit.io/bq9dscs4g/agro%20store/WhatsApp%20Image%202026-03-30%20at%204.03.01%20PM.jpeg');"></div>
         <div class="slide-overlay"></div><div class="slide-accent"></div>
         <div class="slide-content">
           <p class="eyebrow"><span></span>Our Harvest</p>
           <h2 class="slide-title">Paddy · Banana · Fig · Herbs</h2>
           <p class="slide-desc">25 acres of certified organic land — seven crop varieties, 200+ farming families.</p>
-          <button class="slide-cta" onclick="document.getElementById('products').scrollIntoView({behavior:'smooth'})">View Products →</button>
         </div>
         <span class="ghost-num">04</span>
       </div>
@@ -652,6 +1116,139 @@ video.slide-bg { transform:none!important; transition:none!important; }
 }
 </style>
 
+<!-- HAND MILL BANNER -->
+<section id="mill-section" style="background:#f7f3ec;padding:1.5rem 1.5rem;overflow:hidden;">
+  <div style="max-width:1400px;margin:0 auto;">
+    <div id="mill-card" style="display:grid;grid-template-columns:minmax(280px,420px) 1fr;border-radius:24px;overflow:hidden;background:#fff;box-shadow:0 20px 60px rgba(15,34,24,.1),0 4px 16px rgba(15,34,24,.06);transform:perspective(1200px) rotateY(0deg) rotateX(0deg) translateZ(0);transition:transform .6s cubic-bezier(.22,1,.36,1),box-shadow .6s cubic-bezier(.22,1,.36,1);will-change:transform;" onmousemove="millTilt(event,this)" onmouseleave="millReset(this)">
+
+      <!-- LEFT: IMAGE -->
+      <div style="position:relative;overflow:hidden;height:420px;">
+        <img
+          src="https://ik.imagekit.io/bq9dscs4g/agro%20store/thirukai/1776950241632.png"
+          alt="Traditional Hand Mill"
+          style="width:100%;height:100%;object-fit:cover;object-position:center;display:block;transition:transform .6s cubic-bezier(.22,1,.36,1);"
+          id="mill-img"
+        />
+        <!-- bottom fade -->
+        <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.18) 0%,transparent 50%);pointer-events:none;"></div>
+        <!-- shine overlay -->
+        <div id="mill-shine" style="position:absolute;inset:0;background:radial-gradient(circle at 50% 50%,rgba(255,255,255,.12) 0%,transparent 65%);opacity:0;transition:opacity .3s;pointer-events:none;"></div>
+      </div>
+
+      <!-- RIGHT: CONTENT -->
+      <div style="display:flex;flex-direction:column;justify-content:center;padding:1.25rem 1.75rem;border-left:1px solid rgba(26,58,42,.06);">
+
+        <!-- eyebrow -->
+        <div style="display:flex;align-items:center;gap:.4rem;margin-bottom:.6rem;">
+          <div style="width:1rem;height:1.5px;background:var(--forest-leaf);"></div>
+          <span style="font-size:.7rem;font-weight:800;letter-spacing:.2em;text-transform:uppercase;color:var(--forest-leaf);">Traditional Process</span>
+        </div>
+
+        <!-- headline -->
+        <h2 style="font-family:'Cormorant Garamond',serif;font-size:clamp(1.6rem,2.4vw,2.4rem);font-weight:700;color:var(--forest-deep);line-height:1.15;margin-bottom:.5rem;">
+          Freshly Ground Grains from
+          <em style="font-style:italic;color:var(--forest-leaf);">Traditional Hand Mill</em>
+        </h2>
+
+        <!-- gold divider -->
+        <div style="width:2.5rem;height:2px;background:linear-gradient(to right,var(--gold-dk),transparent);margin-bottom:.75rem;"></div>
+
+        <!-- sub -->
+        <p style="font-size:.95rem;color:#1a2416;line-height:1.7;margin-bottom:1.1rem;max-width:400px;">
+          Authentic, natural, and handmade process — preserving every nutrient, every flavour, every tradition.
+        </p>
+
+        <!-- 3 features -->
+        <div id="mill-features" style="display:flex;align-items:center;gap:.85rem;flex-wrap:wrap;margin-bottom:.85rem;">
+          <div style="display:flex;align-items:center;gap:.35rem;">
+            <div style="width:22px;height:22px;border-radius:6px;background:#f0fdf4;border:1px solid rgba(26,58,42,.1);display:flex;align-items:center;justify-content:center;font-size:.65rem;flex-shrink:0;">🌾</div>
+            <div>
+              <p style="font-size:.82rem;font-weight:700;color:var(--forest-deep);">Stone Ground</p>
+              <p style="font-size:.72rem;color:var(--text-lt);">No heat damage</p>
+            </div>
+          </div>
+          <div style="width:1px;height:20px;background:rgba(26,58,42,.08);"></div>
+          <div style="display:flex;align-items:center;gap:.35rem;">
+            <div style="width:22px;height:22px;border-radius:6px;background:#f0fdf4;border:1px solid rgba(26,58,42,.1);display:flex;align-items:center;justify-content:center;font-size:.65rem;flex-shrink:0;">✋</div>
+            <div>
+              <p style="font-size:.82rem;font-weight:700;color:var(--forest-deep);">Hand Operated</p>
+              <p style="font-size:.72rem;color:var(--text-lt);">Zero electricity</p>
+            </div>
+          </div>
+          <div style="width:1px;height:20px;background:rgba(26,58,42,.08);"></div>
+          <div style="display:flex;align-items:center;gap:.35rem;">
+            <div style="width:22px;height:22px;border-radius:6px;background:#f0fdf4;border:1px solid rgba(26,58,42,.1);display:flex;align-items:center;justify-content:center;font-size:.65rem;flex-shrink:0;">🌿</div>
+            <div>
+              <p style="font-size:.82rem;font-weight:700;color:var(--forest-deep);">Farm Direct</p>
+              <p style="font-size:.72rem;color:var(--text-lt);">25-acre organic farm</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- CTA -->
+        <div id="mill-cta" style="display:flex;align-items:center;gap:.5rem;">
+          <a href="index.html#products" style="display:inline-flex;align-items:center;gap:.4rem;background:var(--forest-deep);color:#fff;font-size:.85rem;font-weight:700;letter-spacing:.04em;padding:.55rem 1.3rem;border-radius:7px;text-decoration:none;transition:all .25s cubic-bezier(.34,1.56,.64,1);box-shadow:0 3px 10px rgba(15,34,24,.18);" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 18px rgba(15,34,24,.25)'" onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 3px 10px rgba(15,34,24,.18)'">
+            Shop Now
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </a>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+@keyframes badgeFloat {
+  0%,100% { transform:translateY(0px); }
+  50%     { transform:translateY(-5px); }
+}
+@media(max-width:768px){
+  #mill-section { padding:1rem .85rem !important; }
+  #mill-card { grid-template-columns:140px 1fr !important; border-radius:14px !important; transform:none !important; box-shadow:0 6px 20px rgba(15,34,24,.08) !important; }
+  #mill-card > div:first-child { min-height:unset !important; max-height:unset !important; height:100% !important; overflow:hidden !important; }
+  #mill-card > div:first-child img { object-fit:cover !important; object-position:center !important; width:100% !important; height:100% !important; }
+  #mill-card > div:last-child { border-left:1px solid rgba(26,58,42,.06) !important; border-top:none !important; padding:.75rem 1rem !important; }
+  #mill-card h2 { font-size:.95rem !important; margin-bottom:.25rem !important; }
+  #mill-card p { font-size:.68rem !important; margin-bottom:.5rem !important; }
+  #mill-features { display:none !important; }
+  #mill-cta { display:none !important; }
+}
+</style>
+
+<script>
+function millTilt(e, card) {
+  if(window.innerWidth < 768) return;
+  const rect = card.getBoundingClientRect();
+  const x = e.clientX - rect.left;
+  const y = e.clientY - rect.top;
+  const cx = rect.width / 2;
+  const cy = rect.height / 2;
+  const rotY = ((x - cx) / cx) * 6;
+  const rotX = -((y - cy) / cy) * 4;
+  card.style.transform = `perspective(1200px) rotateY(${rotY}deg) rotateX(${rotX}deg) translateZ(12px) scale(1.01)`;
+  card.style.boxShadow = `${-rotY*2}px ${rotX*2}px 60px rgba(15,34,24,.18), 0 8px 32px rgba(15,34,24,.1)`;
+  const shine = document.getElementById('mill-shine');
+  if(shine){
+    const px = (x/rect.width)*100;
+    const py = (y/rect.height)*100;
+    shine.style.background = `radial-gradient(circle at ${px}% ${py}%,rgba(255,255,255,.14) 0%,transparent 60%)`;
+    shine.style.opacity = '1';
+  }
+  const img = document.getElementById('mill-img');
+  if(img) img.style.transform = `scale(1.04) translate(${rotY*0.5}px,${-rotX*0.5}px)`;
+}
+function millReset(card) {
+  if(window.innerWidth < 768) return;
+  card.style.transform = 'perspective(1200px) rotateY(0deg) rotateX(0deg) translateZ(0) scale(1)';
+  card.style.boxShadow = '0 20px 60px rgba(15,34,24,.1),0 4px 16px rgba(15,34,24,.06)';
+  const shine = document.getElementById('mill-shine');
+  if(shine) shine.style.opacity = '0';
+  const img = document.getElementById('mill-img');
+  if(img) img.style.transform = 'scale(1) translate(0,0)';
+}
+</script>
+
 
 
 
@@ -659,12 +1256,12 @@ video.slide-bg { transform:none!important; transition:none!important; }
      PRODUCTS SECTION
 ═══════════════════════════════════════ -->
 <section id="products" class="texture-section" style="padding:3.5rem 0 4rem;">
-  <div style="max-width:1400px;margin:0 auto;padding:0 1.5rem;">
+  <div style="max-width:1400px;margin:0 auto;padding:0 1.5rem;overflow:visible;">
 
     <!-- Header -->
     <div style="text-align:center;margin-bottom:2.5rem;" class="sr" id="sr-prod-hdr">
-      <button onclick="document.querySelector('.prod-section').scrollIntoView({behavior:'smooth',block:'start'})" style="display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,#166534 0%,#15803d 100%);color:#fff;font-size:.68rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;padding:10px 24px;border-radius:30px;margin-bottom:.75rem;border:none;cursor:pointer;box-shadow:0 4px 14px rgba(21,128,61,.25);transition:all .3s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform=''">🌾 Explore the Fields ↓</button>
-      <h1 style="font-family:'Cormorant Garamond',serif;font-size:clamp(1.8rem,3.5vw,2.6rem);font-weight:700;color:#1a2416;margin-bottom:.35rem;">Honest Products for <em style="color:#166534;">Healthy Families.</em></h1>
+      <button onclick="document.getElementById('products').scrollIntoView({behavior:'smooth',block:'start'})" style="display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,#166534 0%,#15803d 100%);color:#fff;font-size:.68rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;padding:10px 24px;border-radius:30px;margin-bottom:.75rem;border:none;cursor:pointer;box-shadow:0 4px 14px rgba(21,128,61,.25);transition:all .3s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform=''">🌾 Explore the Fields ↓</button>
+      <h1 style="font-family:'Cormorant Garamond',serif;font-size:clamp(1.8rem,3.5vw,2.6rem);font-weight:700;color:#1a2416;margin-bottom:.35rem;"> Bringing Nature's Best To  <em style="color:#166534;">Your Family .</em></h1>
       <p style="color:#7a9980;font-size:.85rem;">16 farm-fresh, certified products · Direct from Organic Farmers</p>
     </div>
 
@@ -718,9 +1315,9 @@ video.slide-bg { transform:none!important; transition:none!important; }
     </style>
 
     <!-- Sectioned products -->
-    <div id="productSections" class="prod-section"></div>
+    <div id="productSections" class="prod-section" style="overflow:visible;"></div>
     <!-- Filtered flat grid -->
-    <div id="productGrid" style="display:none;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:20px;"></div>
+    <div id="productGrid" style="display:none;flex-wrap:wrap;gap:20px;overflow:visible;"></div>
     <div id="emptyState" style="display:none;text-align:center;padding:5rem 0;"><div style="font-size:3.5rem;margin-bottom:.75rem;">🌿</div><p style="color:#9ca3af;font-weight:600;">No products found.</p></div>
   </div>
 </section>
@@ -823,7 +1420,7 @@ video.slide-bg { transform:none!important; transition:none!important; }
         <h2 style="font-family:'Cormorant Garamond',serif;font-size:clamp(1.8rem,3vw,2.6rem);font-weight:700;color:var(--text-dk);">Stories &amp; <em style="color:var(--forest-leaf);font-style:italic;">Insights</em></h2>
         <p style="font-size:.78rem;color:var(--text-lt);margin-top:.25rem;">Organic wisdom, recipes and farm updates.</p>
       </div>
-      <a href="#" style="display:inline-flex;align-items:center;gap:.45rem;font-size:.75rem;font-weight:600;color:var(--forest-leaf);text-decoration:none;padding:.55rem 1.2rem;border:1.5px solid rgba(74,140,92,.3);border-radius:8px;transition:all .2s;white-space:nowrap;" onmouseover="this.style.background='var(--forest-leaf)';this.style.color='#fff';this.style.borderColor='var(--forest-leaf)'" onmouseout="this.style.background='';this.style.color='var(--forest-leaf)';this.style.borderColor='rgba(74,140,92,.3)'">
+      <a href="blog.html" style="display:inline-flex;align-items:center;gap:.45rem;font-size:.75rem;font-weight:600;color:var(--forest-leaf);text-decoration:none;padding:.55rem 1.2rem;border:1.5px solid rgba(74,140,92,.3);border-radius:8px;transition:all .2s;white-space:nowrap;" onmouseover="this.style.background='var(--forest-leaf)';this.style.color='#fff';this.style.borderColor='var(--forest-leaf)'" onmouseout="this.style.background='';this.style.color='var(--forest-leaf)';this.style.borderColor='rgba(74,140,92,.3)'">
         View All Articles →
       </a>
     </div>
@@ -832,7 +1429,7 @@ video.slide-bg { transform:none!important; transition:none!important; }
     <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:1.5rem;">
 
       <!-- Card 1 -->
-      <div class="blog-card sr sd-1" id="sr-blog-1" data-tilt>
+      <div class="blog-card sr sd-1" id="sr-blog-1" onclick="openBlogArticle(0)" style="cursor:pointer;">
         <div class="blog-card-img">
           <img src="https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=700&auto=format&fit=crop&q=80" alt="Blog"/>
         </div>
@@ -843,12 +1440,12 @@ video.slide-bg { transform:none!important; transition:none!important; }
           </div>
           <h3 style="font-family:'Cormorant Garamond',serif;font-size:1.22rem;font-weight:700;color:var(--text-dk);margin-bottom:.55rem;line-height:1.25;">Why Heritage Rice Varieties Are the Future of Healthy Eating</h3>
           <p style="font-size:.78rem;color:var(--text-lt);line-height:1.68;margin-bottom:1.1rem;">Karunguruvai, Mappillai Samba and Black Kavuni are not just grains — they are living traditions packed with nutrition that modern rice has lost.</p>
-          <a href="#" style="display:inline-flex;align-items:center;gap:.35rem;font-size:.75rem;font-weight:600;color:var(--forest-leaf);text-decoration:none;transition:gap .2s;" onmouseover="this.style.gap='.6rem'" onmouseout="this.style.gap='.35rem'">Read More <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+          <span style="display:inline-flex;align-items:center;gap:.35rem;font-size:.75rem;font-weight:600;color:var(--forest-leaf);">Read More <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>
         </div>
       </div>
 
       <!-- Card 2 -->
-      <div class="blog-card sr sd-2" id="sr-blog-2" data-tilt style="margin-top:1.5rem;">
+      <div class="blog-card sr sd-2" id="sr-blog-2" onclick="openBlogArticle(1)" style="cursor:pointer;margin-top:1.5rem;">
         <div class="blog-card-img">
           <img src="https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=700&auto=format&fit=crop&q=80" alt="Blog"/>
         </div>
@@ -859,12 +1456,12 @@ video.slide-bg { transform:none!important; transition:none!important; }
           </div>
           <h3 style="font-family:'Cormorant Garamond',serif;font-size:1.22rem;font-weight:700;color:var(--text-dk);margin-bottom:.55rem;line-height:1.25;">The Ancient Healing Power of Hibiscus &amp; Butterfly Pea Flowers</h3>
           <p style="font-size:.78rem;color:var(--text-lt);line-height:1.68;margin-bottom:1.1rem;">Centuries-old Ayurvedic tradition meets modern science. Here is what our sun-dried flowers can do for your daily wellness routine.</p>
-          <a href="#" style="display:inline-flex;align-items:center;gap:.35rem;font-size:.75rem;font-weight:600;color:var(--forest-leaf);text-decoration:none;transition:gap .2s;" onmouseover="this.style.gap='.6rem'" onmouseout="this.style.gap='.35rem'">Read More <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+          <span style="display:inline-flex;align-items:center;gap:.35rem;font-size:.75rem;font-weight:600;color:var(--forest-leaf);">Read More <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>
         </div>
       </div>
 
       <!-- Card 3 -->
-      <div class="blog-card sr sd-3" id="sr-blog-3" data-tilt>
+      <div class="blog-card sr sd-3" id="sr-blog-3" onclick="openBlogArticle(2)" style="cursor:pointer;">
         <div class="blog-card-img">
           <img src="https://images.unsplash.com/photo-1523348837708-15d4a09cfac2?w=700&auto=format&fit=crop&q=80" alt="Blog"/>
         </div>
@@ -875,14 +1472,33 @@ video.slide-bg { transform:none!important; transition:none!important; }
           </div>
           <h3 style="font-family:'Cormorant Garamond',serif;font-size:1.22rem;font-weight:700;color:var(--text-dk);margin-bottom:.55rem;line-height:1.25;">Zero Chemicals, Zero Waste: Our Commitment to the Planet</h3>
           <p style="font-size:.78rem;color:var(--text-lt);line-height:1.68;margin-bottom:1.1rem;">From seed to shelf, every decision we make is guided by our pledge to leave the earth better than we found it — for future generations of farmers.</p>
-          <a href="#" style="display:inline-flex;align-items:center;gap:.35rem;font-size:.75rem;font-weight:600;color:var(--forest-leaf);text-decoration:none;transition:gap .2s;" onmouseover="this.style.gap='.6rem'" onmouseout="this.style.gap='.35rem'">Read More <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+          <span style="display:inline-flex;align-items:center;gap:.35rem;font-size:.75rem;font-weight:600;color:var(--forest-leaf);">Read More <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>
         </div>
       </div>
 
     </div>
   </div>
 </section>
+<!-- blog scroll dots (mobile only) -->
+<div id="blog-scroll-dots" style="display:none;">
+  <span class="active"></span><span></span><span></span>
+</div>
 
+<!-- ═══════════════════════════════════════
+     BLOG ARTICLE MODAL
+═══════════════════════════════════════ -->
+<div id="blog-modal" onclick="if(event.target===this)closeBlogModal()" style="display:none;position:fixed;inset:0;z-index:2000;background:rgba(0,0,0,0);transition:background .3s,backdrop-filter .3s;align-items:center;justify-content:center;padding:1rem;">
+  <div id="blog-modal-box" style="background:#fdfaf5;border-radius:24px;max-width:760px;width:100%;max-height:90vh;overflow-y:auto;transform:scale(.92) translateY(20px);opacity:0;transition:transform .35s cubic-bezier(.34,1.56,.64,1),opacity .35s;position:relative;scrollbar-width:thin;">
+    <button onclick="closeBlogModal()" style="position:fixed;top:1rem;right:1rem;width:40px;height:40px;border-radius:50%;background:rgba(0,0,0,.6);color:#fff;border:none;cursor:pointer;font-size:1.1rem;display:flex;align-items:center;justify-content:center;z-index:2001;backdrop-filter:blur(4px);">✕</button>
+    <img id="blog-modal-hero" src="" alt="" style="width:100%;height:280px;object-fit:cover;border-radius:24px 24px 0 0;display:block;"/>
+    <div style="padding:2rem 2.5rem 2.5rem;">
+      <div id="blog-modal-meta" style="display:flex;align-items:center;gap:.85rem;margin-bottom:1rem;flex-wrap:wrap;"></div>
+      <h2 id="blog-modal-title" style="font-family:'Cormorant Garamond',serif;font-size:clamp(1.6rem,3vw,2.2rem);font-weight:700;color:#1a2416;line-height:1.15;margin-bottom:1rem;"></h2>
+      <div style="height:1px;background:rgba(26,58,42,.08);margin-bottom:1.25rem;"></div>
+      <div id="blog-modal-content" style="font-size:.88rem;line-height:1.8;color:#3d4d3e;"></div>
+    </div>
+  </div>
+</div>
 
 
 <!-- ═══════════════════════════════════════
@@ -891,8 +1507,7 @@ video.slide-bg { transform:none!important; transition:none!important; }
 <footer id="site-footer" class="bg-gray-900 text-gray-300">
   <div class="max-w-7xl mx-auto px-6 py-14 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
     <div>
-      <div style="font-family:'Cormorant Garamond',serif;font-size:1.55rem;font-weight:700;color:#fff;margin-bottom:2px;">Nan<span style="color:var(--gold-dk);">sai</span></div>
-      <p style="font-size:.52rem;letter-spacing:.16em;text-transform:uppercase;color:#6b7280;margin-bottom:.85rem;">Experience the Root of Nature</p>
+      <img src="nansei_org_logo.svg" alt="Nansai Organics" style="height:64px;width:auto;object-fit:contain;margin-bottom:.5rem;filter:brightness(0) invert(1);"/>
       <p class="text-gray-400 text-sm leading-relaxed mb-5">Providing 100% organic and high-quality agricultural products. Trusted by farmers everywhere.</p>
       <div class="flex gap-3">
         <a href="#" class="w-9 h-9 rounded-full bg-gray-800 hover:bg-green-700 flex items-center justify-center transition text-sm">𝕏</a>
@@ -920,14 +1535,6 @@ video.slide-bg { transform:none!important; transition:none!important; }
         <li><a href="#" class="text-gray-400 hover:text-green-400 transition">Certifications</a></li>
       </ul>
     </div>
-    <div>
-      <h3 class="font-bold text-white text-base mb-5">Newsletter</h3>
-      <p class="text-gray-400 text-sm mb-4">Subscribe for the latest offers and farming updates.</p>
-      <form onsubmit="subNewsletter(event)" class="flex gap-2">
-        <input type="email" placeholder="Your email" class="flex-1 min-w-0 px-3 py-2.5 rounded-xl text-sm bg-gray-800 border border-gray-700 text-white placeholder-gray-500 outline-none focus:border-green-500 transition"/>
-        <button class="bg-green-600 hover:bg-green-500 text-white px-4 py-2.5 rounded-xl text-sm font-bold transition shrink-0">Join</button>
-      </form>
-    </div>
   </div>
   <div class="border-t border-gray-800 py-5 text-center text-gray-500 text-xs px-4">&copy; 2026 NANSEI. All Rights Reserved. Made with 💚 for farmers.</div>
 </footer>
@@ -946,7 +1553,7 @@ if(cs) cs.innerHTML+=cs.innerHTML;
 (function(){
   const mobTrack=document.getElementById('mobMarqueeTrack');
   if(!mobTrack)return;
-  const items=['🎁 First Order 10% OFF — NANSAI10','◆','🚚 Free Delivery above ₹999','◆','🌾 Grain Pack Save ₹221','◆','🌹 Paneer Rose — Only 32 Left','◆','💊 Buy 2 Supplements Get 1 FREE — HEALTH3','◆','👨‍🌾 Farm Direct · Lab Tested · Organic Certified'];
+  const items=['🌾 Karunguruvai Rice — ₹180/kg','◆','🖤 Karuppu Kavuni Rice — ₹220/kg','◆','🌸 Paneer Rose — ₹150 · Only 32 Left!','◆','🌺 Hibiscus Flower — ₹120','◆','🦋 Butterfly Pea Flower — ₹180','◆','🥛 Organic Rose Milk — ₹140','◆','🫙 Idiyappam Flour — ₹160/kg','◆','💪 Health Mix Powder — ₹175/kg','◆','🚚 Free Delivery above ₹999','◆','🎁 First Order 10% OFF — NANSAI10'];
   const html=items.map(t=>t==='◆'?`<span style="color:#9a7520;">◆</span>`:`<span>${t}</span>`).join('');
   mobTrack.innerHTML=html+html;
 })();
@@ -983,13 +1590,13 @@ function subNewsletter(e){
 
 /* ════ PRODUCTS DATA ════ */
 const products=[
-  {id:1, name:"Karunguruvai Rice",                 category:"rice",     price:180,oldPrice:220,rating:4.7,reviews:142,badge:"hot", section:"bestseller",image:"https://images.unsplash.com/photo-1586201375761-83865001e31c?w=500&auto=format&fit=crop"},
-  {id:2, name:"Karuppu Kavuni Rice",               category:"rice",     price:220,oldPrice:270,rating:4.8,reviews:198,badge:"hot", section:"bestseller",image:"https://images.unsplash.com/photo-1568254183919-78a4f43a2877?w=500&auto=format&fit=crop"},
+  {id:1, name:"Karunguruvai Rice",                 category:"rice",     price:180,oldPrice:220,rating:4.7,reviews:142,badge:"hot", section:"bestseller",image:"https://ik.imagekit.io/bq9dscs4g/agro%20store/images/Rice%20category/Karunguruvai%20Rice/Karunguruvai%20Rice.png?updatedAt=1776255900602"},
+  {id:2, name:"Karuppu Kavuni Rice",               category:"rice",     price:220,oldPrice:270,rating:4.8,reviews:198,badge:"hot", section:"bestseller",image:"https://ik.imagekit.io/bq9dscs4g/agro%20store/images/Rice%20category/Karuppu%20Kavuni%20Rice/Karuppu%20Kavuni%20Rice.png?updatedAt=1776255900741"},
   {id:3, name:"Arubatham Kuruvai Rice",            category:"rice",     price:160,oldPrice:200,rating:4.5,reviews:87, badge:"new", section:"new",       image:"https://images.unsplash.com/photo-1514481538271-cf9f99627ab4?w=500&auto=format&fit=crop"},
-  {id:4, name:"Poongar Rice",                      category:"rice",     price:200,oldPrice:250,rating:4.6,reviews:113,badge:"sale",section:"bestseller",image:"https://images.unsplash.com/photo-1603046891744-5d7f1f4b79fa?w=500&auto=format&fit=crop"},
+  {id:4, name:"Poongar Rice",                      category:"rice",     price:200,oldPrice:250,rating:4.6,reviews:113,badge:"sale",section:"bestseller",image:"https://ik.imagekit.io/bq9dscs4g/agro%20store/images/Rice%20category/Poongar%20Rice/Poongar%20Rice.png?updatedAt=1776255900674"},
   {id:5, name:"Mappillai Samba Rice",              category:"rice",     price:210,oldPrice:260,rating:4.7,reviews:156,badge:"hot", section:"bestseller",image:"https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=500&auto=format&fit=crop"},
-  {id:6, name:"Iluppai Poo Samba Rice",            category:"rice",     price:195,oldPrice:240,rating:4.5,reviews:74, badge:"new", section:"new",       image:"https://images.unsplash.com/photo-1585032226651-759b368d7246?w=500&auto=format&fit=crop"},
-  {id:7, name:"Vellai Kavuni Rice",                category:"rice",     price:190,oldPrice:235,rating:4.6,reviews:91, badge:"new", section:"new",       image:"https://images.unsplash.com/photo-1568254183919-78a4f43a2877?w=500&auto=format&fit=crop"},
+  {id:6, name:"Iluppai Poo Samba Rice",            category:"rice",     price:195,oldPrice:240,rating:4.5,reviews:74, badge:"new", section:"new",       image:"https://ik.imagekit.io/bq9dscs4g/agro%20store/images/Rice%20category/Iluppai%20Poo%20Samba%20White%20Rice/Iluppai%20Poo%20Samba%20White%20Rice.png?updatedAt=1776255900667"},
+  {id:7, name:"Vellai Kavuni Rice",                category:"rice",     price:190,oldPrice:235,rating:4.6,reviews:91, badge:"new", section:"new",       image:"https://ik.imagekit.io/bq9dscs4g/agro%20store/images/Rice%20category/White%20Kavuni%20Rice/White%20Kavuni%20Rice.png?updatedAt=1776255898240"},
   {id:8, name:"Paneer Rose",                       category:"flowers",  price:150,oldPrice:190,rating:4.8,reviews:204,badge:"hot", section:"bestseller",image:"https://images.unsplash.com/photo-1490750967868-88df5691cc5e?w=500&auto=format&fit=crop"},
   {id:9, name:"Hibiscus Flower",                   category:"flowers",  price:120,oldPrice:155,rating:4.6,reviews:167,badge:"sale",section:"bestseller",image:"https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=500&auto=format&fit=crop"},
   {id:10,name:"Aavaram Flower",                    category:"flowers",  price:110,oldPrice:145,rating:4.5,reviews:88, badge:"new", section:"new",       image:"https://images.unsplash.com/photo-1490750967868-88df5691cc5e?w=500&auto=format&fit=crop"},
@@ -1004,14 +1611,23 @@ const products=[
 let wishlist=JSON.parse(localStorage.getItem('wishlist')||'[]');
 let cart=JSON.parse(localStorage.getItem('cart')||'[]');
 
-function stars(r){return[1,2,3,4,5].map(i=>i<=Math.floor(r)?'★':i-r<1?'✦':'☆').join('');}
+function stars(r){return[1,2,3,4,5].map(i=>i<=Math.floor(r)?'★':i-r<1?'★':'☆').join('');}
 function disc(p){return Math.round((1-p.price/p.oldPrice)*100);}
 
-function saveCart(){localStorage.setItem('cart',JSON.stringify(cart));syncCounters();}
+function saveCart(){
+  localStorage.setItem('cart',JSON.stringify(cart));
+  syncCounters();
+  // Sync to backend if logged in
+  if(typeof CartAPI!=='undefined'&&localStorage.getItem('nansai_token')){
+    cart.forEach(i=>CartAPI.add(String(i.id),i.qty||1,i.price).catch(()=>{}));
+  }
+}
 function syncCounters(){
   const total=cart.reduce((s,i)=>s+(i.qty||1),0);
   document.querySelectorAll('#cartCount').forEach(el=>{if(el)el.textContent=total;});
   document.querySelectorAll('#wishlistCount').forEach(el=>{if(el)el.textContent=wishlist.length;});
+  const mbc=document.getElementById('mobBarCartCount'); if(mbc) mbc.textContent=total;
+  const mbw=document.getElementById('mobBarWishCount'); if(mbw) mbw.textContent=wishlist.length;
 }
 
 /* ════ PRODUCT CARD HTML ════ */
@@ -1024,24 +1640,24 @@ function prodCardHTML(p,i){
     :p.badge==='new'
     ?`<span style="position:absolute;top:10px;left:10px;background:#166534;color:#fff;font-size:.58rem;font-weight:800;padding:2px 9px;border-radius:20px;z-index:10;">✨ NEW</span>`
     :`<span style="position:absolute;top:10px;left:10px;background:#ef4444;color:#fff;font-size:.58rem;font-weight:800;padding:2px 9px;border-radius:20px;z-index:10;">${d}% OFF</span>`;
-  const fc=floatClasses[i%6];
-  return `<div class="prod-card ${fc} bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100 flex flex-col cursor-pointer sr" style="flex-shrink:0;width:260px;transition-delay:${(i%5)*.07}s;" onclick="window.location.href='product.html?id=${p.id}'">
-    <div class="prod-img-wrap">
+  const fc=floatClasses[i%floatClasses.length];
+  return `<div class="prod-card bg-white rounded-xl shadow-sm border border-gray-100 flex flex-col cursor-pointer ${fc}" style="flex-shrink:0;width:260px;overflow:visible;position:relative;z-index:1;" onclick="if(!event.defaultPrevented)window.location.href='product.html?id=${p.id}'">
+    <div class="prod-img-wrap" style="border-radius:12px 12px 0 0;">
       ${badgeEl}
-      <button onclick="toggleWish(${p.id},this);event.stopPropagation()" style="position:absolute;top:10px;right:10px;width:28px;height:28px;background:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,.12);border:none;cursor:pointer;z-index:10;font-size:.85rem;transition:transform .2s;" onmouseover="this.style.transform='scale(1.15)'" onmouseout="this.style.transform='scale(1)'">${isW?'♥':'♡'}</button>
+      <button onclick="toggleWish(${p.id},this);event.preventDefault();event.stopPropagation()" ontouchend="toggleWish(${p.id},this);event.preventDefault();event.stopPropagation()" style="position:absolute;top:8px;right:8px;width:36px;height:36px;background:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,.15);border:none;cursor:pointer;z-index:10;font-size:1rem;transition:transform .2s;-webkit-tap-highlight-color:transparent;touch-action:manipulation;" onmouseover="this.style.transform='scale(1.15)'" onmouseout="this.style.transform='scale(1)'">${isW?'♥':'♡'}</button>
       <img src="${p.image}" alt="${p.name}" loading="lazy" class="prod-img"/>
     </div>
-    <div class="prod-info">
+    <div class="prod-info" style="overflow:visible;">
       <span style="font-size:.68rem;font-weight:400;color:#16a34a;text-transform:uppercase;letter-spacing:.1em;">${p.category}</span>
       <h3 style="font-size:.95rem;font-weight:700;color:#1a2416;line-height:1.3;font-family:'Inter',sans-serif;">${p.name}</h3>
       <div style="display:flex;align-items:center;gap:3px;"><span style="color:#f59e0b;font-size:.78rem;">${stars(p.rating)}</span><span style="color:#9ca3af;font-size:.72rem;margin-left:2px;font-family:'Inter',sans-serif;">${p.rating}</span></div>
       <div style="display:flex;align-items:baseline;gap:6px;flex-wrap:wrap;margin-top:2px;">
-        <span style="color:#166534;font-weight:900;font-size:1.1rem;font-family:'Inter',sans-serif;">₹${p.price}</span>
-        <span style="color:#9ca3af;font-size:.78rem;text-decoration:line-through;font-family:'Inter',sans-serif;">₹${p.oldPrice}</span>
-        <span style="background:#fef3c7;color:#92400e;font-size:.62rem;font-weight:700;padding:2px 6px;border-radius:20px;font-family:'Inter',sans-serif;">${d}% off</span>
+        <span data-card-price style="color:#166534;font-weight:900;font-size:1.1rem;font-family:'Inter',sans-serif;">₹${p.price}</span>
+        <span data-card-old style="color:#9ca3af;font-size:.78rem;text-decoration:line-through;font-family:'Inter',sans-serif;">₹${p.oldPrice}</span>
+        <span data-card-disc style="background:#fef3c7;color:#92400e;font-size:.62rem;font-weight:700;padding:2px 6px;border-radius:20px;font-family:'Inter',sans-serif;">${d}% off</span>
       </div>
       <div id="cardbtn-area-${p.id}" class="prod-btn-area" style="margin-top:auto;">
-        <button id="cartbtn-${p.id}" onclick="startQtySelect(${p.id});event.stopPropagation()" style="width:100%;background:var(--forest-deep);color:#fff;font-size:.72rem;font-weight:700;padding:9px 4px;border-radius:10px;border:none;cursor:pointer;font-family:'Roboto',sans-serif;display:flex;align-items:center;justify-content:center;gap:6px;transition:background .2s,transform .15s;box-shadow:0 3px 10px rgba(15,34,24,.25);" onmouseover="this.style.background='var(--forest-mid)';this.style.transform='translateY(-1px)'" onmouseout="this.style.background='var(--forest-deep)';this.style.transform='translateY(0)'">
+        <button id="cartbtn-${p.id}" onclick="startQtySelect(${p.id},this);event.preventDefault();event.stopPropagation()" style="width:100%;background:var(--forest-deep);color:#fff;font-size:.72rem;font-weight:700;padding:9px 4px;border-radius:10px;border:none;cursor:pointer;font-family:'Roboto',sans-serif;display:flex;align-items:center;justify-content:center;gap:6px;transition:background .2s,transform .15s;box-shadow:0 3px 10px rgba(15,34,24,.25);" onmouseover="this.style.background='var(--forest-mid)';this.style.transform='translateY(-1px)'" onmouseout="this.style.background='var(--forest-deep)';this.style.transform='translateY(0)'">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 002 1.58h9.78a2 2 0 001.95-1.57l1.65-7.43H5.12"/></svg>
           Add to Cart
         </button>
@@ -1050,10 +1666,9 @@ function prodCardHTML(p,i){
   </div>`;
 }
 
-/* ════ SECTION META ════ */
 const sectionMeta={
-  new:        {icon:'✨',label:'New Arrivals',     sub:'Just landed — fresh from the farm',            accent:'#059669'},
-  bestseller: {icon:'🔥',label:'Best Sellers',     sub:'Most loved by thousands of families',           accent:'#d97706'},
+  new:        {icon:'✨',label:'Fresh From Nature',     sub:'Just landed — fresh from the farm',            accent:'#059669'},
+  bestseller: {icon:'🔥',label:'Natures Favorites',     sub:'Most loved by thousands of families',           accent:'#d97706'},
   rice:       {icon:'🌾',label:'Rice Varieties',   sub:'Heritage & traditional rice from Tamil Nadu',   accent:'#65a30d'},
   flowers:    {icon:'🌸',label:'Dried Flowers',    sub:'Sun-dried, aromatic & medicinal flowers',       accent:'#db2777'},
   beverages:  {icon:'🥤',label:'Beverages',        sub:'Natural drinks crafted with pure ingredients',  accent:'#0891b2'},
@@ -1078,8 +1693,16 @@ function sectionHTML(key,list){
         View All (${list.length}) ›
       </button>
     </div>
-    <div style="display:flex;gap:16px;overflow-x:auto;padding-bottom:12px;scrollbar-width:none;" class="prod-hscroll">
-      ${list.map((p,i)=>prodCardHTML(p,i)).join('')}
+    <div class="hscroll-wrap">
+      <button class="scroll-btn left" onclick="scrollRow('sec-${key}',-1)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <div style="display:flex;gap:16px;overflow-x:auto;overflow-y:visible;padding-bottom:12px;scrollbar-width:none;flex:1;" class="prod-hscroll" id="hscroll-sec-${key}">
+        ${list.map((p,i)=>prodCardHTML(p,i)).join('')}
+      </div>
+      <button class="scroll-btn right" onclick="scrollRow('sec-${key}',1)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+      </button>
     </div>
   </div>`;
 }
@@ -1089,12 +1712,16 @@ function renderSections(){
   const grid=document.getElementById('productGrid');
   const empty=document.getElementById('emptyState');
   if(!wrap)return;
-  wrap.style.display='block'; if(grid)grid.style.display='none'; empty.style.display='none';
+  if(grid){ grid.style.display='none'; grid.innerHTML=''; } // clear filtered cards so duplicate IDs don't exist
+  empty.style.display='none';
+  wrap.style.display='block';
   wrap.innerHTML=SECTION_ORDER.map(key=>{
     const list=key==='new'?products.filter(p=>p.section==='new'):key==='bestseller'?products.filter(p=>p.section==='bestseller'):products.filter(p=>p.category===key);
     return list.length?sectionHTML(key,list):'';
   }).join('');
   wrap.querySelectorAll('.sr').forEach(el=>srObserver.observe(el));
+  attachCarousel3D();
+  setTimeout(initScrollBtns, 100);
 }
 
 function renderFlat(list,cat){
@@ -1102,16 +1729,22 @@ function renderFlat(list,cat){
   const grid=document.getElementById('productGrid');
   const empty=document.getElementById('emptyState');
   if(!grid)return;
-  if(!list.length){ if(wrap)wrap.style.display='none'; grid.style.display='none'; empty.style.display='block'; return; }
-  if(wrap)wrap.style.display='none'; empty.style.display='none';
+  if(wrap){ wrap.style.display='none'; wrap.innerHTML=''; } // clear old cards so duplicate IDs don't exist
+  if(!list.length){ grid.style.display='none'; empty.style.display='block'; return; }
+  empty.style.display='none';
   const m=cat&&sectionMeta[cat]?sectionMeta[cat]:null;
-  const heading=m?`<div style="grid-column:1/-1;margin-bottom:1.5rem;padding-bottom:.75rem;border-bottom:2px solid rgba(26,58,42,.07);">
+  const heading=m?`<div style="width:100%;margin-bottom:1.5rem;padding-bottom:.75rem;border-bottom:2px solid rgba(26,58,42,.07);text-align:left;">
     <h2 style="font-family:'Cormorant Garamond',serif;font-size:clamp(1.4rem,2.5vw,1.9rem);font-weight:700;color:#1a2416;margin-bottom:4px;">${m.label}</h2>
     <p style="color:#7a9980;font-size:.8rem;">${m.sub} · <strong style="color:#1a2416;">${list.length} product${list.length!==1?'s':''}</strong></p>
   </div>`:'';
-  grid.style.display='grid';
+  grid.style.display='flex';
+  grid.style.flexWrap='wrap';
+  grid.style.gap='20px';
+  grid.style.overflow='visible';
+  grid.style.padding='12px 4px';
   grid.innerHTML=heading+list.map((p,i)=>prodCardHTML(p,i)).join('');
-  grid.querySelectorAll('.sr').forEach(el=>srObserver.observe(el));
+  grid.querySelectorAll('.sr').forEach(el=>el.classList.add('is-visible'));
+  attachCarousel3D();
 }
 
 /* ════ QUANTITY CONFIG ════ */
@@ -1131,19 +1764,22 @@ function fmtQty(v,unit){
 
 const cardState={};
 
-function startQtySelect(id){
+function startQtySelect(id,triggerBtn){
   const p=products.find(x=>x.id===id); if(!p)return;
   const cfg=getQtyCfg(p.category);
   cardState[id]={qty:cfg.options[0],unit:cfg.unit};
-  const area=document.getElementById('cardbtn-area-'+id);
+  const area=triggerBtn?triggerBtn.closest('.prod-btn-area'):document.getElementById('cardbtn-area-'+id);
   const card=area?.closest('.prod-card');
-  if(card) card.classList.add('card-lifted');
+  if(card){
+    card.classList.add('card-lifted');
+    card.style.zIndex='10';
+  }
   const pills=cfg.options.map((v,i)=>
-    `<button class="qty-pill${i===0?' selected':''}" onclick="selectPill(${id},${v},this);event.stopPropagation()">${fmtQty(v,cfg.unit)}</button>`
+    `<button class="qty-pill${i===0?' selected':''}" onclick="selectPill(${id},${v},this);event.preventDefault();event.stopPropagation()">${fmtQty(v,cfg.unit)}</button>`
   ).join('');
-  area.innerHTML=`<div class="qty-selector-area" onclick="event.stopPropagation()">
+  area.innerHTML=`<div class="qty-selector-area" onclick="event.preventDefault();event.stopPropagation()">
     <div class="qty-grid">${pills}</div>
-    <button id="confirm-btn-${id}" class="qty-cart-btn" onclick="confirmAddToCart(${id});event.stopPropagation()">
+    <button id="confirm-btn-${id}" class="qty-cart-btn" onclick="confirmAddToCart(${id},this);event.preventDefault();event.stopPropagation()">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 002 1.58h9.78a2 2 0 001.95-1.57l1.65-7.43H5.12"/></svg>
     </button>
   </div>
@@ -1155,34 +1791,92 @@ function selectPill(id,val,btn){
   cardState[id].qty=val;
   btn.closest('.qty-selector-area').querySelectorAll('.qty-pill').forEach(p=>p.classList.remove('selected'));
   btn.classList.add('selected');
+  // update price on card dynamically
+  const p=products.find(x=>x.id===id); if(!p)return;
+  const {unit}=cardState[id];
+  const totalPrice=unit==='ml'?Math.round(p.price*(val/1000)):Math.round(p.price*val);
+  const oldTotal=unit==='ml'?Math.round(p.oldPrice*(val/1000)):Math.round(p.oldPrice*val);
+  const d=Math.round((1-p.price/p.oldPrice)*100);
+  const card=btn.closest('.prod-card'); if(!card)return;
+  const priceEl=card.querySelector('[data-card-price]');
+  const oldEl=card.querySelector('[data-card-old]');
+  const discEl=card.querySelector('[data-card-disc]');
+  if(priceEl) priceEl.textContent='₹'+totalPrice;
+  if(oldEl)   oldEl.textContent='₹'+oldTotal;
+  if(discEl)  discEl.textContent=d+'% off';
 }
 
-function confirmAddToCart(id){
+function confirmAddToCart(id,triggerBtn){
   const p=products.find(x=>x.id===id); if(!p)return;
   const {qty,unit}=cardState[id]||{qty:1,unit:'pcs'};
-  const ex=cart.find(i=>i.id===id);
-  if(ex) ex.qty+=qty; else cart.push({id,name:p.name,price:p.price,qty,qtyLabel:fmtQty(qty,unit)});
+  const totalPrice=unit==='ml'?Math.round(p.price*(qty/1000)):Math.round(p.price*qty);
+  const label=fmtQty(qty,unit);
+  const ex=cart.find(i=>i.id===id&&i.qtyLabel===label);
+  if(ex){ex.qty+=1;}else cart.push({id,name:p.name,price:totalPrice,basePrice:p.price,image:p.image,qty:1,qtyVal:qty,qtyLabel:label,unit});
   saveCart();
   showToast(`🛒 ${p.name} · ${fmtQty(qty,unit)} added!`);
-  const confirmBtn=document.getElementById('confirm-btn-'+id);
+  const confirmBtn=triggerBtn||null;
   if(confirmBtn){
-    confirmBtn.classList.add('done','btn-bounce');
+    confirmBtn.classList.add('done');
     confirmBtn.innerHTML='<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+    confirmBtn.classList.add('btn-bounce');
+    confirmBtn.addEventListener('animationend',()=>confirmBtn.classList.remove('btn-bounce'),{once:true});
   }
-  const area=document.getElementById('cardbtn-area-'+id);
+  // animate cart icon in navbar
+  const cartIcon=document.querySelector('button[onclick="openCart()"]');
+  if(cartIcon){ cartIcon.classList.add('cart-fly'); cartIcon.addEventListener('animationend',()=>cartIcon.classList.remove('cart-fly'),{once:true}); }
+  const area=triggerBtn?triggerBtn.closest('.prod-card')?.querySelector('.prod-btn-area'):null;
   const card=area?.closest('.prod-card');
   setTimeout(()=>{
-    if(card) card.classList.remove('card-lifted');
-    area.innerHTML=`<button id="cartbtn-${id}" onclick="startQtySelect(${id});event.stopPropagation()" style="width:100%;background:var(--forest-deep);color:#fff;font-size:.72rem;font-weight:700;padding:9px 4px;border-radius:10px;border:none;cursor:pointer;font-family:'Roboto',sans-serif;display:flex;align-items:center;justify-content:center;gap:6px;transition:background .2s,transform .15s;box-shadow:0 3px 10px rgba(15,34,24,.25);" onmouseover="this.style.background='var(--forest-mid)';this.style.transform='translateY(-1px)'" onmouseout="this.style.background='var(--forest-deep)';this.style.transform='translateY(0)'">
+    if(card){
+      card.classList.remove('card-lifted');
+      card.style.zIndex='1';
+      if(card._floatClass) card.classList.add(card._floatClass);
+    }
+    area.innerHTML=`<button id="cartbtn-${id}" onclick="startQtySelect(${id},this);event.preventDefault();event.stopPropagation()" style="width:100%;background:var(--forest-deep);color:#fff;font-size:.72rem;font-weight:700;padding:9px 4px;border-radius:10px;border:none;cursor:pointer;font-family:'Roboto',sans-serif;display:flex;align-items:center;justify-content:center;gap:6px;transition:background .2s,transform .15s;box-shadow:0 3px 10px rgba(15,34,24,.25);" onmouseover="this.style.background='var(--forest-mid)';this.style.transform='translateY(-1px)'" onmouseout="this.style.background='var(--forest-deep)';this.style.transform='translateY(0)'">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 002 1.58h9.78a2 2 0 001.95-1.57l1.65-7.43H5.12"/></svg>
       Add to Cart
     </button>`;
   },1600);
 }
+
+function addDirectToCart(id, btn) {
+  var p = products.find(function(x){ return x.id === id; });
+  if (!p) return;
+  var sel = document.getElementById('qty-' + id);
+  var cfg = getQtyCfg(p.category);
+  var qtyVal = sel ? parseFloat(sel.value) : cfg.options[0];
+  var unit = cfg.unit;
+  var totalPrice = unit === 'ml' ? Math.round(p.price * (qtyVal / 1000)) : Math.round(p.price * qtyVal);
+  var label = fmtQty(qtyVal, unit);
+  var ex = cart.find(function(i){ return i.id === id && i.qtyLabel === label; });
+  if (ex) { ex.qty += 1; } else { cart.push({id:id, name:p.name, price:totalPrice, image:p.image, qty:1, qtyVal:qtyVal, qtyLabel:label}); }
+  saveCart();
+  showToast(p.name + ' (' + label + ') added to cart!');
+  if (btn) {
+    var orig = btn.innerHTML;
+    btn.innerHTML = 'Added!';
+    btn.style.background = '#16a34a';
+    setTimeout(function(){ btn.innerHTML = orig; btn.style.background = ''; }, 1800);
+  }
+}
 function toggleWish(id,btn){
+  // prevent double-fire from ontouchend + onclick on mobile
+  const now = Date.now();
+  if (btn._lastToggle && now - btn._lastToggle < 500) return;
+  btn._lastToggle = now;
   const idx=wishlist.indexOf(id);
-  if(idx>-1){wishlist.splice(idx,1);if(btn){btn.style.color='';btn.textContent='♡';}showToast('💔 Removed from wishlist');}
-  else{wishlist.push(id);if(btn){btn.style.color='#ef4444';btn.textContent='♥';}showToast('💖 Added to wishlist!');}
+  if(idx>-1){
+    wishlist.splice(idx,1);
+    if(btn){btn.style.color='';btn.textContent='♡';}
+    showToast('💔 Removed from wishlist');
+    if(typeof WishlistAPI!=='undefined'&&localStorage.getItem('nansai_token'))WishlistAPI.remove(String(id)).catch(()=>{});
+  } else {
+    wishlist.push(id);
+    if(btn){btn.style.color='#ef4444';btn.textContent='♥';}
+    showToast('💖 Added to wishlist!');
+    if(typeof WishlistAPI!=='undefined'&&localStorage.getItem('nansai_token'))WishlistAPI.add(String(id)).catch(()=>{});
+  }
   localStorage.setItem('wishlist',JSON.stringify(wishlist));syncCounters();
 }
 
@@ -1204,61 +1898,81 @@ function filterProds(cat){
   renderFlat(list,cat);
 }
 function doSearch(){
-  const q=((document.getElementById('searchInput')?.value||'')+(document.getElementById('mobSearchInput')?.value||'')).trim().toLowerCase();
+  const q=(document.getElementById('searchInput')?.value||document.getElementById('mobSearchInput')?.value||'').trim().toLowerCase();
   if(!q){renderSections();return;}
-  const list=products.filter(p=>p.name.toLowerCase().includes(q)||p.category.includes(q));
+  const list=products.filter(p=>p.name.toLowerCase().includes(q)||p.category.toLowerCase().includes(q)||(p.description||p.desc||'').toLowerCase().includes(q)||(p.tagline||'').toLowerCase().includes(q));
   renderFlat(list,null);
 }
 
-/* ════ HERO SLIDER ════ */
+/* ════ HERO SLIDER — 3D CAROUSEL ════ */
 (function(){
   const TOTAL=4, DUR=5000;
-  let cur=0,pct=0,rafId=null,lastTS=null;
-  const track=document.getElementById('track');
-  const fill=document.getElementById('timerFill');
-  const idxEl=document.getElementById('currIdx');
+  let cur=0, pct=0, rafId=null, lastTS=null;
   const slides=document.querySelectorAll('#heroSection .slide');
   const dots=document.querySelectorAll('#dotList .dot');
-  if(!track)return;
-  function goTo(i){
-    slides[cur].classList.remove('active'); dots[cur].classList.remove('active');
-    cur=((i%TOTAL)+TOTAL)%TOTAL;
-    slides[cur].classList.add('active'); dots[cur].classList.add('active');
-    track.style.transform=`translateX(-${cur*100}%)`;
+  const fill=document.getElementById('timerFill');
+  const idxEl=document.getElementById('currIdx');
+  if(!slides.length) return;
+
+  function setClasses(){
+    slides.forEach((s,i)=>{
+      s.classList.remove('active','prev','next','far-prev','far-next');
+      const diff=((i-cur)+TOTAL)%TOTAL;
+      if(diff===0)           s.classList.add('active');
+      else if(diff===1)      s.classList.add('next');
+      else if(diff===TOTAL-1)s.classList.add('prev');
+      else if(diff===2)      s.classList.add('far-next');
+      else                   s.classList.add('far-prev');
+    });
+    dots.forEach((d,i)=>d.classList.toggle('active',i===cur));
     if(idxEl) idxEl.textContent=String(cur+1).padStart(2,'0');
+  }
+
+  function goTo(i){
+    cur=((i%TOTAL)+TOTAL)%TOTAL;
+    setClasses();
     resetTimer();
   }
+
   function resetTimer(){ cancelAnimationFrame(rafId); pct=0; lastTS=null; fill.style.transition='none'; fill.style.width='0%'; rafId=requestAnimationFrame(tick); }
   function tick(ts){
-    if(!lastTS)lastTS=ts;
+    if(!lastTS) lastTS=ts;
     pct+=((ts-lastTS)/DUR)*100; lastTS=ts;
     fill.style.width=Math.min(pct,100)+'%';
-    pct<100?rafId=requestAnimationFrame(tick):goTo(cur+1);
+    pct<100 ? rafId=requestAnimationFrame(tick) : goTo(cur+1);
   }
+
   document.getElementById('prevBtn').onclick=()=>goTo(cur-1);
   document.getElementById('nextBtn').onclick=()=>goTo(cur+1);
   dots.forEach(d=>d.onclick=()=>goTo(+d.dataset.i));
-  document.addEventListener('keydown',e=>{if(e.key==='ArrowLeft')goTo(cur-1);if(e.key==='ArrowRight')goTo(cur+1);});
+  document.addEventListener('keydown',e=>{ if(e.key==='ArrowLeft')goTo(cur-1); if(e.key==='ArrowRight')goTo(cur+1); });
+
   let tx=0;
-  track.addEventListener('touchstart',e=>{tx=e.touches[0].clientX;},{passive:true});
-  track.addEventListener('touchend',e=>{const d=e.changedTouches[0].clientX-tx;if(Math.abs(d)>45)goTo(cur+(d<0?1:-1));});
   const shell=document.getElementById('sliderShell');
+  shell.addEventListener('touchstart',e=>{tx=e.touches[0].clientX;},{passive:true});
+  shell.addEventListener('touchend',e=>{ const d=e.changedTouches[0].clientX-tx; if(Math.abs(d)>45) goTo(cur+(d<0?1:-1)); });
   shell.addEventListener('mouseenter',()=>cancelAnimationFrame(rafId));
-  shell.addEventListener('mouseleave',()=>{lastTS=null;rafId=requestAnimationFrame(tick);});
+  shell.addEventListener('mouseleave',()=>{ lastTS=null; rafId=requestAnimationFrame(tick); });
+
+  // Click prev/next slides to navigate
+  slides.forEach((s,i)=>{
+    s.addEventListener('click',()=>{
+      if(s.classList.contains('prev')||s.classList.contains('far-prev')) goTo(cur-1);
+      else if(s.classList.contains('next')||s.classList.contains('far-next')) goTo(cur+1);
+    });
+  });
+
+  setClasses();
   resetTimer();
 })();
 
 /* ════ PARALLAX SCROLL ════ */
-const parallaxPairs = [
-  { section: document.getElementById('heroSection'),   bg: document.getElementById('sliderShell'), rate: 0.38 },
-  { section: document.getElementById('midParallax'),   bg: document.getElementById('midBgLayer'),  rate: 0.32 },
-];
+// parallax config (used by onScroll)
 function onScroll(){
   const scrollY=window.scrollY;
-  // Hero slides parallax (each bg layer)
   [0,1,2,3].forEach(i=>{
     const pbg=document.getElementById('pbg-'+i);
-    if(pbg) pbg.style.transform=`translateY(${scrollY*0.36}px)`;
+    if(pbg) pbg.style.transform=`translateY(${scrollY*0.12}px)`;
   });
   // Mid section parallax
   const mid=document.getElementById('midParallax');
@@ -1279,6 +1993,56 @@ const srObserver=new IntersectionObserver((entries)=>{
   });
 },{threshold:0.08,rootMargin:'0px 0px -36px 0px'});
 document.querySelectorAll('.sr,.sr-left,.sr-right,.sr-scale').forEach(el=>srObserver.observe(el));
+
+/* ════ INIT ════ */
+renderSections();
+attachCarousel3D();
+syncCounters();
+setTimeout(initScrollBtns, 100);
+
+/* ════ LOAD PRODUCTS FROM API ════ */
+(function(){
+  const base = window.API_BASE || 'http://localhost:5000/api';
+  fetch(base + '/products?limit=100')
+    .then(r => r.json())
+    .then(data => {
+      if (!data.success || !data.products?.length) return;
+      // Map API products to the same shape as static products
+      const apiProds = data.products.map(p => ({
+        id:       p._id,
+        name:     p.name,
+        category: p.category,
+        price:    p.price,
+        oldPrice: p.oldPrice || Math.round(p.price * 1.25),
+        rating:   p.rating || 4.5,
+        reviews:  p.numReviews || 0,
+        badge:    p.badge || 'new',
+        section:  p.section || 'category',
+        image:    p.images?.[0]?.url || p.image || '',
+        tagline:  p.tagline || '',
+        desc:     p.description || '',
+      }));
+      // Replace static products array with API data
+      products.length = 0;
+      apiProds.forEach(p => products.push(p));
+      renderSections();
+      syncCounters();
+      setTimeout(initScrollBtns, 100);
+    })
+    .catch(() => { /* silently keep static data on error */ });
+})();
+
+/* ════ AUTO-SEARCH FROM URL PARAM ════ */
+(function(){
+  const q = new URLSearchParams(window.location.search).get('search');
+  if(!q) return;
+  const inp = document.getElementById('searchInput');
+  const mob = document.getElementById('mobSearchInput');
+  if(inp) inp.value = q;
+  if(mob) mob.value = q;
+  doSearch();
+  setTimeout(()=>document.getElementById('products')?.scrollIntoView({behavior:'smooth'}), 300);
+})();
 
 /* ════ BLOG TILT ════ */
 document.querySelectorAll('[data-tilt]').forEach(card=>{
@@ -1306,8 +2070,8 @@ document.querySelectorAll('[data-tilt]').forEach(card=>{
     const w=words[ci];
     const text=del?w.substring(0,char-1):w.substring(0,char+1);
     if(del)char--; else char++;
-    if(dp)dp.textContent='Search '+text;
-    if(mp)mp.textContent='Search '+text;
+    if(dp)dp.textContent=text;
+    if(mp)mp.textContent=text;
     let speed=del?45:95;
     if(!del&&char===w.length){speed=2000;del=true;}
     else if(del&&char===0){del=false;ci=(ci+1)%words.length;speed=450;}
@@ -1367,31 +2131,37 @@ function renderCartDrawer(){
   const total=cart.reduce((s,i)=>s+i.price*(i.qty||1),0);
   body.innerHTML=cart.map((item,idx)=>{
     const prod=products.find(p=>p.id===item.id);
-    const label=item.qtyLabel||(item.qty||1);
+    const label=item.qtyLabel||'';
+    const unitPrice=item.price;
     return `<div style="display:flex;gap:.85rem;align-items:center;padding:.85rem 0;border-bottom:1px solid rgba(26,58,42,.07);">
       <div style="width:56px;height:56px;border-radius:8px;overflow:hidden;flex-shrink:0;background:#f0fdf4;"><img src="${prod?.image||''}" style="width:100%;height:100%;object-fit:cover;"/></div>
       <div style="flex:1;min-width:0;">
         <p style="font-size:.78rem;font-weight:700;color:#1a2416;line-height:1.3;">${item.name}</p>
-        <p style="font-size:.72rem;color:#166534;font-weight:700;margin-top:2px;">₹${item.price} &times; ${item.qty||1} <span style="color:#6b7280;font-weight:500;">(${label})</span></p>
+        <p style="font-size:.68rem;color:#6b7280;font-weight:500;margin-top:1px;">${label}</p>
+        <p style="font-size:.72rem;color:#166534;font-weight:700;margin-top:2px;">&#8377;${unitPrice} &times; ${item.qty||1} = <strong>&#8377;${unitPrice*(item.qty||1)}</strong></p>
       </div>
       <div style="display:flex;align-items:center;gap:4px;">
-        <button onclick="cartQty(${idx},-1)" style="width:24px;height:24px;border:1px solid #d1d5db;border-radius:5px;background:#f3f4f6;cursor:pointer;font-weight:700;font-size:.75rem;">−</button>
+        <button onclick="cartQty(${idx},-1)" style="width:24px;height:24px;border:1px solid #d1d5db;border-radius:5px;background:#f3f4f6;cursor:pointer;font-weight:700;font-size:.75rem;">&#8722;</button>
         <span style="font-size:.78rem;font-weight:700;min-width:18px;text-align:center;">${item.qty||1}</span>
         <button onclick="cartQty(${idx},1)" style="width:24px;height:24px;border:1px solid #d1d5db;border-radius:5px;background:#f3f4f6;cursor:pointer;font-weight:700;font-size:.75rem;">+</button>
-        <button onclick="removeFromCart(${idx})" style="width:24px;height:24px;border:none;background:none;cursor:pointer;color:#ef4444;font-size:.85rem;margin-left:2px;">✕</button>
+        <button onclick="removeFromCart(${idx})" style="width:24px;height:24px;border:none;background:none;cursor:pointer;color:#ef4444;font-size:.85rem;margin-left:2px;">&#10005;</button>
       </div>
     </div>`;
   }).join('');
   if(footer){
     footer.style.display='block';
-    footer.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.85rem;"><span style="font-size:.82rem;font-weight:600;color:#6b7280;">Subtotal</span><span style="font-size:1rem;font-weight:800;color:#166534;">₹${total}</span></div><a href="step3_new.html" style="display:block;text-align:center;background:var(--forest-deep);color:#fff;padding:.75rem;border-radius:10px;font-weight:700;font-size:.85rem;text-decoration:none;">Proceed to Checkout →</a>`;
+    footer.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.85rem;"><span style="font-size:.82rem;font-weight:600;color:#6b7280;">Subtotal</span><span style="font-size:1rem;font-weight:800;color:#166534;">₹${total}</span></div><a href="checkoutmyorderpage.html" style="display:block;text-align:center;background:var(--forest-deep);color:#fff;padding:.75rem;border-radius:10px;font-weight:700;font-size:.85rem;text-decoration:none;">Proceed to Checkout →</a>`;
   }
 }
 function cartQty(idx,delta){
   const item=cart[idx];
   if(!item)return;
-  item.qty=(item.qty||1)+delta;
-  if(item.qty<1)cart.splice(idx,1);
+  item.qty=Math.max(1,(item.qty||1)+delta);
+  // recalculate price from basePrice × qtyVal so the correct amount is always shown
+  if(item.basePrice&&item.qtyVal&&item.unit){
+    const m=item.unit==='ml'?item.qtyVal/1000:item.qtyVal;
+    item.price=Math.round(item.basePrice*m);
+  }
   saveCart();renderCartDrawer();
 }
 function removeFromCart(idx){
@@ -1399,10 +2169,384 @@ function removeFromCart(idx){
   saveCart();renderCartDrawer();
 }
 
-/* ════ INIT ════ */
-renderSections();
-syncCounters();
+/* ════ 3D CAROUSEL SCROLL ════ */
+function scrollRow(secId, dir) {
+  const el = document.getElementById('hscroll-' + secId);
+  if (!el) return;
+  el.scrollBy({ left: dir * 276, behavior: 'smooth' });
+  setTimeout(() => updateScrollBtns(secId), 350);
+}
+
+function updateScrollBtns(secId) {
+  const el = document.getElementById('hscroll-' + secId);
+  if (!el) return;
+  const wrap = el.closest('.hscroll-wrap');
+  if (!wrap) return;
+  const atStart = el.scrollLeft <= 4;
+  const atEnd   = el.scrollLeft + el.clientWidth >= el.scrollWidth - 4;
+  const lBtn = wrap.querySelector('.scroll-btn.left');
+  const rBtn = wrap.querySelector('.scroll-btn.right');
+  if (lBtn) lBtn.style.visibility = atStart ? 'hidden' : 'visible';
+  if (rBtn) rBtn.style.visibility = atEnd   ? 'hidden' : 'visible';
+}
+
+function initScrollBtns() {
+  document.querySelectorAll('.prod-hscroll').forEach(el => {
+    const id = el.id.replace('hscroll-', '');
+    updateScrollBtns(id);
+    el.addEventListener('scroll', () => updateScrollBtns(id), { passive: true });
+  });
+}
+
+function attachCarousel3D(){
+  // intentionally empty — removed to prevent inline style conflicts with card-lifted
+}
+
+/* ════ REEL WIDGET SCROLL TRIGGER ════ */
+(function(){
+  const widget = document.getElementById('reel-widget');
+  const tab    = document.getElementById('reel-tab');
+  const target = document.getElementById('filterTabs');
+  if(!widget || !target) return;
+
+  // start hidden
+  widget.style.opacity = '0';
+  widget.style.pointerEvents = 'none';
+  widget.style.transform = 'translateX(calc(100% + 20px))';
+
+  let visible = false;
+  let minimized = false;
+
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting && !visible && !minimized) {
+        visible = true;
+        widget.style.transition = 'opacity .5s ease, transform .5s cubic-bezier(.4,0,.2,1)';
+        widget.style.opacity = '1';
+        widget.style.pointerEvents = 'all';
+        widget.style.transform = '';
+      }
+    });
+  }, { threshold: 0.1 });
+
+  observer.observe(target);
+
+  // patch minimize to also track state
+  const origMin = document.getElementById('btn-reel-minimize');
+  if(origMin) {
+    origMin.addEventListener('click', () => { minimized = true; }, { capture: true });
+  }
+  const origTab = document.getElementById('reel-tab');
+  if(origTab) {
+    origTab.addEventListener('click', () => { minimized = false; }, { capture: true });
+  }
+})();
+
+/* ════════════════════════════════════════
+   FLOATING REELS WIDGET
+════════════════════════════════════════ */
+(function(){
+  /* Video data — swap src with your real product videos */
+  const REELS = [
+    { src:'https://ik.imagekit.io/bq9dscs4g/agro%20store/reel%201.mp4',       caption:'🌾 25 acres of certified organic land — grown with love by Nansai farmers',  product:'Karunguruvai Rice', price:'₹180', id:1  },
+    { src:'https://ik.imagekit.io/bq9dscs4g/agro%20store/reel2.mp4',          caption:'🌸 Sun-dried Paneer Rose petals — Tamil Nadu\'s finest, straight from our farm', product:'Paneer Rose',       price:'₹150', id:8  },
+    { src:'https://ik.imagekit.io/bq9dscs4g/agro%20store/reel%203.mp4',       caption:'🌿 Zero chemicals. Zero compromise. Pure nature in every grain — Nansai Organics', product:'Karuppu Kavuni Rice', price:'₹220', id:2  },
+    { src:'https://ik.imagekit.io/bq9dscs4g/agro%20store/reel4.mp4',          caption:'🌺 From living soil to your table — 22 years of organic farming heritage', product:'Hibiscus Flower',    price:'₹120', id:9  },
+  ];
+
+  let cur = 0, autoTimer = null;
+  const INTERVAL = 6000;
+  const $ = id => document.getElementById(id);
+
+  /* Build slides into a track */
+  function buildSlides(trackEl, dotsEl, isMini) {
+    REELS.forEach((r, i) => {
+      const slide = document.createElement('div');
+      slide.className = 'reel-slide' + (i === 0 ? ' active' : '');
+
+      const vid = document.createElement('video');
+      vid.src = r.src;
+      vid.muted = true; vid.loop = true; vid.playsInline = true;
+      vid.preload = i === 0 ? 'auto' : 'none';
+      if (i === 0) vid.play();
+      slide.appendChild(vid);
+
+      if (isMini) {
+        const cap = document.createElement('div');
+        cap.className = 'mini-caption';
+        cap.textContent = r.caption;
+        slide.appendChild(cap);
+      }
+
+      trackEl.insertBefore(slide, dotsEl);
+
+      const dot = document.createElement('span');
+      dot.className = i === 0 ? 'active' : '';
+      dot.addEventListener('click', e => { e.stopPropagation(); syncTo(i); startAuto(); });
+      dotsEl.appendChild(dot);
+    });
+  }
+
+  function goTo(trackEl, dotsEl, index) {
+    const slides = trackEl.querySelectorAll('.reel-slide');
+    const dots   = dotsEl.querySelectorAll('span');
+    const prev   = cur;
+
+    slides[prev].classList.remove('active');
+    slides[prev].classList.add('prev');
+    slides[prev].querySelector('video').pause();
+    setTimeout(() => slides[prev].classList.remove('prev'), 460);
+
+    const next = slides[index];
+    next.classList.add('active');
+    const vid = next.querySelector('video');
+    vid.preload = 'auto';
+    vid.play();
+
+    dots.forEach((d, i) => d.classList.toggle('active', i === index));
+  }
+
+  function syncTo(index) {
+    const miniTrack  = $('mini-track'),  miniDots  = $('mini-dots');
+    const modalTrack = $('modal-track'), modalDots = $('modal-dots');
+    goTo(miniTrack,  miniDots,  index);
+    goTo(modalTrack, modalDots, index);
+    cur = index;
+    $('modal-caption').textContent = REELS[cur].caption;
+  }
+
+  function startAuto() {
+    clearInterval(autoTimer);
+    autoTimer = setInterval(() => syncTo((cur + 1) % REELS.length), INTERVAL);
+  }
+
+  /* Init */
+  buildSlides($('mini-track'),  $('mini-dots'),  true);
+  buildSlides($('modal-track'), $('modal-dots'), false);
+  $('modal-caption').textContent = REELS[0].caption;
+  startAuto();
+
+  /* Mini player → open modal */
+  $('reel-widget').addEventListener('click', e => {
+    if (e.target.closest('#btn-reel-minimize')) return;
+    $('reel-modal').classList.add('open');
+  });
+
+  /* Close modal */
+  $('btn-reel-close').addEventListener('click', () => $('reel-modal').classList.remove('open'));
+  $('reel-modal').addEventListener('click', e => {
+    if (e.target === $('reel-modal')) $('reel-modal').classList.remove('open');
+  });
+
+  /* Arrow buttons */
+  $('modal-prev').addEventListener('click', e => { e.stopPropagation(); syncTo((cur - 1 + REELS.length) % REELS.length); startAuto(); });
+  $('modal-next').addEventListener('click', e => { e.stopPropagation(); syncTo((cur + 1) % REELS.length); startAuto(); });
+
+  /* Minimize / restore */
+  $('btn-reel-minimize').addEventListener('click', e => {
+    e.stopPropagation();
+    $('reel-widget').classList.add('minimized');
+    $('reel-tab').style.display = 'flex';
+  });
+  $('reel-tab').addEventListener('click', () => {
+    $('reel-widget').classList.remove('minimized');
+    $('reel-tab').style.display = 'none';
+  });
+
+  /* Swipe support */
+  function addSwipe(el) {
+    let sy = 0;
+    el.addEventListener('touchstart', e => { sy = e.touches[0].clientY; }, { passive: true });
+    el.addEventListener('touchend',   e => {
+      const dy = sy - e.changedTouches[0].clientY;
+      if (Math.abs(dy) < 40) return;
+      syncTo(dy > 0 ? (cur + 1) % REELS.length : (cur - 1 + REELS.length) % REELS.length);
+      startAuto();
+    }, { passive: true });
+  }
+  addSwipe($('mini-track'));
+  addSwipe($('modal-track'));
+})();
+
+/* ════ BLOG MOBILE SCROLL DOTS ════ */
+(function(){
+  const dotsWrap = document.getElementById('blog-scroll-dots');
+  const blogGrid = document.querySelector('#blog-section > div > div:last-child');
+  if(!dotsWrap || !blogGrid) return;
+  const dots = dotsWrap.querySelectorAll('span');
+  blogGrid.addEventListener('scroll', () => {
+    const idx = Math.round(blogGrid.scrollLeft / (blogGrid.scrollWidth / dots.length));
+    dots.forEach((d, i) => d.classList.toggle('active', i === idx));
+  }, { passive: true });
+})();
+
+/* ════ BLOG MODAL ════ */
+const BLOGS = [
+  {
+    title: 'Why Heritage Rice Varieties Are the Future of Healthy Eating',
+    cat: 'Organic Farming', catColor: '#166534', catBg: '#dcfce7',
+    date: 'Mar 12, 2026', readTime: '4 min read',
+    image: 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=800&auto=format&fit=crop&q=80',
+    content: `<p>Karunguruvai, Mappillai Samba and Black Kavuni are not just grains — they are living traditions packed with nutrition that modern rice has lost over decades of industrial farming.</p>
+      <h4 style="font-family:'Cormorant Garamond',serif;font-size:1.2rem;font-weight:700;color:#1a2416;margin:1.5rem 0 .5rem;">What Makes Heritage Rice Different?</h4>
+      <p>Heritage rice varieties were cultivated over centuries to thrive in specific microclimates. They are naturally drought-resistant, require no chemical inputs, and contain significantly higher levels of antioxidants, fibre, and minerals than polished white rice.</p>
+      <p>Karunguruvai, for example, has a glycaemic index of just 51 — compared to 72 for regular white rice — making it ideal for diabetics and those managing blood sugar.</p>
+      <h4 style="font-family:'Cormorant Garamond',serif;font-size:1.2rem;font-weight:700;color:#1a2416;margin:1.5rem 0 .5rem;">The Nansai Commitment</h4>
+      <p>At Nansai, we cultivate 7 heritage rice varieties across our 25 certified acres. Each variety is grown using traditional seed-saving methods, ensuring genetic diversity is preserved for future generations. When you buy from us, you are not just buying rice — you are sustaining a 2,000-year-old agricultural tradition.</p>`
+  },
+  {
+    title: 'The Ancient Healing Power of Hibiscus & Butterfly Pea Flowers',
+    cat: 'Wellness', catColor: '#9d174d', catBg: '#fce7f3',
+    date: 'Feb 28, 2026', readTime: '3 min read',
+    image: 'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=800&auto=format&fit=crop&q=80',
+    content: `<p>Centuries-old Ayurvedic tradition meets modern science. Our sun-dried flowers are among the most potent natural wellness ingredients available — and they come straight from our certified organic farm.</p>
+      <h4 style="font-family:'Cormorant Garamond',serif;font-size:1.2rem;font-weight:700;color:#1a2416;margin:1.5rem 0 .5rem;">Hibiscus: The Heart Flower</h4>
+      <p>Clinical studies have shown that hibiscus tea can reduce systolic blood pressure by up to 7 points. Rich in Vitamin C and anthocyanins, it supports liver health, aids digestion, and has powerful anti-inflammatory properties. Our hibiscus is shade-dried within 24 hours of harvest to preserve maximum potency.</p>
+      <h4 style="font-family:'Cormorant Garamond',serif;font-size:1.2rem;font-weight:700;color:#1a2416;margin:1.5rem 0 .5rem;">Butterfly Pea: Nature’s Blue Elixir</h4>
+      <p>The vivid blue of Butterfly Pea Flower comes from anthocyanins — the same compounds found in blueberries. Research confirms benefits for cognitive function, eye health, and skin elasticity. Steep in hot water for a stunning blue tea that turns violet with lemon juice.</p>`
+  },
+  {
+    title: 'Zero Chemicals, Zero Waste: Our Commitment to the Planet',
+    cat: 'Sustainability', catColor: '#075985', catBg: '#e0f2fe',
+    date: 'Feb 5, 2026', readTime: '5 min read',
+    image: 'https://images.unsplash.com/photo-1523348837708-15d4a09cfac2?w=800&auto=format&fit=crop&q=80',
+    content: `<p>From seed to shelf, every decision we make is guided by our pledge to leave the earth better than we found it — for future generations of farmers and families.</p>
+      <h4 style="font-family:'Cormorant Garamond',serif;font-size:1.2rem;font-weight:700;color:#1a2416;margin:1.5rem 0 .5rem;">Our Zero-Input Farming Model</h4>
+      <p>We use no synthetic fertilisers, pesticides, or herbicides. Instead, we rely on composting, green manuring, crop rotation, and natural pest management. Our soil organic matter has increased by 18% over five years — a direct result of these practices.</p>
+      <h4 style="font-family:'Cormorant Garamond',serif;font-size:1.2rem;font-weight:700;color:#1a2416;margin:1.5rem 0 .5rem;">Packaging & Waste</h4>
+      <p>All our packaging is either biodegradable or recyclable. We have eliminated single-use plastic from our supply chain entirely since 2023. Our processing facility runs on 60% solar energy, and all organic waste is composted back into the farm.</p>
+      <p>Sustainability is not a marketing claim for us — it is the only way we know how to farm.</p>`
+  }
+];
+
+function openBlogArticle(i) {
+  const b = BLOGS[i];
+  document.getElementById('blog-modal-hero').src = b.image;
+  document.getElementById('blog-modal-title').textContent = b.title;
+  document.getElementById('blog-modal-content').innerHTML = b.content;
+  document.getElementById('blog-modal-meta').innerHTML = `
+    <span style="display:inline-flex;align-items:center;gap:4px;font-size:.6rem;font-weight:800;padding:3px 10px;border-radius:20px;color:${b.catColor};background:${b.catBg};">${b.cat}</span>
+    <span style="font-size:.72rem;color:var(--text-lt);display:flex;align-items:center;gap:4px;">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>${b.date}
+    </span>
+    <span style="font-size:.72rem;color:var(--text-lt);display:flex;align-items:center;gap:4px;">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>${b.readTime}
+    </span>`;
+  const modal = document.getElementById('blog-modal');
+  modal.style.display = 'flex';
+  requestAnimationFrame(() => {
+    modal.style.background = 'rgba(0,0,0,.72)';
+    modal.style.backdropFilter = 'blur(4px)';
+    const box = document.getElementById('blog-modal-box');
+    box.style.transform = 'scale(1) translateY(0)';
+    box.style.opacity = '1';
+  });
+  document.body.style.overflow = 'hidden';
+}
+
+function closeBlogModal() {
+  const modal = document.getElementById('blog-modal');
+  const box = document.getElementById('blog-modal-box');
+  box.style.transform = 'scale(.92) translateY(20px)';
+  box.style.opacity = '0';
+  modal.style.background = 'rgba(0,0,0,0)';
+  modal.style.backdropFilter = '';
+  setTimeout(() => { modal.style.display = 'none'; document.body.style.overflow = ''; }, 320);
+}
+document.addEventListener('keydown', e => { if(e.key === 'Escape') closeBlogModal(); });
+
+/* ════ REEL WIDGET DRAG ════ */
+(function(){
+  const el = document.getElementById('reel-widget');
+  if (!el) return;
+
+  // On mobile — disable drag entirely to prevent black gap issue
+  if ('ontouchstart' in window) {
+    // Touch devices: only allow swipe inside the reel, no drag
+    return;
+  }
+
+  let dragging = false, ox = 0, oy = 0, moved = false;
+  let startX = 0, startY = 0;
+
+  function startDrag(cx, cy) {
+    dragging = true;
+    moved = false;
+    startX = cx;
+    startY = cy;
+    const rect = el.getBoundingClientRect();
+    ox = cx - rect.left;
+    oy = cy - rect.top;
+    el.style.transition = 'none';
+    el.style.right = 'auto';
+    el.style.bottom = 'auto';
+    el.style.left = rect.left + 'px';
+    el.style.top  = rect.top  + 'px';
+  }
+
+  function moveDrag(cx, cy) {
+    if (!dragging) return;
+    if (Math.abs(cx - startX) > 5 || Math.abs(cy - startY) > 5) moved = true;
+    const maxX = window.innerWidth  - el.offsetWidth;
+    const maxY = window.innerHeight - el.offsetHeight;
+    el.style.left = Math.min(Math.max(0, cx - ox), maxX) + 'px';
+    el.style.top  = Math.min(Math.max(0, cy - oy), maxY) + 'px';
+  }
+
+  function endDrag() { dragging = false; el.style.transition = ''; }
+
+  el.addEventListener('mousedown',  e => { if (e.target.closest('#btn-reel-minimize')) return; startDrag(e.clientX, e.clientY); e.preventDefault(); });
+  document.addEventListener('mousemove', e => moveDrag(e.clientX, e.clientY));
+  document.addEventListener('mouseup',   endDrag);
+
+  el.addEventListener('click', e => { if (moved) { moved = false; e.stopImmediatePropagation(); e.preventDefault(); } });
+})();
+
+/* ════ AUTH NAV ════ */
+(function(){
+  const user = JSON.parse(localStorage.getItem('nansai_user') || 'null');
+  if (!user) return;
+  const firstName = (user.name || '').split(' ')[0] || 'User';
+  const btn = document.getElementById('navSignInBtn');
+  const txt = document.getElementById('navSignInText');
+  const mob = document.getElementById('mobSignInLink');
+
+  // Show AD circle for admin only
+  if (user.role === 'admin') {
+    const adminCircle = document.getElementById('adminCircleBtn');
+    if (adminCircle) adminCircle.style.display = 'flex';
+  }
+  // Profile icon — always shows greeting for all logged-in users
+  const greeting = 'Hi, ' + firstName;
+  if (btn) btn.href = 'account.html';
+  if (txt) txt.textContent = greeting;
+  if (mob) { mob.href = 'account.html'; mob.textContent = '👤 ' + greeting; }
+})();
 </script>
+
+<!-- MOBILE STICKY BOTTOM BAR -->
+<nav id="mob-sticky-bar">
+  <a href="index.html" class="mob-bar-btn active">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    Home
+  </a>
+  <a href="blog.html" class="mob-bar-btn">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+    Blogs
+  </a>
+  <a href="#products" onclick="document.getElementById('products').scrollIntoView({behavior:'smooth'});return false;" class="mob-bar-btn primary">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+    Shop
+  </a>
+  <a href="news.html" class="mob-bar-btn">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><path d="M18 14h-8"/><path d="M15 18h-5"/><path d="M10 6h8v4h-8V6Z"/></svg>
+    News
+  </a>
+  <a href="login.html" class="mob-bar-btn">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    Account
+  </a>
+</nav>
 
 <!-- CART DRAWER -->
 <div id="cartBackdrop" onclick="closeCart()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1100;backdrop-filter:blur(2px);"></div>

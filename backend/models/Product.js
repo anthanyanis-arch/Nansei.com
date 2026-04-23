@@ -98,6 +98,10 @@ const productSchema = new mongoose.Schema({
   tags: [String],
   metaTitle: String,
   metaDescription: String,
+  tagline: {
+    type: String,
+    maxlength: [200, 'Tagline cannot exceed 200 characters']
+  },
   slug: {
     type: String,
     unique: true
@@ -105,6 +109,16 @@ const productSchema = new mongoose.Schema({
 }, {
   timestamps: true
 });
+
+// Indexes for high-load query patterns
+productSchema.index({ isActive: 1, createdAt: -1 });          // default list
+productSchema.index({ isActive: 1, category: 1, createdAt: -1 }); // category filter
+productSchema.index({ isActive: 1, badge: 1 });               // badge filter
+productSchema.index({ isActive: 1, section: 1 });             // section filter
+productSchema.index({ isActive: 1, isFeatured: 1 });          // featured
+productSchema.index({ isActive: 1, rating: -1 });             // sort by rating
+productSchema.index({ isActive: 1, price: 1 });               // sort by price
+productSchema.index({ name: 'text', description: 'text', tags: 'text' }); // full-text search
 
 // Create slug from name
 productSchema.pre('save', function(next) {

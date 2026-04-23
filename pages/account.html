@@ -158,6 +158,16 @@
       <img src="nansei organics.png" alt="Nansei Organics" class="h-[38px] w-auto"/>
     </a>
 
+    <!-- Search bar -->
+    <form onsubmit="event.preventDefault();window.location.href='index.html?search='+encodeURIComponent(document.getElementById('acctSearch').value)" class="hidden md:flex items-center flex-1 max-w-[300px] rounded-xl border-2 overflow-hidden" style="border-color:rgba(26,58,42,.18);background:#fff;">
+      <input id="acctSearch" type="text" placeholder="Search organic products"
+             class="flex-1 px-4 py-2 text-sm outline-none bg-transparent"
+             style="font-family:'Inter',sans-serif;color:#0f2218;"/>
+      <button type="submit" class="px-3 py-2 flex items-center justify-center transition" style="background:#0f2218;color:#f7f3ec;" onmouseover="this.style.background='#2d5a3d'" onmouseout="this.style.background='#0f2218'">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      </button>
+    </form>
+
     <!-- Desktop nav links -->
     <nav class="hidden md:flex items-center gap-[0.15rem] ml-6 flex-1">
       <button onclick="goPage('home')"
@@ -166,6 +176,10 @@
       <button onclick="goPage('orders')"
               class="sub-link px-[0.75rem] py-[0.38rem] text-[0.78rem] font-semibold text-text-mid rounded-md
                      hover:bg-forest-pale hover:text-forest-dark transition-all whitespace-nowrap">Orders</button>
+      <a id="adminPanelBtn" href="admin-panel.html"
+         class="hidden w-8 h-8 rounded-full bg-[#2563EB] text-white text-[0.68rem] font-black
+                flex items-center justify-center shrink-0 hover:bg-[#1D4ED8] transition-all"
+         title="Admin Panel">AD</a>
       <button onclick="goPage('addresses')"
               class="sub-link px-[0.75rem] py-[0.38rem] text-[0.78rem] font-semibold text-text-mid rounded-md
                      hover:bg-forest-pale hover:text-forest-dark transition-all whitespace-nowrap">Addresses</button>
@@ -264,30 +278,7 @@
 ══════════════════════════════ -->
 <div class="page active" id="page-home">
 
-  <!-- Hero Banner -->
-  <div class="relative overflow-hidden"
-       style="background: linear-gradient(118deg, #0f2218 0%, #2d5a3d 65%, #3a7a50 100%);">
-    <div class="absolute inset-0"
-         style="background: radial-gradient(ellipse at 88% 15%, rgba(201,168,76,.2) 0%, transparent 55%);"></div>
-    <div class="absolute right-6 -bottom-4 text-[8rem] opacity-[0.04] leading-none select-none pointer-events-none">🌿</div>
-    <div class="relative z-10 max-w-[1140px] mx-auto px-5 py-5 flex items-center justify-between flex-wrap gap-3">
-      <div>
-        <div class="text-[0.6rem] font-black tracking-[0.16em] uppercase text-gold mb-0.5">Welcome back 👋</div>
-        <div class="font-serif text-[1.75rem] sm:text-[1.45rem] font-bold text-white leading-tight" id="heroName">Hello!</div>
-        <div class="text-[0.73rem] text-white/42 mt-0.5">Manage your orders, addresses &amp; account settings.</div>
-      </div>
-      <div class="flex gap-2 flex-wrap max-sm:hidden">
-        <div class="text-center px-[0.9rem] py-[0.55rem] bg-white/[0.08] border border-white/[0.12] rounded-nansai-sm min-w-[68px]">
-          <div class="font-serif text-[1.45rem] font-bold text-white leading-none" id="hStatOrders">5</div>
-          <div class="text-[0.56rem] text-white/45 uppercase tracking-[0.09em] font-bold mt-0.5">Orders</div>
-        </div>
-        <div class="text-center px-[0.9rem] py-[0.55rem] bg-white/[0.08] border border-white/[0.12] rounded-nansai-sm min-w-[68px]">
-          <div class="font-serif text-[1.45rem] font-bold text-white leading-none">4</div>
-          <div class="text-[0.56rem] text-white/45 uppercase tracking-[0.09em] font-bold mt-0.5">Wishlist</div>
-        </div>
-      </div>
-    </div>
-  </div>
+  
 
   <div class="max-w-[1140px] mx-auto px-5 py-[1.4rem] pb-12">
 
@@ -380,15 +371,7 @@
 
     </div>
 
-    <!-- Buy Again -->
-    <div class="bg-white border border-forest-dark/[0.09] rounded-nansai overflow-hidden shadow-nansai">
-      <div class="px-[1.15rem] py-[0.8rem] border-b border-forest-dark/[0.07] flex items-center justify-between bg-bg/50">
-        <h2 class="font-serif text-[1.1rem] font-bold text-forest-dark">Buy Again</h2>
-        <button class="text-[0.75rem] text-forest-light cursor-pointer bg-none border-none font-sans font-medium hover:text-gold-dark hover:underline transition-colors"
-                onclick="goPage('orders')">See all past orders</button>
-      </div>
-      <div class="flex gap-[0.7rem] overflow-x-auto px-4 py-[0.9rem] no-scrollbar" id="buyAgainStrip"></div>
-    </div>
+
   </div>
 </div>
 
@@ -469,41 +452,107 @@
         <button class="text-[0.75rem] text-forest-light cursor-pointer bg-none border-none font-sans font-medium hover:text-gold-dark hover:underline"
                 onclick="hideAddrForm()">Cancel</button>
       </div>
-      <form onsubmit="submitAddr(event)" class="p-[1.1rem]">
+      <style>
+        .addr-inp:focus{border-color:#4a8c5c!important;box-shadow:0 0 0 3px rgba(74,140,92,.12)}
+        .addr-inp.inp-error{border-color:#ef4444!important;box-shadow:0 0 0 3px rgba(239,68,68,.1)}
+        .addr-inp.inp-ok{border-color:#4a8c5c!important}
+        .addr-type-btn.active-type{border-color:#4a8c5c!important;background:rgba(74,140,92,.08)!important;color:#2d5a3d!important}
+      </style>
+      <form onsubmit="submitAddr(event)" class="p-[1.1rem]" novalidate>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-[0.85rem] mb-[0.85rem]">
+
+          <!-- Full Name -->
           <div class="col-span-full">
-            <label class="block text-[0.72rem] font-bold text-text-mid mb-1.5 uppercase tracking-[0.07em]">Full name</label>
-            <input id="aName" type="text" required class="w-full px-[0.85rem] py-[0.55rem] border-[1.5px] border-forest-dark/[0.16] rounded-nansai-sm text-[0.84rem] font-sans text-text-dark bg-white outline-none focus:border-forest-light focus:shadow-[0_0_0_3px_rgba(74,140,92,.12)] transition-all placeholder:text-text-light" placeholder="Arjun Mehta"/>
+            <label class="block text-[0.72rem] font-bold text-text-mid mb-1.5 uppercase tracking-[0.07em]">Full name <span class="text-red-500">*</span></label>
+            <input id="aName" type="text" autocomplete="name"
+              class="addr-inp w-full px-[0.85rem] py-[0.55rem] border-[1.5px] border-forest-dark/[0.16] rounded-nansai-sm text-[0.84rem] font-sans text-text-dark bg-white outline-none transition-all placeholder:text-text-light"
+              placeholder="e.g. Arjun Mehta"
+              oninput="addrValidate('aName')"/>
+            <p class="hidden text-[0.7rem] text-red-500 mt-1 font-medium" id="aName-err"></p>
           </div>
+
+          <!-- Mobile -->
           <div class="col-span-full">
-            <label class="block text-[0.72rem] font-bold text-text-mid mb-1.5 uppercase tracking-[0.07em]">Mobile number</label>
-            <input id="aPhone" type="tel" required class="w-full px-[0.85rem] py-[0.55rem] border-[1.5px] border-forest-dark/[0.16] rounded-nansai-sm text-[0.84rem] font-sans text-text-dark bg-white outline-none focus:border-forest-light focus:shadow-[0_0_0_3px_rgba(74,140,92,.12)] transition-all placeholder:text-text-light" placeholder="9876543210"/>
+            <label class="block text-[0.72rem] font-bold text-text-mid mb-1.5 uppercase tracking-[0.07em]">Mobile number <span class="text-red-500">*</span></label>
+            <div class="flex gap-2">
+              <div class="flex items-center px-3 py-[0.55rem] bg-[#f0f7f2] border-[1.5px] border-forest-dark/[0.16] rounded-nansai-sm text-[0.84rem] font-bold text-text-mid shrink-0 select-none">+91</div>
+              <input id="aPhone" type="tel" maxlength="10" autocomplete="tel"
+                class="addr-inp flex-1 px-[0.85rem] py-[0.55rem] border-[1.5px] border-forest-dark/[0.16] rounded-nansai-sm text-[0.84rem] font-sans text-text-dark bg-white outline-none transition-all placeholder:text-text-light"
+                placeholder="10-digit mobile number"
+                oninput="this.value=this.value.replace(/\D/g,'').slice(0,10);addrValidate('aPhone')"/>
+            </div>
+            <p class="hidden text-[0.7rem] text-red-500 mt-1 font-medium" id="aPhone-err"></p>
           </div>
-          <div class="col-span-full">
-            <label class="block text-[0.72rem] font-bold text-text-mid mb-1.5 uppercase tracking-[0.07em]">Flat, House no., Building</label>
-            <input id="aLine1" type="text" required class="w-full px-[0.85rem] py-[0.55rem] border-[1.5px] border-forest-dark/[0.16] rounded-nansai-sm text-[0.84rem] font-sans text-text-dark bg-white outline-none focus:border-forest-light focus:shadow-[0_0_0_3px_rgba(74,140,92,.12)] transition-all placeholder:text-text-light" placeholder="House / Flat no."/>
-          </div>
-          <div class="col-span-full">
-            <label class="block text-[0.72rem] font-bold text-text-mid mb-1.5 uppercase tracking-[0.07em]">Area, Street, Colony</label>
-            <input id="aLine2" type="text" class="w-full px-[0.85rem] py-[0.55rem] border-[1.5px] border-forest-dark/[0.16] rounded-nansai-sm text-[0.84rem] font-sans text-text-dark bg-white outline-none focus:border-forest-light focus:shadow-[0_0_0_3px_rgba(74,140,92,.12)] transition-all placeholder:text-text-light" placeholder="Area / Street (optional)"/>
-          </div>
+
+          <!-- PIN Code -->
           <div>
-            <label class="block text-[0.72rem] font-bold text-text-mid mb-1.5 uppercase tracking-[0.07em]">City</label>
-            <input id="aCity" type="text" required class="w-full px-[0.85rem] py-[0.55rem] border-[1.5px] border-forest-dark/[0.16] rounded-nansai-sm text-[0.84rem] font-sans text-text-dark bg-white outline-none focus:border-forest-light focus:shadow-[0_0_0_3px_rgba(74,140,92,.12)] transition-all placeholder:text-text-light" placeholder="Mumbai"/>
+            <label class="block text-[0.72rem] font-bold text-text-mid mb-1.5 uppercase tracking-[0.07em]">PIN code <span class="text-red-500">*</span></label>
+            <div class="relative">
+              <input id="aPincode" type="text" maxlength="6" autocomplete="postal-code"
+                class="addr-inp w-full px-[0.85rem] py-[0.55rem] border-[1.5px] border-forest-dark/[0.16] rounded-nansai-sm text-[0.84rem] font-sans text-text-dark bg-white outline-none transition-all placeholder:text-text-light"
+                placeholder="6-digit PIN"
+                oninput="this.value=this.value.replace(/\D/g,'').slice(0,6);onPinInput(this.value)"/>
+              <span id="aPinSpinner" class="hidden absolute right-3 top-1/2 -translate-y-1/2 text-[0.68rem] text-text-light">Looking up…</span>
+            </div>
+            <p class="hidden text-[0.7rem] text-red-500 mt-1 font-medium" id="aPincode-err"></p>
           </div>
+
+          <!-- Address Type -->
+          <div class="flex flex-col justify-end">
+            <label class="block text-[0.72rem] font-bold text-text-mid mb-1.5 uppercase tracking-[0.07em]">Address type</label>
+            <div class="flex gap-2">
+              <button type="button" onclick="setAddrTypeAcc('Home',this)" id="aTypeHome"
+                class="addr-type-btn active-type flex-1 py-[0.42rem] rounded-nansai-sm text-[0.75rem] font-bold border-[1.5px] transition-all">🏠 Home</button>
+              <button type="button" onclick="setAddrTypeAcc('Work',this)" id="aTypeWork"
+                class="addr-type-btn flex-1 py-[0.42rem] rounded-nansai-sm text-[0.75rem] font-bold border-[1.5px] border-forest-dark/15 bg-white text-text-mid transition-all">🏢 Work</button>
+              <button type="button" onclick="setAddrTypeAcc('Other',this)" id="aTypeOther"
+                class="addr-type-btn flex-1 py-[0.42rem] rounded-nansai-sm text-[0.75rem] font-bold border-[1.5px] border-forest-dark/15 bg-white text-text-mid transition-all">📍 Other</button>
+            </div>
+          </div>
+
+          <!-- Flat / House no. -->
+          <div class="col-span-full">
+            <label class="block text-[0.72rem] font-bold text-text-mid mb-1.5 uppercase tracking-[0.07em]">Flat, House no., Building <span class="text-red-500">*</span></label>
+            <input id="aLine1" type="text" autocomplete="address-line1"
+              class="addr-inp w-full px-[0.85rem] py-[0.55rem] border-[1.5px] border-forest-dark/[0.16] rounded-nansai-sm text-[0.84rem] font-sans text-text-dark bg-white outline-none transition-all placeholder:text-text-light"
+              placeholder="e.g. Flat 4B, Sunrise Apartments"
+              oninput="addrValidate('aLine1')"/>
+            <p class="hidden text-[0.7rem] text-red-500 mt-1 font-medium" id="aLine1-err"></p>
+          </div>
+
+          <!-- Area / Street -->
+          <div class="col-span-full">
+            <label class="block text-[0.72rem] font-bold text-text-mid mb-1.5 uppercase tracking-[0.07em]">Area, Street, Colony <span class="text-[0.65rem] text-text-light font-normal normal-case">(optional)</span></label>
+            <input id="aLine2" type="text" autocomplete="address-line2"
+              class="addr-inp w-full px-[0.85rem] py-[0.55rem] border-[1.5px] border-forest-dark/[0.16] rounded-nansai-sm text-[0.84rem] font-sans text-text-dark bg-white outline-none transition-all placeholder:text-text-light"
+              placeholder="e.g. MG Road, Koramangala"/>
+          </div>
+
+          <!-- City -->
           <div>
-            <label class="block text-[0.72rem] font-bold text-text-mid mb-1.5 uppercase tracking-[0.07em]">State</label>
-            <input id="aState" type="text" required class="w-full px-[0.85rem] py-[0.55rem] border-[1.5px] border-forest-dark/[0.16] rounded-nansai-sm text-[0.84rem] font-sans text-text-dark bg-white outline-none focus:border-forest-light focus:shadow-[0_0_0_3px_rgba(74,140,92,.12)] transition-all placeholder:text-text-light" placeholder="Maharashtra"/>
+            <label class="block text-[0.72rem] font-bold text-text-mid mb-1.5 uppercase tracking-[0.07em]">City / District <span class="text-red-500">*</span></label>
+            <input id="aCity" type="text" autocomplete="address-level2"
+              class="addr-inp w-full px-[0.85rem] py-[0.55rem] border-[1.5px] border-forest-dark/[0.16] rounded-nansai-sm text-[0.84rem] font-sans text-text-dark bg-white outline-none transition-all placeholder:text-text-light"
+              placeholder="Auto-filled from PIN"
+              oninput="addrValidate('aCity')"/>
+            <p class="hidden text-[0.7rem] text-red-500 mt-1 font-medium" id="aCity-err"></p>
           </div>
+
+          <!-- State (read-only, auto-filled) -->
           <div>
-            <label class="block text-[0.72rem] font-bold text-text-mid mb-1.5 uppercase tracking-[0.07em]">PIN code</label>
-            <input id="aPincode" type="text" required maxlength="6" class="w-full px-[0.85rem] py-[0.55rem] border-[1.5px] border-forest-dark/[0.16] rounded-nansai-sm text-[0.84rem] font-sans text-text-dark bg-white outline-none focus:border-forest-light focus:shadow-[0_0_0_3px_rgba(74,140,92,.12)] transition-all placeholder:text-text-light" placeholder="400001"/>
+            <label class="block text-[0.72rem] font-bold text-text-mid mb-1.5 uppercase tracking-[0.07em]">State <span class="text-red-500">*</span></label>
+            <input id="aState" type="text" autocomplete="address-level1" readonly
+              class="addr-inp w-full px-[0.85rem] py-[0.55rem] border-[1.5px] border-forest-dark/[0.16] rounded-nansai-sm text-[0.84rem] font-sans text-text-dark bg-[#f0f7f2] outline-none transition-all placeholder:text-text-light cursor-not-allowed"
+              placeholder="Auto-filled from PIN"/>
+            <p class="text-[0.68rem] text-text-light mt-1">Filled automatically when you enter PIN</p>
           </div>
-          <div class="flex items-end">
-            <label class="flex items-center gap-1.5 text-[0.82rem] text-text-mid cursor-pointer font-medium">
-              <input type="checkbox" id="aDefault"/> Make this my default address
-            </label>
+
+          <!-- Default checkbox -->
+          <div class="col-span-full flex items-center gap-2 pt-1">
+            <input type="checkbox" id="aDefault" class="w-4 h-4 rounded"/>
+            <label for="aDefault" class="text-[0.82rem] text-text-mid cursor-pointer font-medium select-none">Make this my default address</label>
           </div>
+
           <div class="col-span-full flex gap-2 flex-wrap">
             <button type="submit"
                     class="inline-flex items-center justify-center gap-1.5 px-[1.1rem] py-[0.5rem] text-[0.8rem] font-bold bg-forest-dark text-white rounded-nansai-sm cursor-pointer border-none hover:bg-forest-mid hover:shadow-nansai-md transition-all">
@@ -792,14 +841,6 @@
         <li><a href="#" class="text-gray-400 hover:text-green-400 transition">Track Order</a></li>
       </ul>
     </div>
-    <div>
-      <h3 class="font-bold text-white text-base mb-5">Newsletter</h3>
-      <p class="text-gray-400 text-sm mb-4">Subscribe for the latest offers and farming updates.</p>
-      <form onsubmit="return false" class="flex gap-2">
-        <input type="email" placeholder="Your email" class="flex-1 min-w-0 px-3 py-2.5 rounded-xl text-sm bg-gray-800 border border-gray-700 text-white placeholder-gray-500 outline-none focus:border-green-500 transition"/>
-        <button class="bg-green-600 hover:bg-green-500 text-white px-4 py-2.5 rounded-xl text-sm font-bold transition shrink-0">Join</button>
-      </form>
-    </div>
   </div>
   <div class="border-t border-gray-800 py-5 text-center text-gray-500 text-xs px-4">&copy; 2026 NANSEI. All Rights Reserved. Made with 💚 for farmers.</div>
 </footer>
@@ -859,15 +900,14 @@ function initials(n=''){return n.trim().split(/\s+/).map(w=>w[0]).slice(0,2).joi
 let USER=null;
 
 function loadProfile(){
-  USER=getUser()||{name:'Arjun Mehta',email:'arjun@example.com',phone:'+91 98765 43210'};
+  USER=getUser()||{};
   const fn=(USER.name||'User').split(' ')[0];
   const ini=initials(USER.name||'U');
-  document.getElementById('heroName').textContent='Hello, '+fn+'! 🌿';
   document.getElementById('drawerName').textContent=USER.name||'User';
   document.getElementById('drawerEmail').textContent=USER.email||'—';
-  document.getElementById('tileFoot6').textContent=(USER.name||'User')+' · Edit →';
+  const tf6=document.getElementById('tileFoot6');if(tf6)tf6.textContent=(USER.name||'User')+' · Edit →';
   const rc='NSI-'+(USER.name||'USER').replace(/\s/g,'').toUpperCase().slice(0,6);
-  document.getElementById('tileFoot7').textContent=rc;
+  const tf7=document.getElementById('tileFoot7');if(tf7)tf7.textContent=rc;
   const ri=document.getElementById('refInput');if(ri)ri.value=rc;
   const sv=(id,v)=>{const el=document.getElementById(id);if(el&&v!=null)el.value=v;};
   sv('pName',USER.name);sv('pEmail',USER.email);sv('pPhone',USER.phone);
@@ -876,6 +916,9 @@ function loadProfile(){
   const se=document.getElementById('secEmailVal');if(se)se.textContent=USER.email||'—';
   const sp=document.getElementById('secPhoneVal');if(sp)sp.textContent=USER.phone||'—';
   sv('sName',USER.name);sv('sEmail',USER.email);sv('sPhone',USER.phone);
+  const adminBtn=document.getElementById('adminPanelBtn');
+  if(adminBtn)adminBtn.classList.toggle('hidden', USER.role!=='admin');
+  if(adminBtn)adminBtn.classList.toggle('flex', USER.role==='admin');
 }
 
 function saveProfile(e){
@@ -924,23 +967,57 @@ function checkPwStr(v){
   if(lbl){lbl.textContent=cc.l;lbl.style.color=cc.c;}
 }
 
-const ORDERS=[
-  {id:'NSI-2849',placed:'Mar 10, 2026',date:'10 Mar 2026',status:'delivered',
-   items:[{name:'Organic Wheat Flour 1kg',qty:2,price:250,img:'https://images.unsplash.com/photo-1603046891744-5d7f1f4b79fa?w=80&auto=format&fit=crop'},{name:'Wild Forest Honey 300g',qty:1,price:450,img:'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=80&auto=format&fit=crop'}],
-   total:950,addr:'Arjun Mehta, B-204 Green Valley, SV Road, Mumbai 400064',tracking:'IN-TRK-4829201',step:4},
-  {id:'NSI-2741',placed:'Feb 28, 2026',date:'28 Feb 2026',status:'shipped',
-   items:[{name:'Virgin Coconut Oil 500ml',qty:1,price:850,img:'https://images.unsplash.com/photo-1550951386-f2cbedce3f1e?w=80&auto=format&fit=crop'},{name:'Chia Seeds Organic 250g',qty:1,price:280,img:'https://images.unsplash.com/photo-1597262975002-c5c3b14bbd62?w=80&auto=format&fit=crop'}],
-   total:1130,addr:'Arjun Mehta, B-204 Green Valley, SV Road, Mumbai 400064',tracking:'IN-TRK-3915087',step:3},
-  {id:'NSI-2601',placed:'Feb 15, 2026',date:'15 Feb 2026',status:'delivered',
-   items:[{name:'A2 Cow Ghee 500ml',qty:1,price:1200,img:'https://images.unsplash.com/photo-1628689469838-524a4a973b8e?w=80&auto=format&fit=crop'},{name:'Organic Turmeric Powder',qty:2,price:145,img:'https://images.unsplash.com/photo-1615485500704-8e990f9900f7?w=80&auto=format&fit=crop'}],
-   total:1490,addr:'Arjun Mehta, B-204 Green Valley, SV Road, Mumbai 400064',tracking:'IN-TRK-3201882',step:4},
-  {id:'NSI-2480',placed:'Feb 1, 2026',date:'1 Feb 2026',status:'processing',
-   items:[{name:'Tulsi Green Tea 25 bags',qty:2,price:220,img:'https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=80&auto=format&fit=crop'}],
-   total:440,addr:'Arjun Mehta, B-204 Green Valley, SV Road, Mumbai 400064',tracking:'—',step:1},
-  {id:'NSI-2310',placed:'Jan 18, 2026',date:'18 Jan 2026',status:'delivered',
-   items:[{name:'Shilajit Resin 20g',qty:1,price:1200,img:'https://images.unsplash.com/photo-1559181567-c3190ca9be46?w=80&auto=format&fit=crop'},{name:'Moringa Leaf Powder',qty:1,price:340,img:'https://images.unsplash.com/photo-1600891964092-4316c288032e?w=80&auto=format&fit=crop'}],
-   total:1540,addr:'Arjun Mehta, B-204 Green Valley, SV Road, Mumbai 400064',tracking:'IN-TRK-2109334',step:4},
-];
+let ORDERS = [];
+
+// Map API order status → local status key
+function mapStatus(s) {
+  if (!s) return 'processing';
+  const m = s.toLowerCase();
+  if (m === 'delivered') return 'delivered';
+  if (m === 'shipped')   return 'shipped';
+  if (m === 'cancelled' || m === 'refunded') return 'cancelled';
+  return 'processing';
+}
+// Map status → tracking step index (1-5)
+function mapStep(s) {
+  const steps = { pending:1, processing:2, shipped:3, delivered:5, cancelled:0 };
+  return steps[mapStatus(s)] ?? 1;
+}
+// Format date nicely
+function fmtDate(d) {
+  if (!d) return '—';
+  return new Date(d).toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' });
+}
+
+async function loadOrders() {
+  try {
+    const res = await apiReq('GET', '/orders/my-orders');
+    const raw = res.data || [];
+    ORDERS = raw.map(o => ({
+      id:      o.orderNumber || o._id,
+      _id:     o._id,
+      placed:  fmtDate(o.createdAt),
+      date:    fmtDate(o.deliveredAt || o.createdAt),
+      status:  mapStatus(o.orderStatus),
+      items:   (o.items || []).map(it => ({
+        name:  it.name || it.product?.name || 'Product',
+        qty:   it.quantity,
+        price: it.price,
+        img:   it.product?.images?.[0]?.url || it.image || 'https://via.placeholder.com/80'
+      })),
+      total:    o.totalPrice,
+      addr:     o.shippingAddress
+        ? [o.shippingAddress.fullName, o.shippingAddress.addressLine1, o.shippingAddress.city].filter(Boolean).join(', ')
+        : '—',
+      tracking: o.trackingNumber || '—',
+      step:     mapStep(o.orderStatus)
+    }));
+  } catch { ORDERS = []; }
+  // Update dashboard tile
+  const tf = document.getElementById('tileFoot1');
+  if (tf) tf.textContent = 'View all ' + ORDERS.length + ' order' + (ORDERS.length !== 1 ? 's' : '') + ' →';
+  renderOrders();
+}
 const SC={
   delivered:{label:'Delivered',badge:'bg-green-50 text-green-800 border border-green-200',dot:'bg-green-700'},
   shipped:{label:'Shipped',badge:'bg-blue-50 text-blue-800 border border-blue-200',dot:'bg-blue-600'},
@@ -1013,16 +1090,7 @@ function renderOrders(f='all'){
   const wrap=document.getElementById('ordersContainer');if(!wrap)return;
   wrap.innerHTML=list.length?list.map(orderCardHTML).join('')
     :'<div class="text-center py-14 px-4"><div class="text-5xl mb-3">📦</div><p class="text-text-light text-[0.88rem] font-semibold mb-2">No orders found</p><a onclick="window.location.href=\'index.html\'" class="text-forest-light text-[0.8rem] cursor-pointer">Continue shopping →</a></div>';
-  const strip=document.getElementById('buyAgainStrip');
-  if(strip)strip.innerHTML=ORDERS.flatMap(o=>o.items).slice(0,6).map(it=>`
-    <div class="flex-shrink-0 w-[120px] bg-white border border-forest-dark/[0.09] rounded-nansai-sm overflow-hidden cursor-pointer transition-all hover:shadow-nansai-md hover:-translate-y-0.5">
-      <img src="${it.img}" class="w-full aspect-square object-cover" loading="lazy" alt="${it.name}"/>
-      <div class="p-[0.45rem_0.5rem]">
-        <div class="text-[0.62rem] font-semibold text-text-dark leading-snug mb-1 line-clamp-2">${it.name}</div>
-        <div class="text-[0.7rem] font-black text-forest-dark">₹${it.price}</div>
-        <button class="w-full mt-1 px-0 py-[4px] text-[0.62rem] font-bold bg-forest-dark text-white rounded-nansai-sm cursor-pointer border-none hover:bg-forest-mid transition-all" onclick="showToast('🛒 Added to cart!')">Add to cart</button>
-      </div>
-    </div>`).join('');
+
 }
 function filterOrders(){renderOrders(curTab);}
 function setOrderTab(f,btn){
@@ -1061,6 +1129,88 @@ function openDetail(id){
 
 let addrs=[];
 let editAddrId=null;
+let _addrType='Home';
+
+// ── Address type selector ──
+function setAddrTypeAcc(type, btn){
+  _addrType=type;
+  ['Home','Work','Other'].forEach(t=>{
+    const b=document.getElementById('aType'+t);
+    if(!b)return;
+    if(t===type){b.classList.add('active-type');b.classList.remove('border-forest-dark/15','bg-white','text-text-mid');}
+    else{b.classList.remove('active-type');b.classList.add('border-forest-dark/15','bg-white','text-text-mid');}
+  });
+}
+
+// ── Inline field validation ──
+const _addrRules={
+  aName:  {test:v=>/^[a-zA-Z\s.'-]{3,50}$/.test(v.trim()),  msg:'Enter a valid full name (3–50 letters)'},
+  aPhone: {test:v=>/^[6-9]\d{9}$/.test(v),                  msg:'Enter a valid 10-digit Indian mobile number'},
+  aPincode:{test:v=>/^[1-9]\d{5}$/.test(v),                 msg:'Enter a valid 6-digit PIN code'},
+  aLine1: {test:v=>v.trim().length>=5,                       msg:'Enter at least 5 characters for address'},
+  aCity:  {test:v=>/^[a-zA-Z\s.'-]{2,50}$/.test(v.trim()),  msg:'Enter a valid city name'},
+};
+function addrValidate(id){
+  const el=document.getElementById(id);
+  const errEl=document.getElementById(id+'-err');
+  if(!el||!errEl)return true;
+  const rule=_addrRules[id];
+  if(!rule)return true;
+  const ok=rule.test(el.value);
+  el.classList.toggle('inp-error',!ok);
+  el.classList.toggle('inp-ok', ok && el.value.length>0);
+  errEl.textContent=ok?'':rule.msg;
+  errEl.classList.toggle('hidden',ok);
+  return ok;
+}
+function _addrShowErr(id,msg){
+  const el=document.getElementById(id);
+  const errEl=document.getElementById(id+'-err');
+  if(el)el.classList.add('inp-error');
+  if(errEl){errEl.textContent=msg;errEl.classList.remove('hidden');}
+}
+function _addrClearErr(id){
+  const el=document.getElementById(id);
+  const errEl=document.getElementById(id+'-err');
+  if(el){el.classList.remove('inp-error');el.classList.add('inp-ok');}
+  if(errEl)errEl.classList.add('hidden');
+}
+
+// ── PIN code → city/state auto-fill (India Post API) ──
+let _pinTimer=null;
+function onPinInput(val){
+  const errEl=document.getElementById('aPincode-err');
+  const spinner=document.getElementById('aPinSpinner');
+  const cityEl=document.getElementById('aCity');
+  const stateEl=document.getElementById('aState');
+  if(val.length<6){addrValidate('aPincode');return;}
+  if(!/^[1-9]\d{5}$/.test(val)){
+    _addrShowErr('aPincode','Enter a valid 6-digit PIN code');
+    return;
+  }
+  clearTimeout(_pinTimer);
+  if(spinner)spinner.classList.remove('hidden');
+  _pinTimer=setTimeout(async()=>{
+    try{
+      const res=await fetch('https://api.postalpincode.in/pincode/'+val);
+      const data=await res.json();
+      if(data[0]?.Status==='Success'){
+        const po=data[0].PostOffice[0];
+        if(cityEl){cityEl.value=po.District;addrValidate('aCity');}
+        if(stateEl){stateEl.value=po.State;stateEl.classList.add('inp-ok');}
+        _addrClearErr('aPincode');
+      } else {
+        _addrShowErr('aPincode','PIN code not found. Please check and re-enter.');
+        if(cityEl){cityEl.value='';cityEl.classList.remove('inp-ok','inp-error');}
+        if(stateEl){stateEl.value='';stateEl.classList.remove('inp-ok');}
+      }
+    }catch{
+      _addrClearErr('aPincode'); // offline — don't block
+    } finally{
+      if(spinner)spinner.classList.add('hidden');
+    }
+  },600);
+}
 
 async function loadAddresses(){
   try{
@@ -1095,14 +1245,27 @@ function renderAddresses(){
 
 function showAddrForm(id){
   editAddrId=id||null;
+  _addrType='Home';
   document.getElementById('addrFormTitle').textContent=id?'Edit address':'Add new address';
-  const sv=(elId,v)=>{const el=document.getElementById(elId);if(el)el.value=v||'';};
+  // Reset all field states
+  ['aName','aPhone','aLine1','aLine2','aCity','aState','aPincode'].forEach(fid=>{
+    const el=document.getElementById(fid);
+    if(el){el.value='';el.classList.remove('inp-ok','inp-error');}
+    const err=document.getElementById(fid+'-err');
+    if(err)err.classList.add('hidden');
+  });
+  document.getElementById('aDefault').checked=false;
+  setAddrTypeAcc('Home',document.getElementById('aTypeHome'));
   if(id){
     const a=addrs.find(x=>x._id===id);
-    if(a){sv('aName',a.name);sv('aPhone',a.phone);sv('aLine1',a.line1);sv('aLine2',a.line2);sv('aCity',a.city);sv('aState',a.state);sv('aPincode',a.pincode);document.getElementById('aDefault').checked=!!a.isDefault;}
-  } else {
-    ['aName','aPhone','aLine1','aLine2','aCity','aState','aPincode'].forEach(id=>sv(id,''));
-    document.getElementById('aDefault').checked=false;
+    if(a){
+      const sv=(elId,v)=>{const el=document.getElementById(elId);if(el&&v){el.value=v;el.classList.add('inp-ok');}}
+      sv('aName',a.name);sv('aPhone',a.phone);sv('aLine1',a.line1);sv('aLine2',a.line2);
+      sv('aCity',a.city);sv('aState',a.state);sv('aPincode',a.pincode);
+      document.getElementById('aDefault').checked=!!a.isDefault;
+      _addrType=a.addressType||'Home';
+      setAddrTypeAcc(_addrType,document.getElementById('aType'+_addrType));
+    }
   }
   const fw=document.getElementById('addrFormWrap');
   fw.classList.remove('hidden');fw.style.display='block';
@@ -1115,15 +1278,44 @@ function hideAddrForm(){
 }
 async function submitAddr(e){
   e.preventDefault();
-  const body={name:document.getElementById('aName').value,phone:document.getElementById('aPhone').value,
-    line1:document.getElementById('aLine1').value,line2:document.getElementById('aLine2').value,
-    city:document.getElementById('aCity').value,state:document.getElementById('aState').value,
-    pincode:document.getElementById('aPincode').value,isDefault:document.getElementById('aDefault').checked};
+  // Validate all required fields
+  const required=['aName','aPhone','aPincode','aLine1','aCity'];
+  let valid=true;
+  required.forEach(fid=>{ if(!addrValidate(fid))valid=false; });
+  const stateEl=document.getElementById('aState');
+  if(!stateEl||!stateEl.value.trim()){
+    _addrShowErr('aPincode','Enter a valid PIN code to auto-fill state');
+    valid=false;
+  }
+  if(!valid){
+    // Scroll to first error
+    const firstErr=document.querySelector('.inp-error');
+    if(firstErr)firstErr.scrollIntoView({behavior:'smooth',block:'center'});
+    showToast('⚠️ Please fix the errors before saving');
+    return;
+  }
+  const body={
+    name:document.getElementById('aName').value.trim(),
+    phone:document.getElementById('aPhone').value.trim(),
+    line1:document.getElementById('aLine1').value.trim(),
+    line2:document.getElementById('aLine2').value.trim(),
+    city:document.getElementById('aCity').value.trim(),
+    state:stateEl.value.trim(),
+    pincode:document.getElementById('aPincode').value.trim(),
+    addressType:_addrType,
+    isDefault:document.getElementById('aDefault').checked
+  };
+  const btn=e.target.querySelector('button[type=submit]');
+  if(btn){btn.disabled=true;btn.textContent='Saving…';}
   try{
     if(editAddrId){await apiReq('PUT','/addresses/'+editAddrId,body);}
     else{await apiReq('POST','/addresses',body);}
     await loadAddresses();hideAddrForm();e.target.reset();showToast('📍 Address saved!');
-  }catch(err){showToast('❌ '+err.message);}
+  }catch(err){
+    showToast('❌ '+err.message);
+  }finally{
+    if(btn){btn.disabled=false;btn.textContent='Save address';}
+  }
 }
 async function delAddr(id){
   if(!confirm('Remove this address?'))return;
@@ -1135,25 +1327,64 @@ async function setDefAddr(id){
   catch(err){showToast('❌ '+err.message);}
 }
 
-const WISH=[
-  {id:11,name:'Cold-Pressed Groundnut Oil',price:900,oldPrice:1000,rating:4.7,img:'https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=300&auto=format&fit=crop'},
-  {id:19,name:'Wild Forest Honey 300g',price:450,oldPrice:500,rating:4.8,img:'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=300&auto=format&fit=crop'},
-  {id:31,name:'Organic Turmeric Powder',price:145,oldPrice:180,rating:4.7,img:'https://images.unsplash.com/photo-1615485500704-8e990f9900f7?w=300&auto=format&fit=crop'},
-  {id:27,name:'Chia Seeds Organic 250g',price:280,oldPrice:340,rating:4.7,img:'https://images.unsplash.com/photo-1597262975002-c5c3b14bbd62?w=300&auto=format&fit=crop'},
-];
 function starStr(r){return'★'.repeat(Math.floor(r))+'☆'.repeat(5-Math.floor(r));}
+const PRODUCTS_DATA = [
+  {id:1,  name:"Karunguruvai Rice",      price:180, oldPrice:220, rating:4.7, image:"https://images.unsplash.com/photo-1586201375761-83865001e31c?w=500&auto=format&fit=crop"},
+  {id:2,  name:"Karuppu Kavuni Rice",    price:220, oldPrice:270, rating:4.8, image:"https://images.unsplash.com/photo-1568254183919-78a4f43a2877?w=500&auto=format&fit=crop"},
+  {id:3,  name:"Arubatham Kuruvai Rice", price:160, oldPrice:200, rating:4.5, image:"https://images.unsplash.com/photo-1514481538271-cf9f99627ab4?w=500&auto=format&fit=crop"},
+  {id:4,  name:"Poongar Rice",           price:200, oldPrice:250, rating:4.6, image:"https://images.unsplash.com/photo-1603046891744-5d7f1f4b79fa?w=500&auto=format&fit=crop"},
+  {id:5,  name:"Mappillai Samba Rice",   price:210, oldPrice:260, rating:4.7, image:"https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=500&auto=format&fit=crop"},
+  {id:6,  name:"Iluppai Poo Samba Rice", price:195, oldPrice:240, rating:4.5, image:"https://images.unsplash.com/photo-1585032226651-759b368d7246?w=500&auto=format&fit=crop"},
+  {id:7,  name:"Vellai Kavuni Rice",     price:190, oldPrice:235, rating:4.6, image:"https://images.unsplash.com/photo-1568254183919-78a4f43a2877?w=500&auto=format&fit=crop"},
+  {id:8,  name:"Paneer Rose",            price:150, oldPrice:190, rating:4.8, image:"https://images.unsplash.com/photo-1490750967868-88df5691cc5e?w=500&auto=format&fit=crop"},
+  {id:9,  name:"Hibiscus Flower",        price:120, oldPrice:155, rating:4.6, image:"https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=500&auto=format&fit=crop"},
+  {id:10, name:"Aavaram Flower",         price:110, oldPrice:145, rating:4.5, image:"https://images.unsplash.com/photo-1490750967868-88df5691cc5e?w=500&auto=format&fit=crop"},
+  {id:11, name:"Butterfly Pea Flower",   price:180, oldPrice:220, rating:4.7, image:"https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=500&auto=format&fit=crop"},
+  {id:12, name:"Organic Rose Milk",      price:140, oldPrice:175, rating:4.7, image:"https://images.unsplash.com/photo-1600891964092-4316c288032e?w=500&auto=format&fit=crop"},
+  {id:13, name:"Hibiscus Sherbet",       price:130, oldPrice:165, rating:4.6, image:"https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=500&auto=format&fit=crop"},
+  {id:14, name:"Idiyappam Flour",        price:160, oldPrice:200, rating:4.8, image:"https://images.unsplash.com/photo-1603046891744-5d7f1f4b79fa?w=500&auto=format&fit=crop"},
+  {id:15, name:"Health Mix Powder",      price:175, oldPrice:215, rating:4.6, image:"https://images.unsplash.com/photo-1585032226651-759b368d7246?w=500&auto=format&fit=crop"},
+  {id:16, name:"Country Fig Powder",     price:200, oldPrice:250, rating:4.7, image:"https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=500&auto=format&fit=crop"},
+];
+
+function removeFromWishlistAccount(id) {
+  let wl = JSON.parse(localStorage.getItem('wishlist') || '[]');
+  const idx = wl.indexOf(id);
+  if (idx > -1) wl.splice(idx, 1);
+  localStorage.setItem('wishlist', JSON.stringify(wl));
+  showToast('💔 Removed from wishlist');
+  renderWish();
+}
+
+function addToCartFromWish(id, name) {
+  const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+  const ex = cart.find(i => i.id === id);
+  if (ex) { ex.qty += 1; } else {
+    const p = PRODUCTS_DATA.find(x => x.id === id);
+    if (p) cart.push({id: p.id, name: p.name, price: p.price, image: p.image, qty: 1, qtyLabel: '1 pc'});
+  }
+  localStorage.setItem('cart', JSON.stringify(cart));
+  showToast('🛒 ' + name + ' added to cart!');
+}
+
 function renderWish(){
   const wrap=document.getElementById('wishGrid');
   const cnt=document.getElementById('wlTotal');
-  if(cnt)cnt.textContent=WISH.length+' item'+(WISH.length!==1?'s':'');
+  const wl = JSON.parse(localStorage.getItem('wishlist') || '[]');
+  const items = wl.map(id => PRODUCTS_DATA.find(p => p.id === id)).filter(Boolean);
+  if(cnt)cnt.textContent=items.length+' item'+(items.length!==1?'s':'');
   if(!wrap)return;
-  wrap.innerHTML=WISH.map(p=>`
+  if(!items.length){
+    wrap.innerHTML='<div class="col-span-full text-center py-12"><div style="font-size:2.5rem;margin-bottom:.75rem;">🌿</div><p class="text-text-light text-sm font-semibold mb-3">Your wishlist is empty</p><a href="index.html#products" class="text-forest-light text-sm font-semibold hover:underline">Browse Products →</a></div>';
+    return;
+  }
+  wrap.innerHTML=items.map(p=>`
     <div class="wish-card bg-white border border-forest-dark/[0.09] rounded-nansai overflow-hidden shadow-nansai flex flex-col transition-all duration-200 hover:shadow-nansai-md hover:-translate-y-0.5">
       <div class="relative overflow-hidden bg-forest-pale">
-        <img src="${p.img}" loading="lazy" alt="${p.name}" class="wish-img w-full aspect-square object-cover"/>
+        <img src="${p.image}" loading="lazy" alt="${p.name}" class="wish-img w-full aspect-square object-cover"/>
         <div class="absolute top-[7px] left-[7px] bg-forest-light text-white text-[0.58rem] font-black px-[7px] py-[2px] rounded-full">${Math.round((1-p.price/p.oldPrice)*100)}% OFF</div>
         <button class="absolute top-[7px] right-[7px] w-[26px] h-[26px] bg-white border border-forest-dark/12 rounded-md text-[0.75rem] cursor-pointer flex items-center justify-center transition-all hover:bg-red-50 hover:border-red-300 hover:text-red-600 text-text-dark"
-                onclick="showToast('💔 Removed from wishlist')">✕</button>
+                onclick="removeFromWishlistAccount(${p.id})">✕</button>
       </div>
       <div class="px-[0.8rem] py-[0.7rem] flex flex-col gap-[0.3rem] flex-1">
         <div class="text-[0.78rem] font-semibold text-text-dark leading-snug line-clamp-2">${p.name}</div>
@@ -1165,9 +1396,9 @@ function renderWish(){
         <div class="text-[0.68rem] text-green-700 font-bold">✓ In Stock</div>
         <div class="flex flex-col gap-[0.3rem] mt-auto pt-[0.45rem]">
           <button class="w-full px-0 py-[0.32rem] text-[0.73rem] font-bold bg-forest-dark text-white rounded-nansai-sm cursor-pointer border-none hover:bg-forest-mid transition-all"
-                  onclick="showToast('🛒 ${p.name.replace(/'/g,'')} added!')">Add to Cart</button>
+                  onclick="addToCartFromWish(${p.id},'${p.name.replace(/'/g,'')}')">Add to Cart</button>
           <button class="w-full px-0 py-[0.32rem] text-[0.73rem] font-bold bg-white text-text-mid border-[1.5px] border-forest-dark/20 rounded-nansai-sm cursor-pointer hover:border-forest-light hover:text-forest-dark transition-all"
-                  onclick="showToast('🗑️ Removed from wishlist')">Remove</button>
+                  onclick="removeFromWishlistAccount(${p.id})">Remove</button>
         </div>
       </div>
     </div>`).join('');
@@ -1186,8 +1417,15 @@ function logout(){localStorage.removeItem('nansai_token');localStorage.removeIte
 })();
 
 loadProfile();
-renderOrders();
+loadOrders();
 loadAddresses();
+// sync wishlist count from localStorage
+(function(){
+  const wl = JSON.parse(localStorage.getItem('wishlist')||'[]');
+  const hc = document.getElementById('heroWishCount'); if(hc) hc.textContent = wl.length;
+  const tileFootWish = document.querySelector('[onclick="goPage(\'wishlist\')"] .text-forest-light');
+  if(tileFootWish) tileFootWish.textContent = wl.length + ' saved item' + (wl.length !== 1 ? 's' : '') + ' →';
+})();
 renderWish();
 
 // ── NEW USER: prompt to add address after first login ──

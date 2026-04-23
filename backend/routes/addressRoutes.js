@@ -3,7 +3,6 @@ const router = express.Router();
 const { protect } = require('../middleware/auth');
 const Address = require('../models/Address');
 
-// Map DB fields → frontend fields
 function _fmt(a) {
   return {
     _id: a._id,
@@ -23,35 +22,42 @@ router.get('/', protect, async (req, res) => {
     const addresses = await Address.find({ user: req.user.id });
     res.json({ success: true, data: addresses.map(_fmt) });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    console.error('[Addresses] GET / error:', error.message);
+    res.status(500).json({ success: false, message: 'Server error' });
   }
 });
 
 router.post('/', protect, async (req, res) => {
   try {
-    const { name, line1, line2, ...rest } = req.body;
+    const { name, phone, line1, line2, city, state, pincode, isDefault } = req.body;
+    if (!name || !phone || !line1 || !city || !state || !pincode) {
+      return res.status(400).json({ success: false, message: 'name, phone, line1, city, state and pincode are required' });
+    }
     const address = await Address.create({
-      ...rest,
-      fullName: name,
-      addressLine1: line1,
-      addressLine2: line2,
-      user: req.user.id
+      fullName: name, phone, addressLine1: line1, addressLine2: line2,
+      city, state, pincode, isDefault, user: req.user.id
     });
     res.status(201).json({ success: true, data: _fmt(address) });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    console.error('[Addresses] POST / error:', error.message);
+    res.status(500).json({ success: false, message: 'Server error' });
   }
 });
 
 router.put('/:id', protect, async (req, res) => {
   try {
-    const { name, line1, line2, ...rest } = req.body;
-    const update = { ...rest };
-    if (name !== undefined) update.fullName = name;
-    if (line1 !== undefined) update.addressLine1 = line1;
-    if (line2 !== undefined) update.addressLine2 = line2;
-    if (update.isDefault) {
-      await Address.updateMany({ user: req.user.id }, { isDefault: false });
+    const { name, line1, line2, phone, city, state, pincode, isDefault } = req.body;
+    const update = {};
+    if (name !== undefined)    update.fullName     = name;
+    if (line1 !== undefined)   update.addressLine1 = line1;
+    if (line2 !== undefined)   update.addressLine2 = line2;
+    if (phone !== undefined)   update.phone        = phone;
+    if (city !== undefined)    update.city         = city;
+    if (state !== undefined)   update.state        = state;
+    if (pincode !== undefined) update.pincode      = pincode;
+    if (isDefault !== undefined) {
+      update.isDefault = isDefault;
+      if (isDefault) await Address.updateMany({ user: req.user.id }, { isDefault: false });
     }
     const address = await Address.findOneAndUpdate(
       { _id: req.params.id, user: req.user.id },
@@ -61,16 +67,19 @@ router.put('/:id', protect, async (req, res) => {
     if (!address) return res.status(404).json({ success: false, message: 'Address not found' });
     res.json({ success: true, data: _fmt(address) });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    console.error('[Addresses] PUT /:id error:', error.message);
+    res.status(500).json({ success: false, message: 'Server error' });
   }
 });
 
 router.delete('/:id', protect, async (req, res) => {
   try {
-    await Address.findOneAndDelete({ _id: req.params.id, user: req.user.id });
+    const address = await Address.findOneAndDelete({ _id: req.params.id, user: req.user.id });
+    if (!address) return res.status(404).json({ success: false, message: 'Address not found' });
     res.json({ success: true, message: 'Address deleted' });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    console.error('[Addresses] DELETE /:id error:', error.message);
+    res.status(500).json({ success: false, message: 'Server error' });
   }
 });
 

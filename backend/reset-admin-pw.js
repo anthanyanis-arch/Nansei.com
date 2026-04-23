@@ -19,8 +19,7 @@ mongoose.connect(process.env.MONGODB_URI).then(async () => {
   if (result.matchedCount === 0) {
     console.log('No user found with email:', ADMIN_EMAIL);
   } else {
-    console.log('✅ Password reset to:', NEW_PASSWORD);
-    console.log('   Email:', ADMIN_EMAIL);
+    console.log('✅ Admin password reset successfully for:', ADMIN_EMAIL);
   }
   process.exit(0);
 }).catch(e => { console.error('❌', e.message); process.exit(1); });

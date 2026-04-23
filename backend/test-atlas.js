@@ -1,6 +1,11 @@
 const { MongoClient, ServerApiVersion } = require('mongodb');
 
-const uri = "mongodb+srv://Anthony:anthony005@nansei.eahv06c.mongodb.net/?appName=NANSEI";
+const uri = process.env.MONGODB_URI;
+
+if (!uri) {
+  console.error('❌ MONGODB_URI not set in .env');
+  process.exit(1);
+}
 
 const client = new MongoClient(uri, {
   serverApi: {

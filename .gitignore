@@ -9,6 +9,7 @@ backend/node_modules/
 
 # Logs
 logs/
+backend/logs/
 *.log
 npm-debug.log*
 
@@ -26,13 +27,17 @@ desktop.ini
 dist/
 build/
 
-# Temp / junk
+# Temp / junk / scripts
 tmp/
 temp/
 *.tmp
 *.ps1
-*.txt
-!README.md
+dump.txt
+fix_log.txt
+fix_log2.txt
+corrupt_lines.txt
+')'
+$null
 
 # Sensitive
 *.pem
@@ -40,9 +45,13 @@ temp/
 *.cert
 credentials.json
 secrets.json
+client id.txt
 
-# Media
+# Media uploads (not source assets)
 *.jfif
 *.mpeg
-')
-$null
+
+# Seeder / debug scripts
+backend/test-atlas.js
+backend/test-connection.js
+backend/reset-admin-pw.js

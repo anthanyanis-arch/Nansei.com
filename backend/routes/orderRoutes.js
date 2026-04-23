@@ -2,6 +2,8 @@ const express  = require('express');
 const crypto   = require('crypto');
 const jwt      = require('jsonwebtoken');
 const Razorpay = require('razorpay');
+const sendEmail = require('../utils/sendEmail');
+const { orderConfirmation, adminOrderNotification } = require('../utils/emailTemplates');
 
 const router             = express.Router();
 const { protect, authorize } = require('../middleware/auth');
@@ -43,9 +45,45 @@ function getRazorpay() {
   });
 }
 
+// Escape special regex characters to prevent ReDoS
+function escapeRegex(str) {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 // ─────────────────────────────────────────────────────────
-//  RAZORPAY ROUTES  (must be BEFORE /:id to avoid collision)
+//  ADMIN EMAIL HELPER
 // ─────────────────────────────────────────────────────────
+async function sendOrderEmails(order, user) {
+  // Customer confirmation
+  try {
+    const email = user?.email || order.shippingAddress?.email;
+    if (email) {
+      await sendEmail({
+        email,
+        subject: `Order Confirmed #${order.orderNumber || order._id} — Nansai Organics`,
+        html: orderConfirmation(order, user),
+      });
+      console.log('✅ Order confirmation sent to', email);
+    }
+  } catch (err) {
+    console.warn('⚠️  Customer confirmation email failed:', err.message);
+  }
+  // Admin notification
+  try {
+    const adminEmail = process.env.ADMIN_EMAIL;
+    if (adminEmail) {
+      await sendEmail({
+        email: adminEmail,
+        subject: `🛒 New Order #${order.orderNumber || order._id} — ₹${order.totalPrice?.toLocaleString('en-IN')}`,
+        html: adminOrderNotification(order),
+      });
+      console.log('✅ Admin order notification sent to', adminEmail);
+    }
+  } catch (err) {
+    console.warn('⚠️  Admin email notification failed:', err.message);
+  }
+}
+
 
 /**
  * POST /api/orders/razorpay/create
@@ -120,6 +158,10 @@ router.post('/razorpay/verify', optionalAuth, async (req, res) => {
       };
       const order = await Order.create(body);
       await Cart.findOneAndDelete({ user: req.user.id });
+      // fetch user for email
+      const User = require('../models/User');
+      const userDoc = await User.findById(req.user.id).select('name email').lean();
+      sendOrderEmails(order, userDoc); // fire-and-forget
       return res.json({ success: true, verified: true, data: order });
     }
 
@@ -140,7 +182,7 @@ router.get('/', protect, authorize('admin'), async (req, res) => {
     const { status, search, page = 1, limit = 50 } = req.query;
     const query = {};
     if (status && status !== 'all') query.orderStatus = status;
-    if (search) query.orderNumber = { $regex: search, $options: 'i' };
+    if (search) query.orderNumber = { $regex: escapeRegex(search), $options: 'i' };
 
     const skip = (page - 1) * limit;
     const [orders, total] = await Promise.all([
@@ -154,7 +196,8 @@ router.get('/', protect, authorize('admin'), async (req, res) => {
     ]);
     res.json({ success: true, data: orders, total, page: parseInt(page) });
   } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
+    console.error('[Orders] GET / error:', err.message);
+    res.status(500).json({ success: false, message: 'Server error' });
   }
 });
 
@@ -203,13 +246,18 @@ router.get('/admin/stats', protect, authorize('admin'), async (req, res) => {
       },
     });
   } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
+    console.error('[Orders] GET /admin/stats error:', err.message);
+    res.status(500).json({ success: false, message: 'Server error' });
   }
 });
 
 router.put('/:id/status', protect, authorize('admin'), async (req, res) => {
   try {
     const { status, trackingNumber, courierService } = req.body;
+    const allowedStatuses = ['Pending', 'Processing', 'Packed', 'Shipped', 'Delivered', 'Cancelled', 'Refunded'];
+    if (!allowedStatuses.includes(status)) {
+      return res.status(400).json({ success: false, message: 'Invalid order status' });
+    }
     const update = { orderStatus: status };
     if (status === 'Shipped') {
       if (trackingNumber) update.trackingNumber = trackingNumber;
@@ -224,7 +272,8 @@ router.put('/:id/status', protect, authorize('admin'), async (req, res) => {
     if (!order) return res.status(404).json({ success: false, message: 'Order not found' });
     res.json({ success: true, data: order });
   } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
+    console.error('[Orders] PUT /:id/status error:', err.message);
+    res.status(500).json({ success: false, message: 'Server error' });
   }
 });
 
@@ -236,10 +285,12 @@ router.get('/my-orders', protect, async (req, res) => {
   try {
     const orders = await Order.find({ user: req.user.id })
       .populate('items.product', 'name images price')
-      .sort('-createdAt');
+      .sort('-createdAt')
+      .lean();
     res.json({ success: true, data: orders });
   } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
+    console.error('[Orders] GET /my-orders error:', err.message);
+    res.status(500).json({ success: false, message: 'Server error' });
   }
 });
 
@@ -254,9 +305,13 @@ router.post('/', protect, async (req, res) => {
     };
     const order = await Order.create(body);
     await Cart.findOneAndDelete({ user: req.user.id });
+    const User = require('../models/User');
+    const userDoc = await User.findById(req.user.id).select('name email').lean();
+    sendOrderEmails(order, userDoc); // fire-and-forget
     res.status(201).json({ success: true, data: order });
   } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
+    console.error('[Orders] POST / error:', err.message);
+    res.status(500).json({ success: false, message: 'Server error' });
   }
 });
 
@@ -272,7 +327,8 @@ router.get('/:id', protect, async (req, res) => {
     }
     res.json({ success: true, data: order });
   } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
+    console.error('[Orders] GET /:id error:', err.message);
+    res.status(500).json({ success: false, message: 'Server error' });
   }
 });
 

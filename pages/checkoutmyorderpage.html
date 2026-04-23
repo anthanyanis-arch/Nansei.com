@@ -1,11 +1,13 @@
-ï»¿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>NANSEI Organics ï¿½ Checkout</title>
+<title>NANSEI Organics â€” Checkout</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Inter:wght@400;600;700;900&family=Roboto:wght@500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<script src="../js/config.js"></script>
+<script src="../frontend/js/api.js"></script>
 <script src="https://cdn.tailwindcss.com"></script>
 <!-- Razorpay Checkout SDK -->
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
@@ -290,6 +292,7 @@ textarea.inp{resize:none;line-height:1.65}
   nav img{height:34px}
   #navCheckout span:not(.badge-pill),#navOrders span:not(.badge-pill){display:none}
   #navCheckout,#navOrders{padding:7px 10px;gap:4px}
+  .checkout-wish-btn{display:none!important}
   #layoutGrid{grid-template-columns:1fr !important}
   #checkoutPage > div{padding:16px 12px}
   .step-wrap{top:56px;padding:10px 0}
@@ -341,7 +344,7 @@ textarea.inp{resize:none;line-height:1.65}
       <circle cx="6" cy="15" r="1.5" fill="#fff"/>
     </svg>
   </div>
-  <p style="font-size:1rem;font-weight:700;color:#0f1111" id="procTitle">Processing Paymentï¿½</p>
+  <p style="font-size:1rem;font-weight:700;color:#0f1111" id="procTitle">Processing Payment</p>
   <p style="font-size:.82rem;color:#565959" id="procSub">Please do not press back or refresh</p>
   <div class="proc-bar-wrap"><div class="proc-bar" id="procBar"></div></div>
   <p style="font-size:.72rem;color:#aaa;margin-top:4px">&#128274; Secured by Razorpay &nbsp; 256-bit encryption</p>
@@ -373,6 +376,10 @@ textarea.inp{resize:none;line-height:1.65}
         </div>
       </div>
       <div style="display:flex;flex-direction:column;gap:10px">
+        <button onclick="sendWhatsAppOrder()" style="width:100%;padding:14px 24px;background:#25D366;color:#fff;border:none;border-radius:14px;font-family:'Roboto',sans-serif;font-size:.92rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:2px;" onmouseover="this.style.background='#1ebe5d'" onmouseout="this.style.background='#25D366'">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="#fff"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          Send Order to WhatsApp
+        </button>
         <button class="btn btn-primary btn-full" onclick="goToOrders()">View My Orders</button>
         <button class="btn btn-ghost btn-full" onclick="handleSuccessClose()">Continue Shopping</button>
       </div>
@@ -396,6 +403,10 @@ textarea.inp{resize:none;line-height:1.65}
         Orders
         <span id="ordersBadge" class="badge-pill" style="display:none"></span>
       </button>
+      <a href="wishlist.html" style="display:flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:50%;color:var(--ink-3);text-decoration:none;transition:var(--t);position:relative;" onmouseover="this.style.color='#ef4444';this.style.background='rgba(239,68,68,.08)'" onmouseout="this.style.color='var(--ink-3)';this.style.background='transparent'" title="Wishlist" class="checkout-wish-btn">
+        <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6c-1.5-1.6-4-1.6-5.6 0L12 7.8 8.8 4.6c-1.5-1.6-4-1.6-5.6 0-1.6 1.7-1.6 4.3 0 6l8.8 9 8.8-9c1.6-1.7 1.6-4.3 0-6z"/></svg>
+        <span id="checkoutWishCount" style="position:absolute;top:-2px;right:-2px;background:#ef4444;color:#fff;font-size:.5rem;font-weight:800;min-width:14px;height:14px;padding:0 3px;border-radius:20px;display:none;align-items:center;justify-content:center;border:1.5px solid #fff;">0</span>
+      </a>
     </div>
   </div>
 </nav>
@@ -448,29 +459,96 @@ textarea.inp{resize:none;line-height:1.65}
             Add New Address
           </button>
           <div id="newAddrForm" style="display:none;background:var(--fog);border:1px solid var(--fog-2);border-radius:var(--r);padding:22px;margin-bottom:20px">
+            <style>
+              .co-inp{width:100%;padding:11px 14px;border-radius:12px;border:1.5px solid var(--fog-2);background:#fff;font-family:'Inter',sans-serif;font-size:.88rem;color:var(--ink);outline:none;transition:border-color .2s,box-shadow .2s}
+              .co-inp:focus{border-color:var(--moss);box-shadow:0 0 0 3px rgba(45,90,61,.09)}
+              .co-inp.co-err{border-color:#ef4444;box-shadow:0 0 0 3px rgba(239,68,68,.09)}
+              .co-inp.co-ok{border-color:var(--moss)}
+              .co-inp::placeholder{color:var(--sage)}
+              .co-err-msg{font-size:.7rem;color:#ef4444;margin-top:4px;font-weight:500;display:none}
+              .co-atype-btn{flex:1;padding:10px 6px;border-radius:10px;border:2px solid var(--fog-2);background:var(--white);color:var(--ink-3);font-size:.8rem;font-weight:700;cursor:pointer;transition:all .18s}
+              .co-atype-btn.co-atype-active{border-color:var(--moss);background:rgba(45,90,61,.07);color:var(--moss)}
+            </style>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
-              <div><label class="field-label">First Name</label><input type="text" class="inp" id="fName" placeholder="Karthikeyan"/></div>
-              <div><label class="field-label">Last Name</label><input type="text" class="inp" id="lName" placeholder="M."/></div>
+
+              <!-- Full Name -->
               <div style="grid-column:span 2">
-                <label class="field-label">Mobile</label>
+                <label class="field-label">Full Name <span style="color:#ef4444">*</span></label>
+                <input type="text" class="co-inp" id="coName" autocomplete="name" placeholder="e.g. Arjun Mehta"
+                  oninput="coValidate('coName')"/>
+                <p class="co-err-msg" id="coName-err"></p>
+              </div>
+
+              <!-- Mobile -->
+              <div style="grid-column:span 2">
+                <label class="field-label">Mobile Number <span style="color:#ef4444">*</span></label>
                 <div style="display:flex;gap:8px">
-                  <div style="padding:12px 14px;background:var(--white);border:1.5px solid var(--fog-2);border-radius:12px;font-size:.85rem;font-weight:600;color:var(--ink-3);flex-shrink:0">+91</div>
-                  <input type="tel" class="inp" id="mobile" placeholder="10-digit number" maxlength="10"/>
+                  <div style="padding:11px 14px;background:var(--white);border:1.5px solid var(--fog-2);border-radius:12px;font-size:.85rem;font-weight:700;color:var(--ink-3);flex-shrink:0;user-select:none">+91</div>
+                  <input type="tel" class="co-inp" id="coMobile" maxlength="10" autocomplete="tel"
+                    placeholder="10-digit mobile number"
+                    oninput="this.value=this.value.replace(/\D/g,'').slice(0,10);coValidate('coMobile')"/>
                 </div>
+                <p class="co-err-msg" id="coMobile-err"></p>
               </div>
-              <div style="grid-column:span 2"><label class="field-label">Address</label><input type="text" class="inp" id="addr1" placeholder="House No, Street, Area"/></div>
-              <div><label class="field-label">City</label><input type="text" class="inp" id="city" placeholder="Madurai"/></div>
-              <div><label class="field-label">PIN Code</label><input type="text" class="inp" id="pin" placeholder="625001" maxlength="6"/></div>
-              <div style="grid-column:span 2">
+
+              <!-- PIN Code -->
+              <div>
+                <label class="field-label">PIN Code <span style="color:#ef4444">*</span></label>
+                <div style="position:relative">
+                  <input type="text" class="co-inp" id="coPin" maxlength="6" autocomplete="postal-code"
+                    placeholder="6-digit PIN"
+                    oninput="this.value=this.value.replace(/\D/g,'').slice(0,6);coPinLookup(this.value)"/>
+                  <span id="coPinSpinner" style="display:none;position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:.68rem;color:var(--sage)">Looking up…</span>
+                </div>
+                <p class="co-err-msg" id="coPin-err"></p>
+              </div>
+
+              <!-- Address Type -->
+              <div style="display:flex;flex-direction:column;justify-content:flex-end">
                 <label class="field-label">Address Type</label>
-                <div style="display:flex;gap:8px;margin-top:6px">
-                  <button onclick="setAddrType('Home',this)" class="addr-type-btn" style="flex:1;padding:11px;border-radius:12px;border:2px solid var(--moss);background:rgba(45,90,61,.06);color:var(--moss);font-size:.83rem;font-weight:700;cursor:pointer;transition:all .18s">&#127968; Home</button>
-                  <button onclick="setAddrType('Office',this)" class="addr-type-btn" style="flex:1;padding:11px;border-radius:12px;border:2px solid var(--fog-2);background:var(--white);color:var(--ink-3);font-size:.83rem;font-weight:700;cursor:pointer;transition:all .18s">&#127970; Office</button>
-                  <button onclick="setAddrType('Other',this)" class="addr-type-btn" style="flex:1;padding:11px;border-radius:12px;border:2px solid var(--fog-2);background:var(--white);color:var(--ink-3);font-size:.83rem;font-weight:700;cursor:pointer;transition:all .18s">&#128205; Other</button>
+                <div style="display:flex;gap:6px">
+                  <button onclick="coSetType('Home',this)" id="coTypeHome" class="co-atype-btn co-atype-active">?? Home</button>
+                  <button onclick="coSetType('Work',this)" id="coTypeWork" class="co-atype-btn">?? Work</button>
+                  <button onclick="coSetType('Other',this)" id="coTypeOther" class="co-atype-btn">?? Other</button>
                 </div>
               </div>
+
+              <!-- Address Line 1 -->
+              <div style="grid-column:span 2">
+                <label class="field-label">Flat, House no., Building <span style="color:#ef4444">*</span></label>
+                <input type="text" class="co-inp" id="coAddr1" autocomplete="address-line1"
+                  placeholder="e.g. Flat 4B, Sunrise Apartments"
+                  oninput="coValidate('coAddr1')"/>
+                <p class="co-err-msg" id="coAddr1-err"></p>
+              </div>
+
+              <!-- Area / Street -->
+              <div style="grid-column:span 2">
+                <label class="field-label">Area, Street, Colony <span style="font-size:.68rem;font-weight:400;text-transform:none;letter-spacing:0;color:var(--sage)">(optional)</span></label>
+                <input type="text" class="co-inp" id="coAddr2" autocomplete="address-line2"
+                  placeholder="e.g. MG Road, Koramangala"/>
+              </div>
+
+              <!-- City -->
+              <div>
+                <label class="field-label">City / District <span style="color:#ef4444">*</span></label>
+                <input type="text" class="co-inp" id="coCity" autocomplete="address-level2"
+                  placeholder="Auto-filled from PIN"
+                  oninput="coValidate('coCity')"/>
+                <p class="co-err-msg" id="coCity-err"></p>
+              </div>
+
+              <!-- State (read-only) -->
+              <div>
+                <label class="field-label">State <span style="color:#ef4444">*</span></label>
+                <input type="text" class="co-inp" id="coState" readonly autocomplete="address-level1"
+                  placeholder="Auto-filled from PIN"
+                  style="background:var(--fog);cursor:not-allowed"/>
+                <p style="font-size:.67rem;color:var(--sage);margin-top:3px">Filled automatically from PIN</p>
+              </div>
+
             </div>
-            <button onclick="saveNewAddr()" class="btn btn-primary" style="margin-top:16px;padding:11px 24px;border-radius:12px;font-size:.85rem">Save Address</button>
+            <button onclick="saveNewAddr()" class="btn btn-primary" style="margin-top:18px;padding:11px 24px;border-radius:12px;font-size:.85rem">Save Address</button>
           </div>
           <button onclick="goToPayment()" class="btn btn-primary btn-full">
             Continue to Order Summary
@@ -505,14 +583,14 @@ textarea.inp{resize:none;line-height:1.65}
           <div style="background:var(--white);border:1px solid var(--fog-2);border-radius:var(--r-lg);padding:18px 20px;box-shadow:var(--shadow);margin-bottom:20px">
             <p style="font-size:.72rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-3);margin-bottom:14px">Price Details</p>
             <div style="display:flex;flex-direction:column;gap:10px">
-              <div class="summary-row"><span style="color:var(--ink-3)">Subtotal</span><span style="font-weight:600" id="s2Subtotal">&#8377; </span></div>
-              <div class="summary-row"><span style="color:var(--ink-3)">Discount</span><span style="font-weight:600;color:var(--moss)" id="s2Discount">-&#8377; </span></div>
+              <div class="summary-row"><span style="color:var(--ink-3)">Subtotal</span><span style="font-weight:600" id="s2Subtotal">&#8377;</span></div>
+              <div class="summary-row"><span style="color:var(--ink-3)">Discount</span><span style="font-weight:600;color:var(--moss)" id="s2Discount">-&#8377;</span></div>
               <div class="summary-row"><span style="color:var(--ink-3)">Delivery</span><span style="font-weight:700;color:var(--moss)" id="s2Delivery">FREE</span></div>
             </div>
             <div class="divider"></div>
             <div class="summary-total-row">
               <span style="font-weight:800;font-size:1rem">Total</span>
-              <span style="font-weight:800;font-size:1.3rem;color:var(--gold)" id="s2Total">&#8377; </span>
+              <span style="font-weight:800;font-size:1.3rem;color:var(--gold)" id="s2Total">&#8377;</span>
             </div>
           </div>
           <button onclick="goStep(3)" class="btn btn-primary btn-full">
@@ -589,7 +667,7 @@ textarea.inp{resize:none;line-height:1.65}
                     </div>
                     <div style="display:flex;align-items:center;gap:6px;margin-top:12px;padding:8px 12px;background:rgba(45,90,61,.06);border-radius:8px;border:1px solid rgba(45,90,61,.12)">
                       <svg width="13" height="13" fill="none" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" fill="var(--moss)"/></svg>
-                      <p style="font-size:.72rem;font-weight:600;color:var(--moss)">256-bit SSL encrypted ï¿½ PCI-DSS Level 1 Compliant</p>
+                      <p style="font-size:.72rem;font-weight:600;color:var(--moss)">256-bit SSL encrypted &middot; PCI-DSS Level 1 Compliant</p>
                     </div>
                   </div>
                 </div>
@@ -613,6 +691,27 @@ textarea.inp{resize:none;line-height:1.65}
                       <div class="pay-icon-placeholder" style="background:#1a1f71;color:#fff;border:none;font-size:.58rem;font-weight:900;font-style:italic">VISA</div>
                       <div style="height:22px;width:36px;border-radius:5px;border:1px solid rgba(0,0,0,.08);background:#fff;display:flex;align-items:center;justify-content:center;overflow:hidden;padding:2px 4px"><svg viewBox="0 0 48 30" height="18" fill="none"><circle cx="18" cy="15" r="12" fill="#eb001b"/><circle cx="30" cy="15" r="12" fill="#f79e1b"/><path d="M24 6.5a12 12 0 0 1 0 17A12 12 0 0 1 24 6.5z" fill="#ff5f00"/></svg></div>
                       <div class="pay-icon-placeholder" style="background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;border:none;font-size:.5rem;font-weight:900">RuPay</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- COD Option -->
+              <div class="gateway-card" id="gwCod" onclick="selectGateway('cod')">
+                <div style="display:flex;align-items:flex-start;gap:14px">
+                  <div class="gw-radio" id="grCod"><div class="gw-radio-dot"></div></div>
+                  <div style="flex:1">
+                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+                      <div style="width:28px;height:28px;border-radius:8px;background:#166534;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                        <svg width="15" height="15" fill="none" viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="14" rx="2" stroke="#fff" stroke-width="2"/><path d="M2 10h20" stroke="#fff" stroke-width="2"/><circle cx="7" cy="15" r="1.5" fill="#fff"/></svg>
+                      </div>
+                      <span style="font-size:.92rem;font-weight:800;color:#1e293b">Cash on Delivery</span>
+                      <span style="font-weight:400;color:#64748b">COD</span>
+                    </div>
+                    <p style="font-size:.8rem;color:#475569;margin-bottom:10px;line-height:1.55">Pay in cash when your order arrives at your doorstep. No online payment required.</p>
+                    <div style="display:flex;align-items:center;gap:6px;padding:8px 12px;background:rgba(22,101,52,.06);border-radius:8px;border:1px solid rgba(22,101,52,.15)">
+                      <svg width="13" height="13" fill="none" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4" stroke="#166534" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="12" r="9" stroke="#166534" stroke-width="2"/></svg>
+                      <p style="font-size:.72rem;font-weight:600;color:#166534">Available &middot; No extra charges &middot; Pay on delivery</p>
                     </div>
                   </div>
                 </div>
@@ -658,9 +757,9 @@ textarea.inp{resize:none;line-height:1.65}
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
                   <div><label class="field-label">First Name</label><input type="text" class="inp" id="bFName" placeholder="First name"/></div>
                   <div><label class="field-label">Last Name</label><input type="text" class="inp" id="bLName" placeholder="Last name"/></div>
-                  <div style="grid-column:span 2"><label class="field-label">Address Line</label><input type="text" class="inp" id="bAddr" placeholder="House No, Street, Area"/></div>
+                  <div style="grid-column:span 2"><label class="field-label">Address Line</label><input type="text" class="inp" id="bAddr" placeholder="Street, area"/></div>
                   <div><label class="field-label">City</label><input type="text" class="inp" id="bCity" placeholder="City"/></div>
-                  <div><label class="field-label">PIN Code</label><input type="text" class="inp" id="bPin" placeholder="625001" maxlength="6"/></div>
+                  <div><label class="field-label">PIN Code</label><input type="text" class="inp" id="bPin" placeholder="PIN code" maxlength="6"/></div>
                 </div>
               </div>
 
@@ -670,22 +769,22 @@ textarea.inp{resize:none;line-height:1.65}
           <!-- -- ORDER CONFIRMATION SUMMARY (mobile-visible inline) -- -->
           <div class="rzp-section" style="margin-bottom:20px;display:none" id="mobileOrderConfirm">
             <button class="summ-collapse-btn" onclick="toggleMobileSummary()">
-              <span>Order Summary ï¿½ <span id="mobileTotal" style="color:var(--moss)">&#8377; </span></span>
+              <span>Order Summary  <span id="mobileTotal" style="color:var(--moss)">&#8377;</span></span>
               <svg id="mobileChevron" width="16" height="16" fill="none" viewBox="0 0 24 24" style="transition:transform .2s"><path d="M6 9l6 6 6-6" stroke="var(--moss)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </button>
             <div id="summaryCollapsible">
               <div id="mobileSummaryItems" style="border-top:1px solid var(--fog-2)"></div>
               <div style="padding:16px 20px">
                 <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px">
-                  <div class="summary-row"><span style="color:var(--ink-3);font-size:.82rem">Subtotal</span><span style="font-weight:600;font-size:.82rem" id="mSubtotal">&#8377; </span></div>
-                  <div class="summary-row"><span style="color:var(--ink-3);font-size:.82rem">Discount</span><span style="font-weight:600;font-size:.82rem;color:var(--moss)" id="mDiscount">-&#8377; </span></div>
-                  <div class="summary-row"><span style="color:var(--ink-3);font-size:.82rem">GST (5%)</span><span style="font-weight:600;font-size:.82rem" id="mGst">&#8377; </span></div>
+                  <div class="summary-row"><span style="color:var(--ink-3);font-size:.82rem">Subtotal</span><span style="font-weight:600;font-size:.82rem" id="mSubtotal">&#8377;</span></div>
+                  <div class="summary-row"><span style="color:var(--ink-3);font-size:.82rem">Discount</span><span style="font-weight:600;font-size:.82rem;color:var(--moss)" id="mDiscount">-&#8377;</span></div>
+                  <div class="summary-row"><span style="color:var(--ink-3);font-size:.82rem">GST (5%)</span><span style="font-weight:600;font-size:.82rem" id="mGst">&#8377;</span></div>
                   <div class="summary-row"><span style="color:var(--ink-3);font-size:.82rem">Delivery</span><span style="font-weight:700;font-size:.82rem;color:var(--moss)">FREE</span></div>
                 </div>
                 <div class="divider"></div>
                 <div class="summary-total-row">
                   <span style="font-weight:800">Total Payable</span>
-                  <span style="font-weight:800;font-size:1.2rem;color:var(--gold)" id="mTotal">&#8377; </span>
+                  <span style="font-weight:800;font-size:1.2rem;color:var(--gold)" id="mTotal">&#8377;</span>
                 </div>
               </div>
             </div>
@@ -697,7 +796,7 @@ textarea.inp{resize:none;line-height:1.65}
             <div style="background:linear-gradient(135deg,rgba(45,90,61,.06),rgba(45,90,61,.02));border:1px solid rgba(45,90,61,.15);border-radius:16px;padding:16px 20px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between">
               <div>
                 <p style="font-size:.72rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)">Amount Payable</p>
-                <p style="font-size:1.6rem;font-weight:800;color:var(--ink);letter-spacing:-.02em;margin-top:2px" id="payableAmount">&#8377; </p>
+                <p style="font-size:1.6rem;font-weight:800;color:var(--ink);letter-spacing:-.02em;margin-top:2px" id="payableAmount">&#8377;</p>
               </div>
               <div style="text-align:right">
                 <p style="font-size:.72rem;color:var(--ink-3);margin-bottom:4px">via <span id="gatewayLabel" style="font-weight:700;color:var(--moss)">Razorpay</span></p>
@@ -711,7 +810,7 @@ textarea.inp{resize:none;line-height:1.65}
             <!-- Pay Now Button -->
             <button class="btn-pay-now" id="btnPayNow" onclick="initiateRazorpay()">
               <svg width="18" height="18" fill="none" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" fill="#555"/></svg>
-              <span id="payNowLabel">Pay Now ï¿½ &#8377; </span>
+              <span id="payNowLabel">Pay Now</span>
               <svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7" stroke="#555" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </button>
 
@@ -760,15 +859,15 @@ textarea.inp{resize:none;line-height:1.65}
           <div id="summaryItems" style="max-height:260px;overflow-y:auto;border-bottom:1px solid var(--fog-2)"></div>
           <div style="padding:20px 22px">
             <div style="display:flex;flex-direction:column;gap:10px">
-              <div class="summary-row"><span style="color:var(--ink-3)">Subtotal</span><span style="font-weight:600" id="summSubtotal">&#8377; </span></div>
-              <div class="summary-row"><span style="color:var(--ink-3)">Discount</span><span style="font-weight:600;color:var(--moss)" id="summDiscount">-&#8377; </span></div>
+              <div class="summary-row"><span style="color:var(--ink-3)">Subtotal</span><span style="font-weight:600" id="summSubtotal">&#8377;</span></div>
+              <div class="summary-row"><span style="color:var(--ink-3)">Discount</span><span style="font-weight:600;color:var(--moss)" id="summDiscount">-&#8377;</span></div>
               <div class="summary-row"><span style="color:var(--ink-3)">Delivery</span><span id="summDelivery" style="font-weight:700;color:var(--moss)">FREE</span></div>
-              <div class="summary-row"><span style="color:var(--ink-3)">GST (5%)</span><span style="font-weight:600" id="summGst">&#8377; </span></div>
+              <div class="summary-row"><span style="color:var(--ink-3)">GST (5%)</span><span style="font-weight:600" id="summGst">&#8377;</span></div>
             </div>
             <div class="divider"></div>
             <div class="summary-total-row">
               <span style="font-weight:800;font-size:1rem">Total</span>
-              <span style="font-weight:800;font-size:1.3rem;color:var(--gold)" id="summTotal">&#8377; </span>
+              <span style="font-weight:800;font-size:1.3rem;color:var(--gold)" id="summTotal">&#8377;</span>
             </div>
             <div id="savingsBanner" class="savings-banner" style="display:none;margin-top:14px">
               <div style="width:36px;height:36px;border-radius:10px;background:rgba(201,168,76,.15);display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0">&#127991;</div>
@@ -796,7 +895,7 @@ textarea.inp{resize:none;line-height:1.65}
 <div class="sticky-pay-wrap" id="stickyPayWrap" style="display:none">
   <button class="btn-pay-now" onclick="initiateRazorpay()" style="border-radius:14px">
     <svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" fill="rgba(255,255,255,.9)"/></svg>
-    <span id="stickyPayLabel">Pay Now ï¿½ &#8377; </span>
+    <span id="stickyPayLabel">Pay Now  &#8377;</span>
   </button>
   <p style="text-align:center;font-size:.65rem;color:#94a3b8;margin-top:6px">&#128274; Secured by Razorpay</p>
 </div>
@@ -819,13 +918,13 @@ textarea.inp{resize:none;line-height:1.65}
       <div style="display:flex;gap:10px;align-items:center">
         <div class="search-bar" style="min-width:200px">
           <svg width="15" height="15" fill="none" viewBox="0 0 24 24"><path d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z" stroke="var(--sage)" stroke-width="2" stroke-linecap="round"/></svg>
-          <input type="text" id="ordersSearch" placeholder="Search ordersï¿½" oninput="renderOrders()"/>
+          <input type="text" id="ordersSearch" placeholder="Search orders..." oninput="renderOrders()"/>
         </div>
         <select id="sortSelect" class="inp" style="padding:10px 36px 10px 14px;font-size:.85rem;min-width:160px;cursor:pointer" onchange="renderOrders()">
           <option value="newest">Newest First</option>
           <option value="oldest">Oldest First</option>
-          <option value="high">Price: Highï¿½Low</option>
-          <option value="low">Price: Lowï¿½High</option>
+          <option value="high">Price: High to Low</option>
+          <option value="low">Price: Low to High</option>
         </select>
       </div>
     </div>
@@ -873,19 +972,20 @@ textarea.inp{resize:none;line-height:1.65}
       <button class="modal-close" onclick="closeModal('reviewModal')">&#x2715;</button>
     </div>
     <div class="modal-body">
-      <div style="display:flex;gap:14px;margin-bottom:22px;align-items:center">
+      <div style="display:flex;gap:14px;margin-bottom:16px;align-items:center">
         <img id="reviewImg" src="" style="width:60px;height:60px;border-radius:14px;object-fit:cover;border:1px solid var(--fog-2)"/>
         <div><p style="font-weight:700;font-size:.92rem" id="reviewProductName"></p><p style="font-size:.78rem;color:var(--ink-3);margin-top:3px" id="reviewOrderLabel"></p></div>
       </div>
+      <select id="reviewProductSelect" style="display:none;width:100%;padding:10px 14px;border:1.5px solid var(--fog-2);border-radius:12px;font-family:'Inter',sans-serif;font-size:.85rem;color:var(--ink);background:var(--fog);outline:none;margin-bottom:16px;cursor:pointer"></select>
       <p style="font-size:.85rem;font-weight:600;margin-bottom:12px">How would you rate this product?</p>
       <div style="display:flex;gap:6px;margin-bottom:20px" id="starRow">
-        <button class="star-btn" data-v="1" onclick="setStars(1)">?</button>
-        <button class="star-btn" data-v="2" onclick="setStars(2)">?</button>
-        <button class="star-btn" data-v="3" onclick="setStars(3)">?</button>
-        <button class="star-btn" data-v="4" onclick="setStars(4)">?</button>
-        <button class="star-btn" data-v="5" onclick="setStars(5)">?</button>
+        <button class="star-btn" data-v="1" onclick="setStars(1)">&#9733;</button>
+        <button class="star-btn" data-v="2" onclick="setStars(2)">&#9733;</button>
+        <button class="star-btn" data-v="3" onclick="setStars(3)">&#9733;</button>
+        <button class="star-btn" data-v="4" onclick="setStars(4)">&#9733;</button>
+        <button class="star-btn" data-v="5" onclick="setStars(5)">&#9733;</button>
       </div>
-      <textarea id="reviewText" class="inp" rows="4" placeholder="Share your experienceï¿½" style="margin-bottom:16px"></textarea>
+      <textarea id="reviewText" class="inp" rows="4" placeholder="Share your experience" style="margin-bottom:16px"></textarea>
       <button onclick="submitReview()" class="btn btn-primary btn-full">Submit Review</button>
     </div>
   </div>
@@ -901,15 +1001,15 @@ textarea.inp{resize:none;line-height:1.65}
     <div class="modal-body">
       <div style="background:rgba(192,57,43,.06);border:1px solid rgba(192,57,43,.15);border-radius:14px;padding:16px;display:flex;gap:12px;margin-bottom:22px">
         <span style="font-size:1.2rem;flex-shrink:0">&#9888;</span>
-        <p style="font-size:.85rem;color:var(--red);line-height:1.6">Cancelling will initiate a refund within 5ï¿½7 business days to your original payment method.</p>
+        <p style="font-size:.85rem;color:var(--red);line-height:1.6">Cancelling will initiate a refund within 5-7 business days to your original payment method.</p>
       </div>
       <label class="field-label" style="margin-bottom:8px">Reason for cancellation</label>
       <select id="cancelReason" class="inp" style="margin-bottom:14px">
-        <option value="">Select a reasonï¿½</option>
+        <option value="">Select a reason</option>
         <option>Changed my mind</option><option>Found a better price</option>
         <option>Ordered by mistake</option><option>Delivery taking too long</option><option>Other</option>
       </select>
-      <textarea id="cancelNote" class="inp" rows="3" placeholder="Additional notes (optional)ï¿½" style="margin-bottom:20px"></textarea>
+      <textarea id="cancelNote" class="inp" rows="3" placeholder="Additional notes (optional)" style="margin-bottom:20px"></textarea>
       <div style="display:flex;gap:10px">
         <button onclick="closeModal('cancelModal')" class="btn btn-ghost" style="flex:1;border-radius:12px">Keep Order</button>
         <button onclick="confirmCancel()" class="btn btn-danger-ghost" style="flex:1;border-radius:12px">Confirm Cancel</button>
@@ -940,7 +1040,7 @@ textarea.inp{resize:none;line-height:1.65}
       <div style="background:var(--fog);border-radius:12px;padding:14px 18px;margin-bottom:20px">
         <p style="font-size:.7rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-3);margin-bottom:8px">Billed To</p>
         <p style="font-weight:700;font-size:.9rem">Karthikeyan M.</p>
-        <p style="font-size:.82rem;color:var(--ink-3);margin-top:2px">42, Gandhi Nagar 2nd Street, Madurai ï¿½ 625001</p>
+        <p style="font-size:.82rem;color:var(--ink-3);margin-top:2px">42, Gandhi Nagar 2nd Street, Madurai  625001</p>
       </div>
       <div id="inv-items" class="inv-table" style="margin-bottom:20px"></div>
       <div style="display:flex;flex-direction:column;gap:8px">
@@ -972,7 +1072,7 @@ textarea.inp{resize:none;line-height:1.65}
       </div>
       <label class="field-label" style="margin-bottom:8px">Preferred Resolution</label>
       <select class="inp" style="margin-bottom:14px"><option>Full Refund</option><option>Replacement</option><option>Partial Refund</option></select>
-      <textarea class="inp" rows="3" placeholder="Describe the issue in detailï¿½" style="margin-bottom:18px"></textarea>
+      <textarea class="inp" rows="3" placeholder="Describe the issue in detail" style="margin-bottom:18px"></textarea>
       <button onclick="submitReturn()" class="btn btn-primary btn-full">Submit Return Request</button>
     </div>
   </div>
@@ -985,28 +1085,6 @@ textarea.inp{resize:none;line-height:1.65}
       <img src="nansei organics.png" class="h-16 w-auto mb-4 brightness-0 invert" alt="Nansei Organics"/>
       <p style="font-size:.78rem;color:#9ca3af;line-height:1.7;margin-bottom:1rem">100% organic & high-quality agricultural products. Trusted by farmers and families.</p>
     </div>
-    <div>
-      <h3 style="font-size:.82rem;font-weight:700;color:#fff;margin-bottom:.85rem;letter-spacing:.06em;text-transform:uppercase">Quick Links</h3>
-      <ul style="list-style:none;display:flex;flex-direction:column;gap:.55rem">
-        <li><a href="index.html" style="font-size:.78rem;color:#9ca3af;text-decoration:none">Home</a></li>
-        <li><a href="#" style="font-size:.78rem;color:#9ca3af;text-decoration:none">Shop</a></li>
-        <li><a href="#" style="font-size:.78rem;color:#9ca3af;text-decoration:none">About Us</a></li>
-      </ul>
-    </div>
-    <div>
-      <h3 style="font-size:.82rem;font-weight:700;color:#fff;margin-bottom:.85rem;letter-spacing:.06em;text-transform:uppercase">Support</h3>
-      <ul style="list-style:none;display:flex;flex-direction:column;gap:.55rem">
-        <li><a href="#" style="font-size:.78rem;color:#9ca3af;text-decoration:none">FAQ</a></li>
-        <li><a href="#" style="font-size:.78rem;color:#9ca3af;text-decoration:none">Returns</a></li>
-        <li><a href="#" style="font-size:.78rem;color:#9ca3af;text-decoration:none">Track Order</a></li>
-      </ul>
-    </div>
-    <div>
-      <h3 style="font-size:.82rem;font-weight:700;color:#fff;margin-bottom:.85rem;letter-spacing:.06em;text-transform:uppercase">Newsletter</h3>
-      <div style="display:flex;gap:.5rem">
-        <input type="email" placeholder="Your email" style="flex:1;padding:.55rem .85rem;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:10px;font-size:.76rem;color:#fff;outline:none;font-family:'Inter',sans-serif"/>
-        <button style="background:#166534;color:#fff;padding:.55rem .9rem;border-radius:10px;border:none;font-size:.76rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif">Join</button>
-      </div>
     </div>
   </div>
   <div style="border-top:1px solid rgba(255,255,255,.06);padding:1rem 1.75rem;text-align:center;font-size:.72rem;color:#6b7280">&copy; 2026 NANSEI Organics. All Rights Reserved. Made with &#128154;</div>
@@ -1024,7 +1102,7 @@ window.API_BASE = isLocal ? 'http://localhost:5000/api' : 'https://nansei-backen
 // -- RAZORPAY CONFIGURATION --
 const RZP_MERCHANT_NAME = 'NANSEI Organics';
 const RZP_MERCHANT_LOGO = '';
-let _rzpKeyId = 'rzp_test_SYZVdOFk5ICckn'; // fallback; overridden by backend response
+let _rzpKeyId = ''; // set from backend response — leave empty until you add real keys
 
 // -- AUTH TOKEN HELPERS --
 function _getTok() {
@@ -1085,7 +1163,7 @@ async function _fetchDBAddresses() {
     const res = await _apiReq('GET', '/addresses');
     return (res.data || []).map(a => ({
       _id: a._id, name: a.name, tag: a.tag || 'Home',
-      line: a.line1 + (a.line2 ? '\n' + a.line2 : '') + ',\n' + a.city + ' ï¿½ ' + a.pincode,
+      line: a.line1 + (a.line2 ? '\n' + a.line2 : '') + ',\n' + a.city + '  ' + a.pincode,
       phone: a.phone ? '+91 ' + a.phone : ''
     }));
   } catch { return null; }
@@ -1104,6 +1182,12 @@ document.addEventListener('DOMContentLoaded', () => {
   loadAndRenderAddrGrid();
   updateSummary();
   updateOrdersBadge();
+  // sync wishlist badge
+  (function(){
+    const wl = JSON.parse(localStorage.getItem('wishlist')||'[]');
+    const el = document.getElementById('checkoutWishCount');
+    if(el && wl.length > 0){ el.textContent = wl.length; el.style.display = 'flex'; }
+  })();
   if (new URLSearchParams(window.location.search).get('page') === 'orders') showPage('orders');
 });
 
@@ -1139,6 +1223,23 @@ function renderCartStep() {
   e.style.display = 'none';
   c.innerHTML = cart.map((item, i) => {
     const disc = item.oldPrice ? Math.round((1 - item.price / item.oldPrice) * 100) : 0;
+    const _ql = item.qtyLabel || '';
+    const unit = item.unit || (/ml|\bL\b/i.test(_ql) ? 'ml' : /pc|piece/i.test(_ql) ? 'piece' : 'kg');
+    const qtyVal = item.qtyVal || (unit === 'ml' ? 500 : 1);
+    // Build size options based on unit
+    const sizeOptions = unit === 'kg'
+      ? [0.25, 0.5, 1, 2, 5]
+      : unit === 'ml'
+      ? [250, 500, 1000, 2000]
+      : [1, 5, 10, 25];
+    function fmtSize(v) {
+      if (unit === 'kg') return v + ' kg';
+      if (unit === 'ml') return v >= 1000 ? (v/1000) + ' L' : v + ' ml';
+      return v + (v === 1 ? ' pc' : ' pcs');
+    }
+    const sizeSelect = `<select onchange="cartChangeSize(${i},this.value)" style="padding:5px 8px;border:1.5px solid var(--fog-2);border-radius:8px;font-size:.78rem;font-weight:600;color:var(--ink);background:var(--white);cursor:pointer;outline:none;font-family:'Inter',sans-serif;">
+      ${sizeOptions.map(v => `<option value="${v}" ${v == qtyVal ? 'selected' : ''}>${fmtSize(v)}</option>`).join('')}
+    </select>`;
     return `<div class="cart-item" style="animation-delay:${i * .08}s">
       <div style="position:relative;flex-shrink:0;width:120px;min-height:120px;background:var(--fog)">
         <img src="${item.image}" style="width:100%;height:100%;object-fit:cover;display:block;min-height:120px" onerror="this.src='https://images.unsplash.com/photo-1611843467160-25afb8df1074?w=200'"/>
@@ -1146,19 +1247,17 @@ function renderCartStep() {
       </div>
       <div style="flex:1;min-width:0;padding:14px 14px 12px;display:flex;flex-direction:column;justify-content:space-between">
         <div>
-          <p style="font-weight:500;font-size:.9rem;color:var(--ink);line-height:1.4;margin-bottom:6px">${item.name}</p>
+          <p style="font-weight:500;font-size:.9rem;color:var(--ink);line-height:1.4;margin-bottom:4px">${item.name}</p>
           <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:4px">
-            <span style="font-weight:700;color:var(--ink);font-size:1rem">&#8377;${item.price.toLocaleString()}</span>
-            ${item.oldPrice ? `<span style="font-size:.78rem;color:#999;text-decoration:line-through">&#8377;${item.oldPrice.toLocaleString()}</span>` : ''}
+            <span style="font-weight:700;color:var(--ink);font-size:1rem" id="item-price-${i}">&#8377;${(item.price * item.qty).toLocaleString()}</span>
+            ${item.oldPrice ? `<span style="font-size:.78rem;color:#999;text-decoration:line-through">&#8377;${(item.oldPrice * item.qty).toLocaleString()}</span>` : ''}
           </div>
           <p style="font-size:.72rem;color:#388e3c;font-weight:600">Free Delivery</p>
         </div>
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-top:12px">
-          <div class="qty-ctrl" style="gap:6px;">
-            <span style="font-size:.78rem;font-weight:600;color:#555;background:#f3f4f6;padding:4px 10px;border-radius:6px;border:1px solid #e5e7eb;">${item.qtyLabel || item.qty}</span>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-top:12px;gap:8px;flex-wrap:wrap">
+          <div style="display:flex;align-items:center;gap:8px">
+            ${sizeSelect}
           </div>
-
-
           <button onclick="removeCartItem(${i})" style="font-size:.78rem;font-weight:600;color:#2874f0;border:none;background:none;cursor:pointer;padding:4px 8px;border-radius:4px">REMOVE</button>
         </div>
       </div>
@@ -1168,7 +1267,28 @@ function renderCartStep() {
 function cartQty(i, d) {
   cart[i].qty = Math.max(1, cart[i].qty + d);
   _saveLC(cart);
-  document.getElementById('cq-' + i).textContent = cart[i].qty;
+  const qEl = document.getElementById('cq-' + i);
+  if (qEl) qEl.textContent = cart[i].qty;
+  const pEl = document.getElementById('item-price-' + i);
+  if (pEl) pEl.innerHTML = '&#8377;' + (cart[i].price * cart[i].qty).toLocaleString();
+  updateSummary();
+}
+function cartChangeSize(i, newQtyVal) {
+  const item = cart[i];
+  const v = parseFloat(newQtyVal);
+  const _ql2 = item.qtyLabel || '';
+  const unit = item.unit || (/ml|\bL\b/i.test(_ql2) ? 'ml' : /pc|piece/i.test(_ql2) ? 'piece' : 'kg');
+  const oldQtyVal = item.qtyVal || (unit === 'ml' ? 500 : 1);
+  // Derive basePrice if missing: price / oldQtyVal (with ml correction)
+  const base = item.basePrice || (unit === 'ml' ? item.price / (oldQtyVal / 1000) : item.price / oldQtyVal);
+  const multiplier = unit === 'ml' ? v / 1000 : v;
+  item.basePrice = base;
+  item.qtyVal = v;
+  item.unit = unit;
+  item.price = Math.round(base * multiplier);
+  item.qtyLabel = unit === 'kg' ? v + ' kg' : unit === 'ml' ? (v >= 1000 ? (v/1000) + ' L' : v + ' ml') : v + (v === 1 ? ' pc' : ' pcs');
+  _saveLC(cart);
+  renderCartStep();
   updateSummary();
 }
 function removeCartItem(i) { cart.splice(i, 1); _saveLC(cart); renderCartStep(); updateSummary(); }
@@ -1214,11 +1334,11 @@ function updateSummary() {
     </div>`).join('');
 
   // Step 3 pay now label
-  const fmt = '&#8377;' + total.toLocaleString();
+  const fmt = '?' + total.toLocaleString();
   const pnl = document.getElementById('payNowLabel');
-  if (pnl) pnl.textContent = 'Pay Now ï¿½ ' + fmt;
+  if (pnl) pnl.textContent = 'Pay Now  ?' + total.toLocaleString();
   const spl = document.getElementById('stickyPayLabel');
-  if (spl) spl.textContent = 'Pay Now ï¿½ ' + fmt;
+  if (spl) spl.textContent = 'Pay Now  ?' + total.toLocaleString();
   const pa = document.getElementById('payableAmount');
   if (pa) pa.innerHTML = fmt;
 
@@ -1239,7 +1359,7 @@ function updateSummary() {
   if (msi) msi.innerHTML = cart.map(item => `
     <div style="display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--fog-2)">
       <div style="width:34px;height:34px;border-radius:8px;overflow:hidden;background:var(--fog);flex-shrink:0"><img src="${item.image}" style="width:100%;height:100%;object-fit:cover" loading="lazy"/></div>
-      <div style="flex:1;min-width:0"><p style="font-size:.78rem;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${item.name}</p><p style="font-size:.68rem;color:var(--ink-3)">ï¿½${item.qty}</p></div>
+      <div style="flex:1;min-width:0"><p style="font-size:.78rem;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${item.name}</p><p style="font-size:.68rem;color:var(--ink-3)">${item.qty}</p></div>
       <span style="font-size:.78rem;font-weight:700;color:var(--ink)">&#8377;${(item.price * item.qty).toLocaleString()}</span>
     </div>`).join('');
 }
@@ -1374,35 +1494,118 @@ function toggleNewAddr() {
   f.style.display = hidden ? 'block' : 'none';
   document.getElementById('addAddrIcon').textContent = hidden ? '-' : '+';
 }
+// -- CHECKOUT ADDRESS: validation rules --
+const _coRules = {
+  coName:  { test: v => /^[a-zA-Z\s.'-]{3,50}$/.test(v.trim()),  msg: 'Enter a valid full name (3–50 letters)' },
+  coMobile:{ test: v => /^[6-9]\d{9}$/.test(v),                  msg: 'Enter a valid 10-digit Indian mobile number' },
+  coPin:   { test: v => /^[1-9]\d{5}$/.test(v),                  msg: 'Enter a valid 6-digit PIN code' },
+  coAddr1: { test: v => v.trim().length >= 5,                     msg: 'Enter at least 5 characters for address' },
+  coCity:  { test: v => /^[a-zA-Z\s.'-]{2,50}$/.test(v.trim()),  msg: 'Enter a valid city name' },
+};
+function coValidate(id) {
+  const el = document.getElementById(id);
+  const errEl = document.getElementById(id + '-err');
+  if (!el || !errEl) return true;
+  const rule = _coRules[id];
+  if (!rule) return true;
+  const ok = rule.test(el.value);
+  el.classList.toggle('co-err', !ok);
+  el.classList.toggle('co-ok', ok && el.value.length > 0);
+  errEl.textContent = ok ? '' : rule.msg;
+  errEl.style.display = ok ? 'none' : 'block';
+  return ok;
+}
+function _coShowErr(id, msg) {
+  const el = document.getElementById(id); if (el) el.classList.add('co-err');
+  const e = document.getElementById(id + '-err'); if (e) { e.textContent = msg; e.style.display = 'block'; }
+}
+function _coClearErr(id) {
+  const el = document.getElementById(id); if (el) { el.classList.remove('co-err'); el.classList.add('co-ok'); }
+  const e = document.getElementById(id + '-err'); if (e) e.style.display = 'none';
+}
+
+let _coPinTimer = null;
+let _coAddrType = 'Home';
+
+function coSetType(type, btn) {
+  _coAddrType = type;
+  ['Home','Work','Other'].forEach(t => {
+    const b = document.getElementById('coType' + t);
+    if (b) b.classList.toggle('co-atype-active', t === type);
+  });
+}
+
+function coPinLookup(val) {
+  if (val.length < 6) { coValidate('coPin'); return; }
+  if (!/^[1-9]\d{5}$/.test(val)) { _coShowErr('coPin', 'Enter a valid 6-digit PIN code'); return; }
+  clearTimeout(_coPinTimer);
+  const sp = document.getElementById('coPinSpinner');
+  if (sp) sp.style.display = 'inline';
+  _coPinTimer = setTimeout(async () => {
+    try {
+      const res = await fetch('https://api.postalpincode.in/pincode/' + val);
+      const data = await res.json();
+      if (data[0]?.Status === 'Success') {
+        const po = data[0].PostOffice[0];
+        const city = document.getElementById('coCity');
+        const state = document.getElementById('coState');
+        if (city) { city.value = po.District; coValidate('coCity'); }
+        if (state) { state.value = po.State; state.classList.add('co-ok'); }
+        _coClearErr('coPin');
+      } else {
+        _coShowErr('coPin', 'PIN code not found. Please check and re-enter.');
+        ['coCity','coState'].forEach(id => { const el = document.getElementById(id); if (el) { el.value = ''; el.classList.remove('co-ok','co-err'); } });
+      }
+    } catch { _coClearErr('coPin'); }
+    finally { if (sp) sp.style.display = 'none'; }
+  }, 600);
+}
+
 function setAddrType(type, btn) {
   selectedAddrType = type;
   document.querySelectorAll('.addr-type-btn').forEach(b => { b.style.borderColor = 'var(--fog-2)'; b.style.background = 'var(--white)'; b.style.color = 'var(--ink-3)'; });
   btn.style.borderColor = 'var(--moss)'; btn.style.background = 'rgba(45,90,61,.06)'; btn.style.color = 'var(--moss)';
 }
 async function saveNewAddr() {
-  const fn = document.getElementById('fName').value.trim();
-  const a1 = document.getElementById('addr1').value.trim();
-  const ct = document.getElementById('city').value.trim();
-  const pn = document.getElementById('pin').value.trim();
-  if (!fn || !a1 || !ct || !pn) { showToast('&#9888; Please fill all required fields'); return; }
-  if (!/^\d{6}$/.test(pn)) { showToast('&#9888; Enter a valid 6-digit PIN code'); return; }
-  const mob = document.getElementById('mobile').value.trim();
-  if (mob && !/^\d{10}$/.test(mob)) { showToast('&#9888; Enter a valid 10-digit mobile number'); return; }
-  const ln = document.getElementById('lName').value.trim();
-  const na = { name: (fn + ' ' + ln).trim(), tag: selectedAddrType, line: a1 + ',\n' + ct + ' ï¿½ ' + pn, phone: mob ? '+91 ' + mob : '' };
+  const required = ['coName','coMobile','coPin','coAddr1','coCity'];
+  let valid = true;
+  required.forEach(id => { if (!coValidate(id)) valid = false; });
+  const stateEl = document.getElementById('coState');
+  if (!stateEl || !stateEl.value.trim()) {
+    _coShowErr('coPin', 'Enter a valid PIN code to auto-fill state');
+    valid = false;
+  }
+  if (!valid) {
+    const firstErr = document.querySelector('#newAddrForm .co-err');
+    if (firstErr) firstErr.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    showToast('?? Please fix the errors before saving');
+    return;
+  }
+  const name = document.getElementById('coName').value.trim();
+  const mob  = document.getElementById('coMobile').value.trim();
+  const a1   = document.getElementById('coAddr1').value.trim();
+  const a2   = document.getElementById('coAddr2').value.trim();
+  const city = document.getElementById('coCity').value.trim();
+  const pin  = document.getElementById('coPin').value.trim();
+  const state = stateEl.value.trim();
+  const na = { name, tag: _coAddrType, line: a1 + (a2 ? ', ' + a2 : '') + ',\n' + city + '  ' + pin, phone: '+91 ' + mob };
   if (_getTok()) {
     try {
-      await _apiReq('POST', '/addresses', { name: (fn + ' ' + ln).trim(), phone: mob || '', line1: a1, city: ct, state: '', pincode: pn, isDefault: addresses.length === 0 });
+      await _apiReq('POST', '/addresses', { name, phone: mob, line1: a1, line2: a2, city, state, pincode: pin, addressType: _coAddrType, isDefault: addresses.length === 0 });
       const dbAddrs = await _fetchDBAddresses();
       if (dbAddrs) addresses = dbAddrs;
     } catch { addresses.push(na); _saveAddresses(addresses); }
   } else { addresses.push(na); _saveAddresses(addresses); }
   selectedAddrIdx = addresses.length - 1;
   renderAddrGrid();
-  ['fName', 'lName', 'mobile', 'addr1', 'city', 'pin'].forEach(id => document.getElementById(id).value = '');
+  ['coName','coMobile','coAddr1','coAddr2','coCity','coState','coPin'].forEach(id => {
+    const el = document.getElementById(id); if (el) { el.value = ''; el.classList.remove('co-ok','co-err'); }
+  });
+  _coAddrType = 'Home';
+  coSetType('Home', document.getElementById('coTypeHome'));
   document.getElementById('newAddrForm').style.display = 'none';
   document.getElementById('addAddrIcon').textContent = '+';
-  showToast('&#9989; Address saved!');
+  showToast('? Address saved!');
 }
 
 // ----------------------------------------------
@@ -1410,9 +1613,10 @@ async function saveNewAddr() {
 // ----------------------------------------------
 function selectGateway(id) {
   selectedGateway = id;
-  ['razorpay', 'payu'].forEach(g => {
-    const card = document.getElementById('gw' + g.charAt(0).toUpperCase() + g.slice(1));
-    const radio = document.getElementById('gr' + g.charAt(0).toUpperCase() + g.slice(1));
+  ['razorpay', 'payu', 'cod'].forEach(g => {
+    const key = g.charAt(0).toUpperCase() + g.slice(1);
+    const card = document.getElementById('gw' + key);
+    const radio = document.getElementById('gr' + key);
     const dot = radio?.querySelector('.gw-radio-dot');
     if (g === id) {
       card?.classList.add('selected');
@@ -1425,7 +1629,13 @@ function selectGateway(id) {
     }
   });
   const gl = document.getElementById('gatewayLabel');
-  if (gl) gl.textContent = id === 'razorpay' ? 'Razorpay' : 'PayU Money';
+  if (gl) gl.textContent = id === 'razorpay' ? 'Razorpay' : id === 'payu' ? 'PayU Money' : 'Cash on Delivery';
+  // Update Pay Now button label
+  const { total } = calcTotal();
+  const pnl = document.getElementById('payNowLabel');
+  if (pnl) pnl.textContent = id === 'cod' ? 'Place Order (Pay on Delivery)' : 'Pay Now  ?' + total.toLocaleString();
+  const spl = document.getElementById('stickyPayLabel');
+  if (spl) spl.textContent = id === 'cod' ? 'Place Order (COD)' : 'Pay Now  ?' + total.toLocaleString();
 }
 
 function selectBilling(type) {
@@ -1461,26 +1671,33 @@ function toggleMobileSummary() {
 //  RAZORPAY INTEGRATION
 // ----------------------------------------------
 async function initiateRazorpay() {
-  if (!cart.length) { showToast('&#128722; Your cart is empty.'); return; }
-  if (!addresses.length) { showToast('&#128205; Please add a delivery address.'); return; }
+  if (!cart.length) { showToast('?? Your cart is empty.'); return; }
+  if (!addresses.length) { showToast('?? Please add a delivery address.'); return; }
+  if (!_getTok()) { showToast('?? Please login to place an order.'); setTimeout(() => window.location.href = 'login.html', 1200); return; }
+
+  // COD — place order directly, no payment gateway
+  if (selectedGateway === 'cod') {
+    _showProcessingOverlay('Placing Order', 'Confirming your Cash on Delivery order');
+    return;
+  }
 
   const { total } = calcTotal();
   const addr = addresses[selectedAddrIdx];
   const phone = (addr?.phone || '').replace(/[^0-9]/g, '').slice(-10) || '9999999999';
 
   const btn = document.getElementById('btnPayNow');
-  if (btn) { btn.disabled = true; btn.innerHTML = `<svg class="spin" width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M21 12a9 9 0 1 1-6.219-8.56" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg> Opening Gatewayï¿½`; }
+  if (btn) { btn.disabled = true; btn.innerHTML = `<svg class="spin" width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M21 12a9 9 0 1 1-6.219-8.56" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg> Opening Gateway...`; }
 
   if (selectedGateway === 'payu') {
     setTimeout(() => {
-      if (btn) { btn.disabled = false; btn.innerHTML = `<svg width="18" height="18" fill="none" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" fill="rgba(255,255,255,.9)"/></svg> <span id="payNowLabel">Pay Now ï¿½ ?${total.toLocaleString()}</span> <svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`; }
-      showToast('PayU gateway integration ï¿½ configure your PayU merchant key.');
+      if (btn) { btn.disabled = false; btn.innerHTML = `<svg width="18" height="18" fill="none" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" fill="rgba(255,255,255,.9)"/></svg> <span>Pay Now  &#8377;${total.toLocaleString()}</span> <svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`; }
+      showToast('PayU gateway - configure your PayU merchant key.');
     }, 800);
     return;
   }
 
   // Step 1: Create Razorpay order on backend to get order_id
-  // NOTE: send amount in ? (rupees) ï¿½ backend converts to paise
+  // NOTE: send amount in rupees â€” backend converts to paise
   let rzpOrderId = null;
   try {
     const rzpRes = await fetch(window.API_BASE + '/orders/razorpay/create', {
@@ -1494,7 +1711,7 @@ async function initiateRazorpay() {
     _rzpKeyId = rzpData.data.keyId || _rzpKeyId;
   } catch(e) {
     console.error('Razorpay order creation failed:', e.message);
-    if (btn) { btn.disabled = false; btn.innerHTML = `<svg width="18" height="18" fill="none" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" fill="rgba(255,255,255,.9)"/></svg> <span>Pay Now ï¿½ ?${total.toLocaleString()}</span> <svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`; }
+    if (btn) { btn.disabled = false; btn.innerHTML = `<svg width="18" height="18" fill="none" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" fill="rgba(255,255,255,.9)"/></svg> <span>Pay Now  &#8377;${total.toLocaleString()}</span> <svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`; }
     showToast('&#10060; ' + (e.message || 'Could not connect to payment server. Is the backend running?'));
     return;
   }
@@ -1502,10 +1719,10 @@ async function initiateRazorpay() {
   // Step 2: Open Razorpay checkout
   const options = {
     key: _rzpKeyId,
-    amount: total * 100, // paise ï¿½ must match what backend created
+    amount: total * 100, // paise â€” must match what backend created
     currency: 'INR',
     name: RZP_MERCHANT_NAME,
-    description: `Order from NANSEI Organics ï¿½ ${cart.length} item${cart.length > 1 ? 's' : ''}`,
+    description: 'Order from NANSEI Organics - ' + cart.length + ' item' + (cart.length > 1 ? 's' : ''),
     image: RZP_MERCHANT_LOGO || '',
     order_id: rzpOrderId, // REQUIRED for signature verification
     prefill: {
@@ -1525,7 +1742,7 @@ async function initiateRazorpay() {
       ondismiss: function () {
         if (btn) {
           btn.disabled = false;
-          btn.innerHTML = `<svg width="18" height="18" fill="none" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" fill="rgba(255,255,255,.9)"/></svg> <span>Pay Now ï¿½ ?${total.toLocaleString()}</span> <svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+          btn.innerHTML = `<svg width="18" height="18" fill="none" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" fill="rgba(255,255,255,.9)"/></svg> <span>Pay Now  &#8377;${total.toLocaleString()}</span> <svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
         }
         showToast('Payment cancelled. Try again when ready.');
       }
@@ -1539,21 +1756,21 @@ async function initiateRazorpay() {
   try {
     const rzp = new Razorpay(options);
     rzp.on('payment.failed', function (response) {
-      if (btn) { btn.disabled = false; btn.innerHTML = `<svg width="18" height="18" fill="none" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" fill="rgba(255,255,255,.9)"/></svg> <span>Pay Now ï¿½ ?${total.toLocaleString()}</span> <svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`; }
-      showToast('? Payment failed: ' + (response.error?.description || 'Please try again.'));
+      if (btn) { btn.disabled = false; btn.innerHTML = `<svg width="18" height="18" fill="none" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" fill="rgba(255,255,255,.9)"/></svg> <span>Pay Now  &#8377;${total.toLocaleString()}</span> <svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`; }
+      showToast('&#10060; Payment failed: ' + (response.error?.description || 'Please try again.'));
     });
     rzp.open();
   } catch (err) {
-    // Razorpay not loaded or invalid key ï¿½ show processing simulation
+    // Razorpay not loaded or invalid key â€” show processing simulation
     console.warn('Razorpay load error:', err);
-    if (btn) { btn.disabled = false; btn.innerHTML = `<svg width="18" height="18" fill="none" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" fill="rgba(255,255,255,.9)"/></svg> <span>Pay Now ï¿½ ?${total.toLocaleString()}</span> <svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`; }
+    if (btn) { btn.disabled = false; btn.innerHTML = `<svg width="18" height="18" fill="none" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" fill="rgba(255,255,255,.9)"/></svg> <span>Pay Now  &#8377;${total.toLocaleString()}</span> <svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`; }
     // Simulate success for demo
-    _showProcessingOverlay('Processing Paymentï¿½', 'Verifying with Razorpayï¿½');
+    _showProcessingOverlay('Processing Payment', 'Verifying with Razorpay');
   }
 }
 
 async function _onRazorpaySuccess(response) {
-  _showProcessingOverlay('Verifying Paymentï¿½', 'Confirming with Razorpayï¿½');
+  _showProcessingOverlay('Verifying Payment', 'Confirming with Razorpay');
 
   const { sub, disc, gst, total } = calcTotal();
   const addr = addresses[selectedAddrIdx];
@@ -1561,7 +1778,7 @@ async function _onRazorpaySuccess(response) {
   const addrParts = addrLine.split(',\n');
   const line1 = addrParts[0]?.trim() || addrLine;
   const cityPin = (addrParts[1] || '').trim();
-  const cityMatch = cityPin.match(/^(.+?)\s*[ï¿½-]\s*(\d{6})$/);
+  const cityMatch = cityPin.match(/^(.+?)\s*[-]\s*(\d{6})$/);
   const city = cityMatch ? cityMatch[1].trim() : cityPin;
   const pincode = cityMatch ? cityMatch[2] : '000000';
   const phone = (addr?.phone || '').replace(/[^0-9]/g, '').slice(-10) || '9999999999';
@@ -1597,15 +1814,16 @@ async function _onRazorpaySuccess(response) {
   // _showProcessingOverlay already schedules _doPlaceOrder after 2.8s
 }
 
-function _showProcessingOverlay(title = 'Processing Paymentï¿½', sub = 'Please do not press back or refresh') {
-  const ov = document.getElementById('processingOverlay');
-  document.getElementById('procTitle').textContent = title;
+function _showProcessingOverlay(title, sub) {
+  title = title || 'Processing Payment';
+  sub = sub || 'Please do not press back or refresh';
   document.getElementById('procSub').textContent = sub;
   const bar = document.getElementById('procBar');
   bar.style.animation = 'none'; void bar.offsetWidth; bar.style.animation = '';
+  const ov = document.getElementById('processingOverlay');
   ov.classList.add('show');
   document.body.style.overflow = 'hidden';
-  setTimeout(() => { document.getElementById('procTitle').textContent = 'Confirming your orderï¿½'; document.getElementById('procSub').textContent = 'Almost there, hang tight!'; }, 1400);
+  setTimeout(() => { document.getElementById('procTitle').textContent = 'Confirming your order'; document.getElementById('procSub').textContent = 'Almost there, hang tight!'; }, 1400);
   setTimeout(() => { ov.classList.remove('show'); document.body.style.overflow = ''; _doPlaceOrder(); }, 2800);
 }
 
@@ -1623,17 +1841,20 @@ async function _doPlaceOrder() {
   const addrParts = addrLine.split(',\n');
   const line1 = addrParts[0]?.trim() || addrLine;
   const cityPin = (addrParts[1] || '').trim();
-  const cityMatch = cityPin.match(/^(.+?)\s*[ï¿½-]\s*(\d{6})$/);
+  const cityMatch = cityPin.match(/^(.+?)\s*[-]\s*(\d{6})$/);
   const city = cityMatch ? cityMatch[1].trim() : cityPin;
   const pincode = cityMatch ? cityMatch[2] : '000000';
   const phone = (addr?.phone || '').replace(/[^0-9]/g, '').slice(-10) || '9999999999';
 
+  const isCod = selectedGateway === 'cod';
+  const payMethodMap = { razorpay: 'Razorpay', payu: 'PayU', cod: 'COD' };
   const payload = {
     items: cart.map(c => ({ product: c.id, name: c.name, image: c.image, quantity: c.qty, price: c.price })),
     shippingAddress: { fullName: addr?.name || 'Customer', phone, addressLine1: line1, city, state: 'Tamil Nadu', pincode, country: 'India' },
-    paymentMethod: selectedGateway === 'payu' ? 'PayU' : 'Razorpay',
-    isPaid: true, paidAt: new Date().toISOString(),
-    paymentInfo: { id: 'PAY' + Date.now(), status: 'completed', paidAt: new Date().toISOString() },
+    paymentMethod: payMethodMap[selectedGateway] || 'Razorpay',
+    isPaid: !isCod,
+    paidAt: isCod ? undefined : new Date().toISOString(),
+    paymentInfo: isCod ? undefined : { id: 'PAY' + Date.now(), status: 'completed', paidAt: new Date().toISOString() },
     itemsPrice: sub, taxPrice: gst, shippingPrice: deliveryCost, discount: disc, totalPrice: total,
     estimatedDelivery: d.toISOString()
   };
@@ -1662,7 +1883,7 @@ async function _doPlaceOrder() {
 }
 
 function _saveLocalOrder(oid, dstr, sub, disc, gst, total, addr, now, d) {
-  const pm = { razorpay: 'Razorpay', payu: 'PayU Money' };
+  const pm = { razorpay: 'Razorpay', payu: 'PayU Money', cod: 'Cash on Delivery' };
   const newOrder = {
     id: oid, date: new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' }),
     dateObj: new Date().toISOString(), total, subtotal: sub, discount: disc, couponDisc, deliveryCost, codFee: 0,
@@ -1671,7 +1892,7 @@ function _saveLocalOrder(oid, dstr, sub, disc, gst, total, addr, now, d) {
     products: cart.map(c => ({ ...c })),
     timeline: [
       { label: 'Order Placed', date: now, done: true },
-      { label: 'Payment Confirmed', date: now, done: true },
+      { label: isCod ? 'COD Confirmed' : 'Payment Confirmed', date: now, done: true },
       { label: 'Being Packed', date: 'In progress', done: false },
       { label: 'Dispatched', date: 'Exp. ' + new Date(d.getTime() - 172800000).toLocaleDateString('en-IN', { month: 'short', day: 'numeric' }), done: false },
       { label: 'Delivered', date: 'Exp. ' + dstr, done: false },
@@ -1703,6 +1924,58 @@ function handleSuccessClose() { document.getElementById('successOverlay').classL
 function goToOrders() { document.getElementById('successOverlay').classList.remove('show'); resetCheckout(); showPage('orders'); }
 
 // ----------------------------------------------
+//  WHATSAPP ORDER NOTIFICATION
+// ----------------------------------------------
+const SHOP_WHATSAPP = '916382142578';
+
+function sendWhatsAppOrder() {
+  const orderId   = document.getElementById('successOrderId').textContent;
+  const delivDate = document.getElementById('successDelivDate').textContent;
+  const addr      = addresses[selectedAddrIdx];
+  const { total, sub, disc, gst } = calcTotal();
+
+  // Get customer phone from address
+  const customerPhone = (addr?.phone || '').replace(/[^0-9]/g, '').slice(-10);
+  const waNumber = customerPhone ? '91' + customerPhone : '';
+
+  const itemLines = cart.length
+    ? cart.map((c, i) => `  ${i+1}. ${c.name} x${c.qty} — ?${(c.price * c.qty).toLocaleString()}`).join('%0A')
+    : '  (items cleared after order)';
+
+  const msg = [
+    '?? *NANSEI Organics*',
+    '? *Your Order is Confirmed!*',
+    '',
+    `?? *Order ID:* #${orderId}`,
+    `?? *Date:* ${new Date().toLocaleDateString('en-IN', { day:'numeric', month:'long', year:'numeric' })}`,
+    `?? *Expected Delivery:* ${delivDate}`,
+    '',
+    '*?? Items Ordered:*',
+    itemLines,
+    '',
+    `?? *Subtotal:* ?${sub.toLocaleString()}`,
+    disc > 0 ? `??? *Discount:* -?${disc.toLocaleString()}` : '',
+    `?? *GST (5%):* ?${gst.toLocaleString()}`,
+    `? *Total Paid:* ?${total.toLocaleString()}`,
+    '',
+    '*?? Delivery Address:*',
+    addr ? `  ${addr.name}%0A  ${(addr.line || '').replace(/\n/g,'%0A  ')}%0A  ${addr.phone}` : '  Not available',
+    '',
+    '?? Thank you for shopping with NANSEI Organics!',
+    '?? Pure. Organic. Farm-Direct.',
+    '',
+    '?? Need help? Call us: +91 63821 42578',
+  ].filter(Boolean).join('%0A');
+
+  // Open WhatsApp on customer's own number (they save it as their receipt)
+  const waUrl = waNumber
+    ? `https://wa.me/${waNumber}?text=${msg}`
+    : `https://wa.me/?text=${msg}`;
+
+  window.open(waUrl, '_blank');
+}
+
+// ----------------------------------------------
 //  ORDERS PAGE
 // ----------------------------------------------
 function statusColor(s) { return { delivered: 'var(--moss)', shipped: '#1d4ed8', processing: 'var(--amber)', cancelled: 'var(--red)' }[s] || 'var(--ink-3)'; }
@@ -1730,7 +2003,7 @@ function renderOrders() {
           status: statusMap[o.orderStatus] || 'processing',
           trackingNo: o.trackingNumber || 'ORD-TR-' + o._id?.slice(-8),
           payMethod: o.paymentMethod, eta,
-          address: { name: o.shippingAddress?.fullName, tag: 'Home', line: (o.shippingAddress?.addressLine1 || '') + ',\n' + (o.shippingAddress?.city || '') + ' ï¿½ ' + (o.shippingAddress?.pincode || ''), phone: o.shippingAddress?.phone || '' },
+          address: { name: o.shippingAddress?.fullName, tag: 'Home', line: (o.shippingAddress?.addressLine1 || '') + ',\n' + (o.shippingAddress?.city || '') + '  ' + (o.shippingAddress?.pincode || ''), phone: o.shippingAddress?.phone || '' },
           products: (o.items || []).map(i => ({ id: i.product?._id || i.product, name: i.name, image: i.image, price: i.price, qty: i.quantity, oldPrice: null })),
           timeline: [
             { label: 'Order Placed', date: d.toLocaleString('en-IN', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }), done: true },
@@ -1779,7 +2052,7 @@ function renderOrderCard(o, idx) {
       <div><div class="order-meta-label">Date</div><div class="order-meta-val">${o.date}</div></div>
       <div><div class="order-meta-label">Total</div><div class="order-meta-val">&#8377;${o.total.toLocaleString()}</div></div>
       <div><div class="order-meta-label">Order ID</div><div class="order-meta-val" style="font-family:'DM Mono',monospace;font-size:.82rem">#${o.id}</div></div>
-      <div><div class="order-meta-label">Payment</div><div class="order-meta-val">${o.payMethod || 'ï¿½'}</div></div>
+      <div><div class="order-meta-label">Payment</div><div class="order-meta-val">${o.payMethod || ''}</div></div>
       <div style="margin-left:auto"><span class="status-badge ${statusClass(o.status)}"><span style="width:6px;height:6px;border-radius:50%;background:${statusColor(o.status)};display:inline-block"></span>${statusLabel(o.status)}</span></div>
     </div>
     <div style="padding:22px 24px;display:flex;flex-wrap:wrap;gap:24px">
@@ -1791,7 +2064,7 @@ function renderOrderCard(o, idx) {
         <div style="flex:1;min-width:0">
           <h3 style="font-weight:800;font-size:.97rem;color:var(--ink);margin-bottom:4px">${mp.name}</h3>
           ${ex > 0 ? `<p style="font-size:.78rem;color:var(--sage);margin-bottom:6px">& ${ex} more item${ex > 1 ? 's' : ''}</p>` : ''}
-          <p style="font-size:.78rem;color:var(--ink-3)">Qty: ${mp.qty} ï¿½ ?${mp.price.toLocaleString()} each</p>
+          <p style="font-size:.78rem;color:var(--ink-3)">Qty: ${mp.qty} &nbsp;&#8377;${mp.price.toLocaleString()} each</p>
           ${!ic ? `
           <div style="margin-top:14px">
             <div style="display:flex;justify-content:space-between;margin-bottom:8px">${steps.map(s => `<span style="font-size:.65rem;font-weight:600;color:var(--ink-3)">${s}</span>`).join('')}</div>
@@ -1831,21 +2104,53 @@ function copyTracking() {
   const o = getOrders().find(x => x.id === currentTrackId);
   navigator.clipboard.writeText(o.trackingNo).then(() => showToast('&#9989; Copied!')).catch(() => showToast('Tracking: ' + o.trackingNo));
 }
+let _reviewProductIdx = 0;
 function openReview(id) {
-  currentReviewId = id; reviewStars = 0;
+  currentReviewId = id; reviewStars = 0; _reviewProductIdx = 0;
   const o = getOrders().find(x => x.id === id);
-  document.getElementById('reviewImg').src = o.products[0].image;
-  document.getElementById('reviewProductName').textContent = o.products[0].name;
-  document.getElementById('reviewOrderLabel').textContent = 'Order #' + o.id;
+  if (!o) return;
+  _renderReviewProduct(o, 0);
+  // If multiple products, show a selector
+  const sel = document.getElementById('reviewProductSelect');
+  if (o.products.length > 1) {
+    sel.style.display = 'block';
+    sel.innerHTML = o.products.map((p, i) =>
+      `<option value="${i}">${p.name}</option>`
+    ).join('');
+    sel.onchange = () => { _reviewProductIdx = +sel.value; _renderReviewProduct(o, _reviewProductIdx); };
+  } else {
+    sel.style.display = 'none';
+  }
   document.getElementById('reviewText').value = '';
   document.querySelectorAll('.star-btn').forEach(s => s.classList.remove('lit'));
   openModal('reviewModal');
 }
+function _renderReviewProduct(o, idx) {
+  const p = o.products[idx];
+  document.getElementById('reviewImg').src = p.image;
+  document.getElementById('reviewProductName').textContent = p.name;
+  document.getElementById('reviewOrderLabel').textContent = 'Order #' + o.id;
+  reviewStars = 0;
+  document.querySelectorAll('.star-btn').forEach(s => s.classList.remove('lit'));
+  document.getElementById('reviewText').value = '';
+}
 function setStars(n) { reviewStars = n; document.querySelectorAll('.star-btn').forEach(s => s.classList.toggle('lit', parseInt(s.dataset.v) <= n)); }
 function submitReview() {
   if (!reviewStars) { showToast('&#11088; Please select a star rating'); return; }
-  if (!document.getElementById('reviewText').value.trim()) { showToast('&#9999; Please write your review'); return; }
-  closeModal('reviewModal'); showToast('&#9989; Thank you! Review submitted.');
+  const text = document.getElementById('reviewText').value.trim();
+  if (!text) { showToast('&#9999; Please write your review'); return; }
+  const o = getOrders().find(x => x.id === currentReviewId);
+  const p = o?.products[_reviewProductIdx];
+  if (!p) return;
+  // Save review to localStorage so product page can display it
+  const user = (function(){ try { return JSON.parse(localStorage.getItem('nansai_user')||'null'); } catch { return null; } })();
+  const revKey = 'rev_' + p.id + '_' + (user?._id || user?.email || 'u');
+  const dateStr = new Date().toLocaleString('en-IN', { month: 'short', year: 'numeric' });
+  const review = { name: user?.name || 'Customer', rating: reviewStars, text, date: dateStr, verified: true };
+  localStorage.setItem(revKey, JSON.stringify(review));
+  closeModal('reviewModal');
+  showToast('&#9989; Review submitted! Redirecting to product...');
+  setTimeout(() => { window.location.href = 'product.html?id=' + p.id; }, 1200);
 }
 function openCancel(id) {
   currentCancelId = id;
@@ -1863,7 +2168,7 @@ function confirmCancel() {
     o.timeline = [{ label: 'Order Placed', date: o.timeline[0].date, done: true }, { label: 'Cancelled', date: new Date().toLocaleString('en-IN', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }), done: true }];
   }
   saveOrders(orders); closeModal('cancelModal'); renderOrders();
-  showToast('Order cancelled. Refund within 5ï¿½7 business days.');
+  showToast('Order cancelled. Refund within 5-7 business days.');
 }
 function openInvoice(id) {
   const o = getOrders().find(x => x.id === id);
@@ -1876,7 +2181,7 @@ function openInvoice(id) {
   document.getElementById('inv-total').innerHTML = '&#8377;' + o.total.toLocaleString();
   document.getElementById('inv-items').innerHTML = `
     <div class="inv-head-row"><span style="font-size:.7rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-3)">Item</span><span style="font-size:.7rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-3)">Amount</span></div>
-    ${o.products.map(p => `<div class="inv-row"><div style="display:flex;align-items:center;gap:12px"><img src="${p.image}" style="width:36px;height:36px;border-radius:10px;object-fit:cover" onerror="this.src='https://images.unsplash.com/photo-1611843467160-25afb8df1074?w=60'"/><div><p style="font-size:.87rem;font-weight:600">${p.name}</p><p style="font-size:.75rem;color:var(--ink-3)">Qty ï¿½${p.qty}</p></div></div><span style="font-weight:700;font-size:.9rem">&#8377;${(p.price * p.qty).toLocaleString()}</span></div>`).join('')}`;
+    ${o.products.map(p => `<div class="inv-row"><div style="display:flex;align-items:center;gap:12px"><img src="${p.image}" style="width:36px;height:36px;border-radius:10px;object-fit:cover" onerror="this.src='https://images.unsplash.com/photo-1611843467160-25afb8df1074?w=60'"/><div><p style="font-size:.87rem;font-weight:600">${p.name}</p><p style="font-size:.75rem;color:var(--ink-3)">Qty: ${p.qty}</p></div></div><span style="font-weight:700;font-size:.9rem">&#8377;${(p.price*p.qty).toLocaleString()}</span></div>`).join('')}`
   openModal('invoiceModal');
 }
 function openReturn(id) { document.querySelectorAll('input[name="returnReason"]').forEach(r => r.checked = false); openModal('returnModal'); }
@@ -1916,3 +2221,4 @@ function showToast(msg, dur = 2800) {
 </script>
 </body>
 </html>
+

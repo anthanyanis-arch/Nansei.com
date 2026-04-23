@@ -8,7 +8,8 @@ router.get('/', protect, async (req, res) => {
     const user = await User.findById(req.user.id).populate('wishlist');
     res.json({ success: true, data: user.wishlist || [] });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    console.error('[Wishlist] GET / error:', error.message);
+    res.status(500).json({ success: false, message: 'Server error' });
   }
 });
 
@@ -21,7 +22,8 @@ router.post('/add/:productId', protect, async (req, res) => {
     }
     res.json({ success: true, data: user.wishlist });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    console.error('[Wishlist] POST /add error:', error.message);
+    res.status(500).json({ success: false, message: 'Server error' });
   }
 });
 
@@ -32,7 +34,8 @@ router.delete('/remove/:productId', protect, async (req, res) => {
     await user.save();
     res.json({ success: true, data: user.wishlist });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    console.error('[Wishlist] DELETE /remove error:', error.message);
+    res.status(500).json({ success: false, message: 'Server error' });
   }
 });
 
