@@ -53,6 +53,12 @@ button,input{font-family:inherit;border:none;outline:none;cursor:pointer;}
 .nav-logo{flex-shrink:0;text-decoration:none;display:flex;align-items:center;}
 .nav-logo img{height:64px;width:auto;object-fit:contain;}
 .nav-links{display:flex;align-items:center;list-style:none;gap:0;flex-shrink:0;}
+@media(max-width:768px){
+  .site-nav .nav-inner{justify-content:center;padding:0 1rem;}
+  .site-nav .nav-links,.site-nav .nav-actions{display:none!important;}
+  .site-nav .nav-logo{margin:0 auto;}
+  .mob-ham{display:none!important;}
+}
 .nav-links>li{display:flex;align-items:center;}
 .nav-link,.nav-trigger{display:inline-flex;align-items:center;gap:4px;padding:8px 14px;font-size:.79rem;font-weight:600;letter-spacing:.02em;color:var(--forest-deep);text-decoration:none;cursor:pointer;background:none;border:none;font-family:'Inter',sans-serif;white-space:nowrap;transition:color .2s;position:relative;border-radius:6px;}
 .nav-link:hover,.nav-trigger:hover{color:var(--forest-leaf);background:rgba(74,140,92,.06);}
