@@ -143,12 +143,15 @@
 
 
 <!-- ======================== ADMIN SHELL ======================== -->
-<div id="admin-shell" style="display:none;">
+<div id="admin-shell" style="display:none;min-height:100vh;">
   <!-- SIDEBAR -->
   <div id="sidebar">
     <!-- Logo -->
-    <div style="padding:20px 16px 12px;display:flex;align-items:center;gap:10px;border-bottom:1px solid #1E293B;margin-bottom:8px;">
-      <div style="display:flex;flex-direction:column;">
+    <div style="padding:16px 16px 12px;display:flex;align-items:center;gap:10px;border-bottom:1px solid #1E293B;margin-bottom:8px;">
+      <img src="nansei_org_logo.svg" alt="Nansai Organics"
+           style="height:48px;width:auto;object-fit:contain;filter:brightness(0) invert(1);flex-shrink:0;"
+           onerror="this.style.display='none';document.getElementById('logo-fallback').style.display='flex'"/>
+      <div id="logo-fallback" style="display:none;flex-direction:column;">
         <span style="font-family:'Georgia',serif;font-size:18px;font-weight:700;color:#fff;letter-spacing:.04em;line-height:1;">Nan<span style="color:var(--c-gold);">sai</span></span>
         <span style="font-size:.5rem;letter-spacing:.16em;text-transform:uppercase;color:var(--c-sidebar-text);margin-top:2px;">Farm Dashboard</span>
       </div>
@@ -430,6 +433,8 @@
           </div>
         </div>
       </div>
+
+    </div><!-- /pages wrapper -->
   </div><!-- /main-content -->
 </div><!-- /admin-shell -->
 
@@ -1848,65 +1853,44 @@ document.addEventListener('keydown', e => {
 // AUTO LOGIN CHECK — verify token with backend
 // ============================================================
 window.onload = async () => {
-  const dbg = (msg) => {
-    let d = document.getElementById('_dbg');
-    if (!d) {
-      d = document.createElement('div');
-      d.id = '_dbg';
-      d.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#1a3a2a;color:#fff;font-size:13px;padding:10px 16px;z-index:99999;font-family:monospace;line-height:1.8;';
-      document.body.appendChild(d);
-    }
-    d.innerHTML += msg + '<br>';
-  };
-
   const token = localStorage.getItem('admin_token') || localStorage.getItem('nansai_token');
-  dbg('Token: ' + (token ? token.substring(0,30)+'...' : 'NONE'));
 
   if (!token) {
-    dbg('No token — redirecting to login in 3s...');
-    setTimeout(() => window.location.href = 'login.html', 3000);
+    window.location.href = 'login.html';
     return;
   }
 
   try {
     const apiBase = window.API_BASE || 'http://localhost:5000/api';
-    dbg('API: ' + apiBase);
     const res = await fetch(apiBase + '/auth/me', {
       headers: { Authorization: 'Bearer ' + token }
     });
-    dbg('Status: ' + res.status);
     const data = await res.json();
-    dbg('Role: ' + (data.data?.role || data.user?.role || 'unknown'));
     const user = data.data || data.user;
+
     if (res.ok && data.success && user?.role === 'admin') {
+      // Save both token keys
       localStorage.setItem('admin_token', token);
       localStorage.setItem('admin_user', JSON.stringify({ name: user.name, email: user.email }));
-      dbg('✅ Admin verified — loading panel...');
-      setTimeout(() => {
-        document.getElementById('_dbg').remove();
-        document.getElementById('admin-shell').style.display = 'flex';
-        initApp();
-      }, 1000);
+      document.getElementById('admin-shell').style.display = 'block';
+      initApp();
     } else {
-      dbg('❌ Not admin. Role=' + user?.role + ' — redirecting in 3s...');
-      setTimeout(() => {
-        localStorage.clear();
-        window.location.href = 'login.html';
-      }, 3000);
+      // Not admin — clear and redirect
+      localStorage.removeItem('admin_token');
+      localStorage.removeItem('nansai_token');
+      localStorage.removeItem('nansai_user');
+      localStorage.removeItem('admin_user');
+      alert('Access denied. Admin only.');
+      window.location.href = 'login.html';
     }
   } catch(e) {
-    dbg('❌ Error: ' + e.message);
+    // API unreachable — try cached session
     const stored = localStorage.getItem('admin_user');
     if (stored) {
-      dbg('Using cached session...');
-      setTimeout(() => {
-        document.getElementById('_dbg').remove();
-        document.getElementById('admin-shell').style.display = 'flex';
-        initApp();
-      }, 1000);
+      document.getElementById('admin-shell').style.display = 'block';
+      initApp();
     } else {
-      dbg('No cache — redirecting in 3s...');
-      setTimeout(() => window.location.href = 'login.html', 3000);
+      window.location.href = 'login.html';
     }
   }
 };

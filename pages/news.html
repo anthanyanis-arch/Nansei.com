@@ -40,58 +40,25 @@ tailwind.config = {
 html { scroll-behavior: smooth; }
 body { font-family: 'Inter', sans-serif; background: var(--cream); color: var(--text-dk); overflow-x: hidden; }
 
-/* ═══════════════ NAVBAR (copied from main) ═══════════════ */
-.site-nav {
-  position: sticky; top: 0; z-index: 1000;
-  background: #fff;
-  border-bottom: 1px solid rgba(26,58,42,.12);
-  height: var(--nav-h);
-}
-.nav-inner {
-  max-width: 1400px; margin: 0 auto;
-  display: flex; align-items: center;
-  height: 100%; padding: 0 1.75rem; gap: 1.25rem;
-}
-.nav-logo { flex-shrink:0; text-decoration:none; display:flex; align-items:center; }
-.nav-logo img { height:64px; width:auto; object-fit:contain; }
-.nav-links { display:flex; align-items:stretch; height:100%; list-style:none; gap:0; }
-.nav-links > li { position:relative; height:100%; display:flex; align-items:center; }
-.nav-link {
-  display:flex; align-items:center; height:100%; padding:0 .85rem;
-  font-size:.79rem; font-weight:600; letter-spacing:.02em;
-  color:var(--forest-deep); text-decoration:none;
-  white-space:nowrap; transition:color .2s; position:relative;
-}
-.nav-link:hover { color:var(--forest-leaf); }
-.nav-link::after {
-  content:''; position:absolute; bottom:0; left:50%; right:50%;
-  height:2px; background:var(--gold-dk);
-  transition:left .24s ease, right .24s ease;
-}
-.nav-link:hover::after { left:.7rem; right:.7rem; }
-.nav-link.active { color:var(--forest-leaf); }
-.nav-link.active::after { left:.7rem; right:.7rem; }
-.nav-actions { display:flex; align-items:center; gap:.7rem; margin-left:auto; flex-shrink:0; }
-.nav-icon-btn {
-  position:relative; display:flex; align-items:center; justify-content:center;
-  width:36px; height:36px; border-radius:50%; border:none; cursor:pointer;
-  background:none; color:var(--forest-deep); text-decoration:none;
-  transition:color .2s, background .2s;
-}
-.nav-icon-btn svg { width:19px; height:19px; }
-.nav-icon-btn:hover { color:var(--forest-leaf); background:rgba(74,140,92,.08); }
-.nav-badge {
-  position:absolute; top:-2px; right:-2px;
-  background:#ef4444; color:#fff; font-size:.56rem; font-weight:800;
-  min-width:15px; height:15px; padding:0 3px; border-radius:30px;
-  display:flex; align-items:center; justify-content:center;
-  border:2px solid #fff;
-}
-.mob-ham {
-  display:none; background:none; border:none; cursor:pointer;
-  flex-direction:column; gap:5px; padding:3px; flex-shrink:0;
-}
-.mob-ham span { display:block; width:22px; height:2px; background:var(--forest-deep); border-radius:2px; transition:all .3s; }
+/* ═══════════════ NAVBAR ═══════════════ */
+.site-nav{position:sticky;top:0;z-index:1000;background:#fff;border-bottom:1px solid rgba(26,58,42,.12);height:var(--nav-h);}
+.nav-inner{max-width:1400px;margin:0 auto;display:flex;align-items:center;height:100%;padding:0 1.75rem;gap:1.25rem;}
+.nav-logo{flex-shrink:0;text-decoration:none;display:flex;align-items:center;}
+.nav-logo img{height:64px;width:auto;object-fit:contain;}
+.nav-links{display:flex;align-items:center;list-style:none;gap:0;flex-shrink:0;}
+.nav-links>li{display:flex;align-items:center;}
+.nav-link,.nav-trigger{display:inline-flex;align-items:center;gap:4px;padding:8px 14px;font-size:.79rem;font-weight:600;letter-spacing:.02em;color:var(--forest-deep);text-decoration:none;cursor:pointer;background:none;border:none;font-family:'Inter',sans-serif;white-space:nowrap;transition:color .2s;position:relative;border-radius:6px;}
+.nav-link:hover,.nav-trigger:hover{color:var(--forest-leaf);background:rgba(74,140,92,.06);}
+.nav-link.active{color:var(--forest-leaf);}
+.nav-link::after,.nav-trigger::after{content:'';position:absolute;bottom:2px;left:14px;right:14px;height:2px;background:var(--gold-dk);transform:scaleX(0);transition:transform .24s ease;pointer-events:none;}
+.nav-link:hover::after,.nav-trigger:hover::after,.nav-link.active::after{transform:scaleX(1);}
+.nav-actions{display:flex;align-items:center;gap:.7rem;margin-left:auto;flex-shrink:0;}
+.nav-icon-btn{position:relative;display:flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:50%;border:none;cursor:pointer;background:none;color:var(--forest-deep);text-decoration:none;transition:color .2s,background .2s;}
+.nav-icon-btn svg{width:19px;height:19px;}
+.nav-icon-btn:hover{color:var(--forest-leaf);background:rgba(74,140,92,.08);}
+.nav-badge{position:absolute;top:-2px;right:-2px;background:#ef4444;color:#fff;font-size:.56rem;font-weight:800;min-width:15px;height:15px;padding:0 3px;border-radius:30px;display:flex;align-items:center;justify-content:center;border:2px solid #fff;}
+.mob-ham{display:none;background:none;border:none;cursor:pointer;flex-direction:column;gap:5px;padding:3px;flex-shrink:0;}
+.mob-ham span{display:block;width:22px;height:2px;background:var(--forest-deep);border-radius:2px;transition:all .3s;}
 
 /* ═══════════════ HERO MASTHEAD ═══════════════ */
 .news-masthead {
@@ -613,7 +580,7 @@ body { font-family: 'Inter', sans-serif; background: var(--cream); color: var(--
 /* ═══════════════ MOBILE ═══════════════ */
 @media(max-width:768px) {
   :root { --nav-h: 58px; }
-  .nav-links { display: none; }
+  .nav-links,.nav-orders-btn,.nav-divider { display: none !important; }
   .mob-ham { display: flex; }
   .nav-inner { padding: 0 1rem; }
   .nav-logo img { height: 48px !important; }
@@ -664,9 +631,9 @@ body { font-family: 'Inter', sans-serif; background: var(--cream); color: var(--
       <img src="nansei_org_logo.svg" alt="Nansai Organics" onerror="this.onerror=null;this.style.display='none';this.parentElement.innerHTML='<span style=\'font-family:Cormorant Garamond,serif;font-size:1.55rem;font-weight:700;color:#0f2218;\'>Nan<span style=\'color:#b8922a;\'>sai</span></span>'"/>
     </a>
     <ul class="nav-links">
-      <li><a class="nav-link" href="index.html">Shop</a></li>
+      <li><a class="nav-link" href="index.html#products">Shop</a></li>
       <li><a class="nav-link" href="index.html#why-section">Our Promise</a></li>
-      <li><a class="nav-link" href="index.html#blog-section">Blogs</a></li>
+      <li><a class="nav-link" href="blog.html">Blogs</a></li>
       <li><a class="nav-link active" href="news.html">News</a></li>
       <li><a class="nav-link" href="index.html#site-footer">About</a></li>
     </ul>

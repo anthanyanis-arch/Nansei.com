@@ -2,11 +2,10 @@ const mongoose = require('mongoose');
 
 const orderItemSchema = new mongoose.Schema({
   product: {
-    type: mongoose.Schema.Types.ObjectId,
+    type: mongoose.Schema.Types.Mixed, // accepts ObjectId OR static numeric id
     ref: 'Product',
-    required: true
   },
-  name: String,
+  name: { type: String, required: true },
   image: String,
   quantity: {
     type: Number,

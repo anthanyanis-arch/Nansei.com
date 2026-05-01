@@ -349,12 +349,18 @@ function showSuccess(user) {
   requestAnimationFrame(function(){
     document.getElementById('success-bar-fill').style.width = '100%';
   });
-  // Re-fetch /auth/me to get the definitive role from DB
+  // Save token with BOTH keys so admin panel finds it
   const token = localStorage.getItem('nansai_token');
+  if (token) localStorage.setItem('admin_token', token);
+  if (user) localStorage.setItem('admin_user', JSON.stringify({ name: user.name, email: user.email }));
+
+  // Re-fetch /auth/me to get the definitive role from DB
   fetch((window.API_BASE || 'http://localhost:5000/api') + '/auth/me', {
     headers: { Authorization: 'Bearer ' + token }
   }).then(r => r.json()).then(data => {
     const u = data.data || data.user || user;
+    localStorage.setItem('nansai_user', JSON.stringify(u));
+    localStorage.setItem('admin_user', JSON.stringify({ name: u.name, email: u.email }));
     const dest = u.role === 'admin' ? 'admin-panel.html' : 'index.html';
     setTimeout(function(){ window.location.href = dest; }, 1600);
   }).catch(function() {

@@ -125,23 +125,26 @@ body { font-family:'Inter',sans-serif; background:#f7f3ec; color:var(--text-dk);
 .nav-search-btn:hover { background:var(--gold-lt); }
 .nav-search-btn svg { width:13px; height:13px; }
 .nav-links {
-  display:flex; align-items:stretch; height:100%; list-style:none; gap:0;
+  display:flex; align-items:center; list-style:none; gap:0; flex-shrink:0;
 }
-.nav-links > li { position:relative; height:100%; display:flex; align-items:center; }
+.nav-links > li { display:flex; align-items:center; }
 .nav-link, .nav-trigger {
-  display:flex; align-items:center; gap:4px; height:100%; padding:0 .85rem;
+  display:inline-flex; align-items:center; gap:4px;
+  padding:8px 14px;
   font-size:.79rem; font-weight:600; letter-spacing:.02em;
   color:var(--forest-deep); text-decoration:none; cursor:pointer;
   background:none; border:none; font-family:'Inter',sans-serif;
   white-space:nowrap; transition:color .2s; position:relative;
+  border-radius:6px;
 }
-.nav-link:hover, .nav-trigger:hover { color:var(--forest-leaf); }
+.nav-link:hover, .nav-trigger:hover { color:var(--forest-leaf); background:rgba(74,140,92,.06); }
 .nav-link::after, .nav-trigger::after {
-  content:''; position:absolute; bottom:0; left:50%; right:50%;
-  height:2px; background:var(--gold-dk);
-  transition:left .24s ease, right .24s ease;
+  content:''; position:absolute; bottom:2px; left:14px; right:14px;
+  height:2px; background:var(--gold-dk); transform:scaleX(0);
+  transition:transform .24s ease;
+  pointer-events:none;
 }
-.nav-link:hover::after, .nav-trigger:hover::after { left:.7rem; right:.7rem; }
+.nav-link:hover::after, .nav-trigger:hover::after { transform:scaleX(1); }
 .nav-chev { width:11px; height:11px; color:var(--gold-dk); flex-shrink:0; transition:transform .3s; }
 .nav-trigger.active .nav-chev { transform:rotate(180deg); }
 .nav-actions { display:flex; align-items:center; gap:.7rem; margin-left:auto; flex-shrink:0; }
@@ -695,15 +698,18 @@ video.slide-bg { transform:none!important; transition:none!important; }
   cursor:grab;
   user-select:none;
   -webkit-tap-highlight-color: transparent;
-  will-change: transform;
+  will-change: auto;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
 }
 #reel-widget:active { cursor:grabbing; }
 .reel-track { border-radius:14px; overflow:hidden; }
-@media(max-width:768px){ #reel-widget{ width:175px; bottom:20px; right:14px; } }
+@media(max-width:768px){ #reel-widget{ width:175px; bottom:80px; right:14px; position:fixed !important; left:auto !important; top:auto !important; transform:none !important; will-change:auto !important; cursor:default !important; } }
 @media(max-width:480px){ #reel-widget{ width:155px; bottom:16px; right:12px; } }
-#reel-widget.minimized{ transform:translateX(calc(100% + 20px)); }
+#reel-widget.hidden-offscreen{ transform:translateX(calc(100% + 20px)) !important; opacity:0 !important; pointer-events:none !important; }
+#reel-widget.minimized{ transform:translateX(calc(100% + 20px)) !important; }
 .reel-track{ position:relative; width:100%; aspect-ratio:9/16; overflow:hidden; }
 .reel-slide{
   position:absolute; inset:0;
@@ -943,17 +949,10 @@ video.slide-bg { transform:none!important; transition:none!important; }
      NAVBAR
 ═══════════════════════════════════════ -->
 <header class="site-nav">
-  <div class="nav-inner bg-white">
+  <div class="nav-inner">
     <a class="nav-logo" href="index.html" style="display:flex;align-items:center;">
       <img src="nansei_org_logo.svg" alt="Nansai Organics" style="height:64px;width:auto;object-fit:contain;"/>
     </a>
-    <div class="nav-search">
-      <input id="searchInput" type="text" onkeydown="if(event.key==='Enter')doSearch()"/>
-      <span id="searchPlaceholder" class="absolute left-4 top-1/2 -translate-y-1/2 text-[0.79rem] text-black pointer-events-none font-['Inter'] transition-opacity duration-200"></span>
-      <button class="nav-search-btn" onclick="doSearch()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-      </button>
-    </div>
     <ul class="nav-links">
       <li><a class="nav-link" href="#products">Shop</a></li>
       <li><a class="nav-link" href="#why-section">Our Promise</a></li>
@@ -961,6 +960,13 @@ video.slide-bg { transform:none!important; transition:none!important; }
       <li><a class="nav-link" href="news.html">News</a></li>
       <li><a class="nav-link" href="#site-footer">About</a></li>
     </ul>
+    <div class="nav-search">
+      <input id="searchInput" type="text" onkeydown="if(event.key==='Enter')doSearch()"/>
+      <span id="searchPlaceholder" style="position:absolute;left:1rem;top:50%;transform:translateY(-50%);font-size:0.79rem;color:#9ca3af;pointer-events:none;font-family:'Inter',sans-serif;transition:opacity .2s;"></span>
+      <button class="nav-search-btn" onclick="doSearch()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      </button>
+    </div>
     <div class="nav-actions">
       <a href="checkoutmyorderpage.html" class="nav-orders-btn">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
@@ -1608,7 +1614,7 @@ const products=[
   {id:16,name:"Country Fig Powder",                category:"other",    price:200,oldPrice:250,rating:4.7,reviews:61, badge:"new", section:"new",       image:"https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=500&auto=format&fit=crop"},
 ];
 
-let wishlist=JSON.parse(localStorage.getItem('wishlist')||'[]');
+let wishlist=JSON.parse(localStorage.getItem('wishlist')||'[]').map(x=>String(x));
 let cart=JSON.parse(localStorage.getItem('cart')||'[]');
 
 function stars(r){return[1,2,3,4,5].map(i=>i<=Math.floor(r)?'★':i-r<1?'★':'☆').join('');}
@@ -1634,17 +1640,17 @@ function syncCounters(){
 const floatClasses=['prod-float-1','prod-float-2','prod-float-3','prod-float-4','prod-float-5','prod-float-6'];
 function prodCardHTML(p,i){
   const d=disc(p);
-  const isW=wishlist.includes(p.id);
+  const isW=wishlist.includes(String(p.id));
   const badgeEl=p.badge==='hot'
     ?`<span style="position:absolute;top:10px;left:10px;background:#f97316;color:#fff;font-size:.58rem;font-weight:800;padding:2px 9px;border-radius:20px;z-index:10;">🔥 HOT</span>`
     :p.badge==='new'
     ?`<span style="position:absolute;top:10px;left:10px;background:#166534;color:#fff;font-size:.58rem;font-weight:800;padding:2px 9px;border-radius:20px;z-index:10;">✨ NEW</span>`
     :`<span style="position:absolute;top:10px;left:10px;background:#ef4444;color:#fff;font-size:.58rem;font-weight:800;padding:2px 9px;border-radius:20px;z-index:10;">${d}% OFF</span>`;
   const fc=floatClasses[i%floatClasses.length];
-  return `<div class="prod-card bg-white rounded-xl shadow-sm border border-gray-100 flex flex-col cursor-pointer ${fc}" style="flex-shrink:0;width:260px;overflow:visible;position:relative;z-index:1;" onclick="if(!event.defaultPrevented)window.location.href='product.html?id=${p.id}'">
+  return `<div class="prod-card bg-white rounded-xl shadow-sm border border-gray-100 flex flex-col cursor-pointer ${fc}" style="flex-shrink:0;width:260px;overflow:visible;position:relative;z-index:1;" onclick="if(!event.defaultPrevented&&!event.target.closest('button'))window.location.href='product.html?id=${p.id}'">
     <div class="prod-img-wrap" style="border-radius:12px 12px 0 0;">
       ${badgeEl}
-      <button onclick="toggleWish(${p.id},this);event.preventDefault();event.stopPropagation()" ontouchend="toggleWish(${p.id},this);event.preventDefault();event.stopPropagation()" style="position:absolute;top:8px;right:8px;width:36px;height:36px;background:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,.15);border:none;cursor:pointer;z-index:10;font-size:1rem;transition:transform .2s;-webkit-tap-highlight-color:transparent;touch-action:manipulation;" onmouseover="this.style.transform='scale(1.15)'" onmouseout="this.style.transform='scale(1)'">${isW?'♥':'♡'}</button>
+      <button onclick="toggleWish(${p.id},this);event.preventDefault();event.stopPropagation()" style="position:absolute;top:8px;right:8px;width:44px;height:44px;background:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,.15);border:none;cursor:pointer;z-index:10;font-size:1.1rem;transition:transform .2s;-webkit-tap-highlight-color:transparent;touch-action:manipulation;" onmouseover="this.style.transform='scale(1.15)'" onmouseout="this.style.transform='scale(1)'">${isW?'♥':'♡'}</button>
       <img src="${p.image}" alt="${p.name}" loading="lazy" class="prod-img"/>
     </div>
     <div class="prod-info" style="overflow:visible;">
@@ -1861,23 +1867,25 @@ function addDirectToCart(id, btn) {
   }
 }
 function toggleWish(id,btn){
-  // prevent double-fire from ontouchend + onclick on mobile
   const now = Date.now();
-  if (btn._lastToggle && now - btn._lastToggle < 500) return;
+  if (btn._lastToggle && now - btn._lastToggle < 800) return;
   btn._lastToggle = now;
-  const idx=wishlist.indexOf(id);
+  // normalise: always compare as strings so numeric and string IDs match
+  const sid = String(id);
+  const idx = wishlist.findIndex(x => String(x) === sid);
   if(idx>-1){
     wishlist.splice(idx,1);
     if(btn){btn.style.color='';btn.textContent='♡';}
     showToast('💔 Removed from wishlist');
-    if(typeof WishlistAPI!=='undefined'&&localStorage.getItem('nansai_token'))WishlistAPI.remove(String(id)).catch(()=>{});
+    if(typeof WishlistAPI!=='undefined'&&localStorage.getItem('nansai_token'))WishlistAPI.remove(sid).catch(()=>{});
   } else {
-    wishlist.push(id);
+    wishlist.push(sid);
     if(btn){btn.style.color='#ef4444';btn.textContent='♥';}
     showToast('💖 Added to wishlist!');
-    if(typeof WishlistAPI!=='undefined'&&localStorage.getItem('nansai_token'))WishlistAPI.add(String(id)).catch(()=>{});
+    if(typeof WishlistAPI!=='undefined'&&localStorage.getItem('nansai_token'))WishlistAPI.add(sid).catch(()=>{});
   }
-  localStorage.setItem('wishlist',JSON.stringify(wishlist));syncCounters();
+  localStorage.setItem('wishlist',JSON.stringify(wishlist));
+  syncCounters();
 }
 
 /* ════ CATEGORY FILTER ════ */
@@ -2040,8 +2048,30 @@ setTimeout(initScrollBtns, 100);
   const mob = document.getElementById('mobSearchInput');
   if(inp) inp.value = q;
   if(mob) mob.value = q;
-  doSearch();
-  setTimeout(()=>document.getElementById('products')?.scrollIntoView({behavior:'smooth'}), 300);
+
+  // Find best matching product
+  const ql = q.toLowerCase();
+  const match = products.find(p => p.name.toLowerCase() === ql) ||
+                products.find(p => p.name.toLowerCase().includes(ql));
+
+  if(match){
+    // Render all sections so the card exists in DOM
+    renderSections();
+    // Wait for DOM then scroll + highlight
+    setTimeout(()=>{
+      const card = document.getElementById('cardbtn-area-' + match.id)?.closest('.prod-card');
+      if(card){
+        card.scrollIntoView({behavior:'smooth', block:'center'});
+        card.style.transition = 'box-shadow .3s';
+        card.style.boxShadow = '0 0 0 3px #c9a84c, 0 20px 52px rgba(10,30,15,.22)';
+        setTimeout(()=>{ card.style.boxShadow = ''; }, 2200);
+      }
+    }, 500);
+  } else {
+    // No match — show filtered results
+    doSearch();
+    setTimeout(()=>document.getElementById('products')?.scrollIntoView({behavior:'smooth'}), 300);
+  }
 })();
 
 /* ════ BLOG TILT ════ */
@@ -2209,37 +2239,22 @@ function attachCarousel3D(){
   const target = document.getElementById('filterTabs');
   if(!widget || !target) return;
 
-  // start hidden
-  widget.style.opacity = '0';
-  widget.style.pointerEvents = 'none';
-  widget.style.transform = 'translateX(calc(100% + 20px))';
+  // start hidden via class
+  widget.classList.add('hidden-offscreen');
 
   let visible = false;
-  let minimized = false;
 
   const observer = new IntersectionObserver(entries => {
     entries.forEach(entry => {
-      if (entry.isIntersecting && !visible && !minimized) {
+      if (entry.isIntersecting && !visible && !widget.classList.contains('minimized')) {
         visible = true;
         widget.style.transition = 'opacity .5s ease, transform .5s cubic-bezier(.4,0,.2,1)';
-        widget.style.opacity = '1';
-        widget.style.pointerEvents = 'all';
-        widget.style.transform = '';
+        widget.classList.remove('hidden-offscreen');
       }
     });
   }, { threshold: 0.1 });
 
   observer.observe(target);
-
-  // patch minimize to also track state
-  const origMin = document.getElementById('btn-reel-minimize');
-  if(origMin) {
-    origMin.addEventListener('click', () => { minimized = true; }, { capture: true });
-  }
-  const origTab = document.getElementById('reel-tab');
-  if(origTab) {
-    origTab.addEventListener('click', () => { minimized = false; }, { capture: true });
-  }
 })();
 
 /* ════════════════════════════════════════

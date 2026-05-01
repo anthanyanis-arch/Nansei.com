@@ -343,45 +343,7 @@ body { font-family: 'Inter', sans-serif; background: var(--cream); color: var(--
 <!-- TOAST -->
 <div id="toast"></div>
 
-<!-- ═══ NAVBAR ═══ -->
-<header class="site-nav">
-  <div class="nav-inner">
-    <a href="index.html" style="text-decoration:none;flex-shrink:0;display:flex;align-items:center;">
-      <img src="nansei_org_logo.svg" alt="Nansai Organics" style="height:52px;width:auto;object-fit:contain;"/>
-    </a>
-    <!-- Search bar -->
-    <div style="position:relative;flex:1;max-width:340px;">
-      <input id="wishSearchInput" type="text" placeholder="Search your wishlist…" oninput="searchWishlist(this.value)" style="width:100%;padding:.5rem 2.6rem .5rem 1rem;background:#f0faf2;border:1px solid rgba(26,58,42,.15);border-radius:8px;font-size:.79rem;color:var(--forest-deep);font-family:'Inter',sans-serif;outline:none;transition:background .2s,border-color .2s;" onfocus="this.style.background='#fff';this.style.borderColor='var(--forest-leaf)'" onblur="this.style.background='#f0faf2';this.style.borderColor='rgba(26,58,42,.15)'"/>
-      <button onclick="window.location.href='index.html?search='+encodeURIComponent(document.getElementById('wishSearchInput').value)" style="position:absolute;right:.3rem;top:50%;transform:translateY(-50%);width:1.9rem;height:1.9rem;background:var(--gold-dk);border:none;border-radius:6px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--forest-deep);transition:background .2s;" onmouseover="this.style.background='var(--gold-lt)'" onmouseout="this.style.background='var(--gold-dk)'">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-      </button>
-    </div>
-    <div style="display:flex;align-items:center;gap:.6rem;">
-      <button onclick="openCart()" class="nav-icon-btn" title="Cart" style="position:relative;">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 002 1.58h9.78a2 2 0 001.95-1.57l1.65-7.43H5.12"/></svg>
-        <span class="nav-badge" id="cartCount">0</span>
-      </button>
-      <a href="wishlist.html" class="nav-icon-btn" title="Wishlist" style="position:relative;color:#ef4444;">
-        <svg viewBox="0 0 24 24" fill="#ef4444" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6c-1.5-1.6-4-1.6-5.6 0L12 7.8 8.8 4.6c-1.5-1.6-4-1.6-5.6 0-1.6 1.7-1.6 4.3 0 6l8.8 9 8.8-9c1.6-1.7 1.6-4.3 0-6z"/></svg>
-        <span class="nav-badge" id="wishlistCount" style="background:#ef4444;">0</span>
-      </a>
-      <a href="login.html" class="nav-icon-btn" title="Account" id="navAccountBtn">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-      </a>
-    </div>
-  </div>
-</header>
-
-<!-- Mobile search row -->
-<div class="wish-mob-search" style="display:none;background:#FEFCE9;border-bottom:1px solid rgba(26,58,42,.08);padding:.48rem .85rem .6rem;">
-  <div style="position:relative;">
-    <input id="wishSearchMob" type="text" placeholder="Search your wishlist…" oninput="searchWishlist(this.value)" style="width:100%;padding:.55rem 2.6rem .55rem 1rem;background:#fff;border:1px solid rgba(26,58,42,.15);border-radius:8px;font-size:.82rem;color:var(--forest-deep);font-family:'Inter',sans-serif;outline:none;"/>
-    <button style="position:absolute;right:.32rem;top:50%;transform:translateY(-50%);width:1.9rem;height:1.9rem;background:var(--gold-dk);border:none;border-radius:6px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--forest-deep);">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-    </button>
-  </div>
-</div>
-<div style="background:#fff;border-bottom:1px solid rgba(26,58,42,.07);padding:.9rem 1.5rem;position:sticky;top:var(--nav-h);z-index:100;box-shadow:0 2px 12px rgba(10,30,15,.04);">
+<div style="background:#fff;border-bottom:1px solid rgba(26,58,42,.07);padding:.9rem 1.5rem;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(10,30,15,.04);">
   <div style="max-width:1400px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;">
     <!-- Filter Pills -->
     <div style="display:flex;align-items:center;gap:.45rem;overflow-x:auto;scrollbar-width:none;padding-bottom:2px;" id="filterRow">
@@ -539,7 +501,7 @@ function stars(r){ return[1,2,3,4,5].map(i=>i<=Math.floor(r)?'★':i-r<1?'✦':'
 /* ══════════════════════════════════
    STATE
 ══════════════════════════════════ */
-let wishlist = JSON.parse(localStorage.getItem('wishlist')||'[]');
+let wishlist = JSON.parse(localStorage.getItem('wishlist')||'[]').map(x=>String(x));
 let cart     = JSON.parse(localStorage.getItem('cart')||'[]');
 let cardQtyState = {};
 let activeFilter = 'all';
@@ -569,7 +531,7 @@ function showToast(msg){
    STATS
 ══════════════════════════════════ */
 function updateStats(){
-  const items = wishlist.map(id=>products.find(p=>p.id===id)).filter(Boolean);
+  const items = wishlist.map(id=>products.find(p=>String(p.id)===String(id))).filter(Boolean);
   const total = items.reduce((s,p)=>s+p.price,0);
   const savings = items.reduce((s,p)=>s+(p.oldPrice-p.price),0);
 
@@ -595,7 +557,7 @@ function updateStats(){
    REMOVE / CLEAR
 ══════════════════════════════════ */
 function removeFromWishlist(id){
-  const idx = wishlist.indexOf(id);
+  const idx = wishlist.findIndex(x=>String(x)===String(id));
   if(idx>-1) wishlist.splice(idx,1);
   saveWishlist();
   if(typeof WishlistAPI!=='undefined'&&localStorage.getItem('nansai_token'))WishlistAPI.remove(String(id)).catch(()=>{});
@@ -699,20 +661,19 @@ function setFilter(el, cat){
   renderWishlistCards(getFilteredWish());
 }
 function getFilteredWish(){
-  const all = wishlist.map(id=>products.find(p=>p.id===id)).filter(Boolean);
+  const all = wishlist.map(id=>products.find(p=>String(p.id)===String(id))).filter(Boolean);
   if(activeFilter==='all') return all;
   return all.filter(p=>p.category===activeFilter);
 }
 
 function searchWishlist(q){
   const query = q.trim().toLowerCase();
-  // sync both inputs
   const d = document.getElementById('wishSearchInput');
   const m = document.getElementById('wishSearchMob');
   if(d && d.value !== q) d.value = q;
   if(m && m.value !== q) m.value = q;
   if(!query){ renderWishlistCards(getFilteredWish()); return; }
-  const all = wishlist.map(id=>products.find(p=>p.id===id)).filter(Boolean);
+  const all = wishlist.map(id=>products.find(p=>String(p.id)===String(id))).filter(Boolean);
   const results = all.filter(p => p.name.toLowerCase().includes(query) || p.category.toLowerCase().includes(query));
   renderWishlistCards(results);
 }
@@ -803,7 +764,7 @@ function renderRec(){
   const recGrid = document.getElementById('recGrid');
   if(!wishlist.length){ recSec.style.display='none'; return; }
   recSec.style.display='block';
-  const notInWish = products.filter(p=>!wishlist.includes(p.id));
+  const notInWish = products.filter(p=>!wishlist.find(x=>String(x)===String(p.id)));
   const recs = notInWish.sort(()=>Math.random()-.5).slice(0,4);
   recGrid.innerHTML = recs.map((p,i)=>{
     const d = disc(p);
@@ -829,8 +790,8 @@ function renderRec(){
 }
 
 function addToWishlistFromRec(id, btn){
-  if(!wishlist.includes(id)){
-    wishlist.push(id);
+  if(!wishlist.find(x=>String(x)===String(id))){
+    wishlist.push(String(id));
     saveWishlist();
     if(typeof WishlistAPI!=='undefined'&&localStorage.getItem('nansai_token'))WishlistAPI.add(String(id)).catch(()=>{});
     showToast('💖 Added to wishlist!');
